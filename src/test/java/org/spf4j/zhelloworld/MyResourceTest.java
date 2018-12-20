@@ -1,15 +1,9 @@
 package org.spf4j.zhelloworld;
 
-import io.jaegertracing.Configuration;
-import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
-import io.opentracing.propagation.TextMap;
-import io.opentracing.util.GlobalTracer;
 import java.nio.ByteBuffer;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.client.Client;
