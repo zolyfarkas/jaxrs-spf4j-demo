@@ -30,4 +30,8 @@ public final class CountingHttpServletResponse extends HttpServletResponseWrappe
     return os == null ? 0 : os.getCount();
   }
 
+  @Override
+  public String toString() {
+    return "CountingHttpServletResponse{" + "os=" + os + '}';
+  }
 }

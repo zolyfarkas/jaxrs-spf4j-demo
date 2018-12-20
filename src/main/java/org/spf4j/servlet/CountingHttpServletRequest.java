@@ -29,4 +29,9 @@ public final class CountingHttpServletRequest extends HttpServletRequestWrapper 
     return is == null ? 0 : is.getCount();
   }
 
+  @Override
+  public String toString() {
+    return "CountingHttpServletRequest{" + "is=" + is + '}';
+  }
+
 }
