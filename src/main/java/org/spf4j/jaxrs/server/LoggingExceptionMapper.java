@@ -5,14 +5,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import org.spf4j.base.ExecutionContext;
-import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.Throwables;
 import org.spf4j.base.avro.Converters;
 import org.spf4j.base.avro.DebugDetail;
@@ -29,13 +27,11 @@ import org.spf4j.servlet.ContextTags;
 @Provider
 public final class LoggingExceptionMapper implements ExceptionMapper<Exception> {
 
-  private Request request;
+  private final ContainerRequestContext jaxCtx;
 
-  private UriInfo uriInfo;
-
-  public LoggingExceptionMapper(@Context final Request request, @Context final UriInfo uriInfo) {
-    this.request = request;
-    this.uriInfo = uriInfo;
+  public LoggingExceptionMapper(
+          @Context ContainerRequestContext jaxCtx) {
+    this.jaxCtx = jaxCtx;
   }
 
   @Override
@@ -52,7 +48,7 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Exception> 
     } else {
       status = 500;
     }
-    ExecutionContext ctx = ExecutionContexts.current();
+    ExecutionContext ctx = (ExecutionContext) jaxCtx.getProperty("xCtx");
     if (status >= 500) {
       ctx.put(ContextTags.LOG_LEVEL, Level.ERROR);
     }
@@ -64,14 +60,14 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Exception> 
       }
     });
     Collections.sort(ctxLogs, Slf4jLogRecord::compareByTimestamp);
-    Logger logger = Logger.getLogger(uriInfo.getPath());
+    Logger logger = Logger.getLogger("debug.on.error");
     for (Slf4jLogRecord log : ctxLogs) {
       LogUtils.logUpgrade(logger, org.spf4j.log.Level.INFO, "Detail on Error", LogAttribute.log(log));
       log.setIsLogged();
     }
     ServiceError se = ServiceError.newBuilder()
             .setCode(status)
-            .setDetail(new DebugDetail(uriInfo.getRequestUri().toString(),
+            .setDetail(new DebugDetail(jaxCtx.getUriInfo().getRequestUri().toString(),
                     Converters.convert(ctx.getId().toString(), ctxLogs), Converters.convert(exception)))
             .setType(exception.getClass().getName())
             .setMessage(exception.getMessage())

@@ -6,6 +6,7 @@ import io.opentracing.propagation.Format;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
@@ -74,6 +75,27 @@ public class MyResourceTest {
       Assert.assertThat(responseMsg, Matchers.startsWith("Hello world"));
     }
   }
+
+  @Test
+  public void testAHello() {
+    Invocation.Builder request = target.path("demo/myresource/ahello").request();
+    String responseMsg = request.get(String.class);
+    Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
+  }
+
+  @Test
+  @ExpectLog(level = Level.ERROR, messageRegexp = "Done GET /myresource/aTimeout")
+  public void testATimeoout() {
+    Invocation.Builder request = target.path("demo/myresource/aTimeout").request();
+     try {
+    String responseMsg = request.get(String.class);
+      Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
+    } catch (InternalServerErrorException ex) {
+      LOG.debug("Expected Error Response", ex.getResponse().readEntity(String.class), ex);
+    }
+  }
+
+
 
   @Test
   public void testGetExecCtx() {

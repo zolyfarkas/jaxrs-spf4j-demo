@@ -46,7 +46,8 @@ public class Main {
             = new NetworkListener("grizzly",
                     "0.0.0.0",
                     8080);
-    listener.getTransport().setWorkerThreadPool(LifoThreadPoolBuilder.newBuilder()
+    listener.getTransport()
+            .setWorkerThreadPool(LifoThreadPoolBuilder.newBuilder()
             .withCoreSize(Integer.getInteger("spf4j.grizzly.coreSize", 4))
             .withMaxSize(Integer.getInteger("spf4j.grizzly.auxMaxSize", 1024))
             .withDaemonThreads(false)

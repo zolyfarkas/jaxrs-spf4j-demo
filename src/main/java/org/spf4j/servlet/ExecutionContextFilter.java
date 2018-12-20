@@ -31,18 +31,11 @@ import org.spf4j.log.Slf4jLogRecord;
 /**
  * A Filter for REST services
  *
- *  HTTP headers:
+ * HTTP headers:
  *
- * request-deadline → SecondsSinceEpoch Nanos?
- * requestt-timeout → TimeoutValue TimeoutUnit?
- *  TimeoutValue → {positive integer as ASCII string of at most 8 digits}
- *  TimeoutUnit → Hour / Minute / Second / Millisecond / Microsecond / Nanosecond
- *  Hour → "H"
- *  Minute → "M"
- *  Second → "S"
- *  Millisecond → "m"
- *  Microsecond → "u"
- *  Nanosecond → "n"
+ * request-deadline → SecondsSinceEpoch Nanos? requestt-timeout → TimeoutValue TimeoutUnit? TimeoutValue → {positive
+ * integer as ASCII string of at most 8 digits} TimeoutUnit → Hour / Minute / Second / Millisecond / Microsecond /
+ * Nanosecond Hour → "H" Minute → "M" Second → "S" Millisecond → "m" Microsecond → "u" Nanosecond → "n"
  */
 @WebFilter(asyncSupported = true)
 public class ExecutionContextFilter implements Filter {
@@ -71,10 +64,9 @@ public class ExecutionContextFilter implements Filter {
 
   private Logger log;
 
-
   @Override
   public void init(final FilterConfig filterConfig) throws ServletException {
-    log  =  Logger.getLogger("org.spf4j.servlet." + filterConfig.getFilterName());
+    log = Logger.getLogger("org.spf4j.servlet." + filterConfig.getFilterName());
     maxTimeoutNanos = Filters.getLongParameter(filterConfig, CFG_MAX_TIMEOUT_NANOS, TimeUnit.MINUTES.toNanos(10));
     defaultTimeoutNanos = Filters.getLongParameter(filterConfig, CFG_DEFAULT_TIMEOUT_NANOS, TimeUnit.MINUTES.toNanos(1));
     if (defaultTimeoutNanos > maxTimeoutNanos) {
@@ -89,37 +81,28 @@ public class ExecutionContextFilter implements Filter {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
           throws IOException, ServletException {
-    Object sEc = request.getAttribute(EXECUTION_CONTEXT_SERVLET_PROPERTY);
-    final ExecutionContext ctx;
-    CountingHttpServletRequest httpReq;
-    CountingHttpServletResponse httpResp;
-    if (sEc == null) {
-      httpReq = new CountingHttpServletRequest((HttpServletRequest) request);
-      httpResp = new CountingHttpServletResponse((HttpServletResponse) response);
-      long startTimeNanos = TimeSource.nanoTime();
-      String deadlineStr = httpReq.getHeader(deadlineHeaderName);
-      long deadlineNanos;
-      if (deadlineStr == null) {
-        String timeoutStr = httpReq.getHeader(timeoutHeaderName);
-        if (timeoutStr == null) {
-          deadlineNanos = startTimeNanos + defaultTimeoutNanos;
-        } else {
-          deadlineNanos = startTimeNanos + ProtocolTimeUnit.parseTimeoutNanos(timeoutStr);
-        }
+
+    CountingHttpServletRequest httpReq = new CountingHttpServletRequest((HttpServletRequest) request);
+    CountingHttpServletResponse httpResp = new CountingHttpServletResponse((HttpServletResponse) response);
+    long startTimeNanos = TimeSource.nanoTime();
+    String deadlineStr = httpReq.getHeader(deadlineHeaderName);
+    long deadlineNanos;
+    if (deadlineStr == null) {
+      String timeoutStr = httpReq.getHeader(timeoutHeaderName);
+      if (timeoutStr == null) {
+        deadlineNanos = startTimeNanos + defaultTimeoutNanos;
       } else {
-        deadlineNanos = ProtocolTimeUnit.parseDeadlineNanos(deadlineStr);
+        deadlineNanos = startTimeNanos + ProtocolTimeUnit.parseTimeoutNanos(timeoutStr);
       }
-      ctx = ExecutionContexts.start(httpReq.getMethod() +  ' ' + httpReq.getPathInfo(),
-              httpReq.getHeader(idHeaderName),  null, startTimeNanos, deadlineNanos);
-      ctx.put(ContextTags.HTTP_REQ, httpReq);
-      ctx.put(ContextTags.HTTP_RESP, httpResp);
-      request.setAttribute(EXECUTION_CONTEXT_SERVLET_PROPERTY, ctx);
     } else {
-      ctx = (ExecutionContext) sEc;
-      httpReq = ctx.get(ContextTags.HTTP_REQ);
-      httpResp = ctx.get(ContextTags.HTTP_RESP);
-      ctx.attach();
+      deadlineNanos = ProtocolTimeUnit.parseDeadlineNanos(deadlineStr);
     }
+    ExecutionContext ctx = ExecutionContexts.start(httpReq.getMethod() + ' ' + httpReq.getPathInfo(),
+            httpReq.getHeader(idHeaderName), null, startTimeNanos, deadlineNanos);
+    ctx.put(ContextTags.HTTP_REQ, httpReq);
+    ctx.put(ContextTags.HTTP_RESP, httpResp);
+    request.setAttribute(EXECUTION_CONTEXT_SERVLET_PROPERTY, ctx);
+
     try {
       chain.doFilter(httpReq, httpResp);
       if (request.isAsyncStarted()) {
@@ -165,18 +148,18 @@ public class ExecutionContextFilter implements Filter {
           final ExecutionContext ctx, final long contentBytesRead, final long contentBytesWritten) {
     org.spf4j.log.Level level;
     org.spf4j.log.Level ctxOverride = ctx.get(ContextTags.LOG_LEVEL);
-    if (ctxOverride != null && ctxOverride.ordinal() > plevel.ordinal())  {
-      level =  ctxOverride;
+    if (ctxOverride != null && ctxOverride.ordinal() > plevel.ordinal()) {
+      level = ctxOverride;
     } else {
       level = plevel;
     }
     Object[] args;
     List<Object> logAttrs = ctx.get(ContextTags.LOG_ATTRIBUTES);
-    if (logAttrs ==  null  || logAttrs.isEmpty()) {
-      args = new Object[]{ ctx.getName(),
-              LogAttribute.traceId(ctx.getId()),
-              LogAttribute.execTimeMicros(TimeSource.nanoTime() - ctx.getStartTimeNanos(), TimeUnit.NANOSECONDS),
-              LogAttribute.value("inBytes", contentBytesRead), LogAttribute.value("outBytes", contentBytesWritten)
+    if (logAttrs == null || logAttrs.isEmpty()) {
+      args = new Object[]{ctx.getName(),
+        LogAttribute.traceId(ctx.getId()),
+        LogAttribute.execTimeMicros(TimeSource.nanoTime() - ctx.getStartTimeNanos(), TimeUnit.NANOSECONDS),
+        LogAttribute.value("inBytes", contentBytesRead), LogAttribute.value("outBytes", contentBytesWritten)
       };
     } else {
       args = new Object[5 + logAttrs.size()];
@@ -187,7 +170,7 @@ public class ExecutionContextFilter implements Filter {
       args[4] = LogAttribute.value("outBytes", contentBytesWritten);
       int i = 5;
       for (Object obj : logAttrs) {
-        args[i++] =  obj;
+        args[i++] = obj;
       }
     }
     logger.log(level.getJulLevel(), "Done {0}", args);
