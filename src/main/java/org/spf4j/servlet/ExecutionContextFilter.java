@@ -90,10 +90,12 @@ public class ExecutionContextFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
           throws IOException, ServletException {
     Object sEc = request.getAttribute(EXECUTION_CONTEXT_SERVLET_PROPERTY);
-    CountingHttpServletRequest httpReq = new CountingHttpServletRequest((HttpServletRequest) request);
-    CountingHttpServletResponse httpResp = new CountingHttpServletResponse((HttpServletResponse) response);
     final ExecutionContext ctx;
+    CountingHttpServletRequest httpReq;
+    CountingHttpServletResponse httpResp;
     if (sEc == null) {
+      httpReq = new CountingHttpServletRequest((HttpServletRequest) request);
+      httpResp = new CountingHttpServletResponse((HttpServletResponse) response);
       long startTimeNanos = TimeSource.nanoTime();
       String deadlineStr = httpReq.getHeader(deadlineHeaderName);
       long deadlineNanos;
@@ -109,9 +111,13 @@ public class ExecutionContextFilter implements Filter {
       }
       ctx = ExecutionContexts.start(httpReq.getMethod() +  ' ' + httpReq.getPathInfo(),
               httpReq.getHeader(idHeaderName),  null, startTimeNanos, deadlineNanos);
+      ctx.put(ContextTags.HTTP_REQ, httpReq);
+      ctx.put(ContextTags.HTTP_RESP, httpResp);
       request.setAttribute(EXECUTION_CONTEXT_SERVLET_PROPERTY, ctx);
     } else {
       ctx = (ExecutionContext) sEc;
+      httpReq = ctx.get(ContextTags.HTTP_REQ);
+      httpResp = ctx.get(ContextTags.HTTP_RESP);
       ctx.attach();
     }
     try {
