@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import javax.servlet.AsyncContext;
 import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
 import javax.servlet.Filter;
@@ -107,7 +108,9 @@ public class ExecutionContextFilter implements Filter {
       chain.doFilter(httpReq, httpResp);
       if (request.isAsyncStarted()) {
         ctx.detach();
-        request.getAsyncContext().addListener(new AsyncListener() {
+        AsyncContext asyncContext = request.getAsyncContext();
+        asyncContext.setTimeout(ctx.getMillisToDeadline());
+        asyncContext.addListener(new AsyncListener() {
           @Override
           public void onComplete(final AsyncEvent event) throws IOException {
             logRequestEnd(org.spf4j.log.Level.INFO, ctx, httpReq.getBytesRead(), httpResp.getBytesWritten());

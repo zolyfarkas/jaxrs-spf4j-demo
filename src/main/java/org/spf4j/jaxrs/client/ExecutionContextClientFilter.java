@@ -33,7 +33,15 @@ public class ExecutionContextClientFilter implements ClientRequestFilter, Client
   @Override
   public void filter(ClientRequestContext requestContext) {
     ExecutionContext current = ExecutionContexts.current();
-    ExecutionContext reqCtx = current.startChild(requestContext.getMethod() + ' ' + requestContext.getUri().getPath());
+    ExecutionContext reqCtx;
+    Number timeoutMillis = ((Number) requestContext.getProperty(Spf4jClientProperties.TIMEOUT_MILLIS));
+    // Execution context leaks here!
+    if (timeoutMillis == null) {
+      reqCtx = current.startChild(requestContext.getMethod() + ' ' + requestContext.getUri().getPath());
+    } else {
+      reqCtx = current.startChild(requestContext.getMethod() + ' ' + requestContext.getUri().getPath(),
+              timeoutMillis.longValue(), TimeUnit.MILLISECONDS);
+    }
     MultivaluedMap<String, Object> headers = requestContext.getHeaders();
     long deadlineNanos = reqCtx.getDeadlineNanos();
     Instant deadline = Timing.getCurrentTiming().fromNanoTimeToInstant(deadlineNanos);
@@ -45,13 +53,13 @@ public class ExecutionContextClientFilter implements ClientRequestFilter, Client
     }
     headers.add(Headers.REQ_TIMEOUT, timeoutNanos + " n");
     headers.add(Headers.REQ_ID, reqCtx.getId());
-    requestContext.setProperty("XCTX", reqCtx);
+    requestContext.setProperty("xCtx", reqCtx);
     requestContext.setProperty(ClientProperties.READ_TIMEOUT, (int) (timeoutNanos / 1000000));
   }
 
   @Override
   public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) {
-    ExecutionContext reqCtx = (ExecutionContext) requestContext.getProperty("XCTX");
+    ExecutionContext reqCtx = (ExecutionContext) requestContext.getProperty("xCtx");
     reqCtx.close();
     if (log.isLoggable(Level.FINE)) {
       log.log(Level.FINE, "Done {0}", new Object[] {reqCtx.getName(),

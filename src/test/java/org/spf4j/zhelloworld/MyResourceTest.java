@@ -6,7 +6,6 @@ import io.opentracing.propagation.Format;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
@@ -25,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.spf4j.concurrent.DefaultExecutor;
 import org.spf4j.concurrent.DefaultScheduler;
 import org.spf4j.jaxrs.client.ExecutionContextClientFilter;
+import org.spf4j.jaxrs.client.Spf4jClientProperties;
 import org.spf4j.log.Level;
 import org.spf4j.test.log.annotations.ExpectLog;
 
@@ -87,8 +87,9 @@ public class MyResourceTest {
   @ExpectLog(level = Level.ERROR, messageRegexp = "Done GET /myresource/aTimeout")
   public void testATimeoout() {
     Invocation.Builder request = target.path("demo/myresource/aTimeout").request();
-     try {
-    String responseMsg = request.get(String.class);
+    request.property(Spf4jClientProperties.TIMEOUT_MILLIS, 1000);
+    try {
+      String responseMsg = request.get(String.class);
       Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
     } catch (InternalServerErrorException ex) {
       LOG.debug("Expected Error Response", ex.getResponse().readEntity(String.class), ex);
