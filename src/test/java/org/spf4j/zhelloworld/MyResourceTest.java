@@ -24,7 +24,8 @@ import org.slf4j.LoggerFactory;
 import org.spf4j.concurrent.DefaultExecutor;
 import org.spf4j.concurrent.DefaultScheduler;
 import org.spf4j.jaxrs.client.ExecutionContextClientFilter;
-import org.spf4j.jaxrs.client.Spf4jClientProperties;
+import org.spf4j.jaxrs.client.Spf4JClient;
+import org.spf4j.jaxrs.client.Spf4jWebTarget;
 import org.spf4j.log.Level;
 import org.spf4j.test.log.annotations.ExpectLog;
 
@@ -33,14 +34,14 @@ public class MyResourceTest {
   private static final Logger LOG = LoggerFactory.getLogger(MyResourceTest.class);
 
   private static HttpServer server;
-  private static WebTarget target;
+  private static Spf4jWebTarget target;
 
   @BeforeClass
   public static void setUp() throws Exception {
     // start the server
     server = Main.startServer();
     // create the client
-    Client c = ClientBuilder
+    Spf4JClient c = new Spf4JClient(ClientBuilder
             .newBuilder()
             .connectTimeout(2, TimeUnit.SECONDS)
             .executorService(DefaultExecutor.instance())
@@ -48,7 +49,7 @@ public class MyResourceTest {
             .readTimeout(30, TimeUnit.SECONDS)
             .register(ExecutionContextClientFilter.class)
             .property(ClientProperties.USE_ENCODING, "gzip")
-            .build();
+            .build());
 
     // uncomment the following line if you want to enable
     // support for JSON in the client (you also have to uncomment
@@ -86,10 +87,9 @@ public class MyResourceTest {
   @Test
   @ExpectLog(level = Level.ERROR, messageRegexp = "Done GET /myresource/aTimeout")
   public void testATimeoout() {
-    Invocation.Builder request = target.path("demo/myresource/aTimeout").request();
-    request.property(Spf4jClientProperties.TIMEOUT_MILLIS, 1000);
     try {
-      String responseMsg = request.get(String.class);
+      String responseMsg = target.path("demo/myresource/aTimeout")
+             .request().withTimeout(1, TimeUnit.MILLISECONDS).get(String.class);
       Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
     } catch (InternalServerErrorException ex) {
       LOG.debug("Expected Error Response", ex.getResponse().readEntity(String.class), ex);

@@ -1,0 +1,171 @@
+
+package org.spf4j.jaxrs.client;
+
+import java.net.URI;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Configuration;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriBuilder;
+import org.spf4j.failsafe.AsyncRetryExecutor;
+
+/**
+ *
+ * @author Zoltan Farkas
+ */
+public class Spf4jWebTarget implements WebTarget {
+
+  private AsyncRetryExecutor<Object, Callable<? extends Object>> executor;
+
+  private final WebTarget tg;
+
+  public Spf4jWebTarget(WebTarget tg, final AsyncRetryExecutor<Object, Callable<? extends Object>> executor) {
+    this.tg = tg;
+    this.executor = executor;
+  }
+
+  public Spf4jWebTarget withRetryRexecutor(final AsyncRetryExecutor<Object, Callable<? extends Object>> exec) {
+    this.executor = exec;
+    return this;
+  }
+
+  @Override
+  public URI getUri() {
+    return tg.getUri();
+  }
+
+  @Override
+  public UriBuilder getUriBuilder() {
+    return tg.getUriBuilder();
+  }
+
+  @Override
+  public Spf4jWebTarget path(String path) {
+    return new Spf4jWebTarget(tg.path(path), executor);
+  }
+
+  @Override
+  public Spf4jWebTarget resolveTemplate(String name, Object value) {
+    return new Spf4jWebTarget(tg.resolveTemplate(name, value), executor);
+  }
+
+  @Override
+  public Spf4jWebTarget resolveTemplate(String name, Object value, boolean encodeSlashInPath) {
+    return new Spf4jWebTarget(tg.resolveTemplate(name, value, encodeSlashInPath), executor);
+  }
+
+  @Override
+  public Spf4jWebTarget resolveTemplateFromEncoded(String name, Object value) {
+    return new Spf4jWebTarget(tg.resolveTemplateFromEncoded(name, value), executor);
+  }
+
+  @Override
+  public Spf4jWebTarget resolveTemplates(Map<String, Object> templateValues) {
+    if (templateValues.isEmpty()) {
+      return this;
+    }
+    return new Spf4jWebTarget(tg.resolveTemplates(templateValues), executor);
+  }
+
+  @Override
+  public Spf4jWebTarget resolveTemplates(Map<String, Object> templateValues, boolean encodeSlashInPath) {
+    if (templateValues.isEmpty()) {
+      return this;
+    }
+    return new Spf4jWebTarget(tg.resolveTemplates(templateValues, encodeSlashInPath), executor);
+  }
+
+  @Override
+  public Spf4jWebTarget resolveTemplatesFromEncoded(Map<String, Object> templateValues) {
+    if (templateValues.isEmpty()) {
+      return this;
+    }
+    return new Spf4jWebTarget(tg.resolveTemplatesFromEncoded(templateValues), executor);
+  }
+
+  @Override
+  public Spf4jWebTarget matrixParam(String name, Object... values) {
+    return new Spf4jWebTarget(tg.matrixParam(name, values), executor);
+  }
+
+  @Override
+  public Spf4jWebTarget queryParam(String name, Object... values) {
+    return new Spf4jWebTarget(tg.queryParam(name, values), executor);
+  }
+
+  @Override
+  public Spf4jInvocationBuilder request() {
+    return new Spf4jInvocationBuilder(tg.request(), executor);
+  }
+
+  @Override
+  public Spf4jInvocationBuilder request(String... acceptedResponseTypes) {
+    return new Spf4jInvocationBuilder(tg.request(acceptedResponseTypes), executor);
+  }
+
+  @Override
+  public Spf4jInvocationBuilder request(MediaType... acceptedResponseTypes) {
+    return new Spf4jInvocationBuilder(tg.request(acceptedResponseTypes), executor);
+  }
+
+  @Override
+  public Configuration getConfiguration() {
+    return tg.getConfiguration();
+  }
+
+  @Override
+  public Spf4jWebTarget property(String name, Object value) {
+    tg.property(name, value);
+    return this;
+  }
+
+  @Override
+  public Spf4jWebTarget register(Class<?> componentClass) {
+    tg.register(componentClass);
+    return this;
+  }
+
+  @Override
+  public Spf4jWebTarget register(Class<?> componentClass, int priority) {
+    tg.register(componentClass, priority);
+    return this;
+  }
+
+  @Override
+  public Spf4jWebTarget register(Class<?> componentClass, Class<?>... contracts) {
+    tg.register(componentClass, contracts);
+    return this;
+  }
+
+  @Override
+  public Spf4jWebTarget register(Class<?> componentClass, Map<Class<?>, Integer> contracts) {
+    tg.register(componentClass, contracts);
+    return this;
+  }
+
+  @Override
+  public Spf4jWebTarget register(Object component) {
+    tg.register(component);
+    return this;
+  }
+
+  @Override
+  public Spf4jWebTarget register(Object component, int priority) {
+    tg.register(component, priority);
+    return this;
+  }
+
+  @Override
+  public Spf4jWebTarget register(Object component, Class<?>... contracts) {
+    tg.register(component, contracts);
+    return this;
+  }
+
+  @Override
+  public Spf4jWebTarget register(Object component, Map<Class<?>, Integer> contracts) {
+    tg.register(component, contracts);
+    return this;
+  }
+
+}

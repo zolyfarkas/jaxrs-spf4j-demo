@@ -1,16 +1,24 @@
 
 package org.spf4j.jaxrs.client;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ThreadLocalRandom;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.HttpUrlConnectorProvider;
+import org.spf4j.failsafe.AsyncRetryExecutor;
 
 /**
  *
@@ -18,10 +26,39 @@ import javax.ws.rs.core.UriBuilder;
  */
 public class Spf4JClient implements Client {
 
+  static {
+    // time to cache DNS entries in seconds.
+    System.setProperty("networkaddress.cache.ttl", "20");
+    // time to cache failed attempts in seconds.
+    System.setProperty("networkaddress.cache.negative.ttl", "5");
+  }
+
   private final Client cl;
+
+  private final AsyncRetryExecutor<Object, Callable<? extends Object>> executor;
 
   public Spf4JClient(final  Client cl) {
     this.cl = cl;
+    ClientConfig configuration = (ClientConfig) cl.getConfiguration();
+    HttpUrlConnectorProvider httpUrlConnectorProvider = new HttpUrlConnectorProvider();
+    httpUrlConnectorProvider.connectionFactory(new HttpUrlConnectorProvider.ConnectionFactory() {
+      @Override
+      public HttpURLConnection getConnection(final URL url) throws IOException {
+        try {
+          URI uri = url.toURI();
+          InetAddress[] targets = InetAddress.getAllByName(uri.getHost());
+          InetAddress chosen = targets[ThreadLocalRandom.current().nextInt(targets.length)];
+          URI newUri = new URI(uri.getScheme(), uri.getUserInfo(),
+                  chosen.getHostAddress(), uri.getPort(), uri.getPath(),
+                  uri.getQuery(), uri.getFragment());
+          return (HttpURLConnection) newUri.toURL().openConnection();
+        } catch (URISyntaxException ex) {
+          throw new RuntimeException(ex);
+        }
+      }
+    });
+    configuration.connectorProvider(httpUrlConnectorProvider);
+    this.executor = FailsafeDefaults.defaultExecutor();
   }
 
   @Override
@@ -30,28 +67,28 @@ public class Spf4JClient implements Client {
   }
 
   @Override
-  public WebTarget target(String uri) {
-    return cl.target(uri);
+  public Spf4jWebTarget target(String uri) {
+    return new Spf4jWebTarget(cl.target(uri), executor);
   }
 
   @Override
-  public WebTarget target(URI uri) {
-    return cl.target(uri);
+  public Spf4jWebTarget target(URI uri) {
+    return new Spf4jWebTarget(cl.target(uri), executor);
   }
 
   @Override
-  public WebTarget target(UriBuilder uriBuilder) {
-    return cl.target(uriBuilder);
+  public Spf4jWebTarget target(UriBuilder uriBuilder) {
+    return new Spf4jWebTarget(cl.target(uriBuilder), executor);
   }
 
   @Override
-  public WebTarget target(Link link) {
-    return cl.target(link);
+  public Spf4jWebTarget target(Link link) {
+    return new Spf4jWebTarget(cl.target(link), executor);
   }
 
   @Override
-  public Invocation.Builder invocation(Link link) {
-    return cl.invocation(link);
+  public Spf4jInvocationBuilder invocation(Link link) {
+    return new Spf4jInvocationBuilder(cl.invocation(link), executor);
   }
 
   @Override
@@ -70,55 +107,55 @@ public class Spf4JClient implements Client {
   }
 
   @Override
-  public Client property(String name, Object value) {
+  public Spf4JClient property(String name, Object value) {
     cl.property(name, value);
     return this;
   }
 
   @Override
-  public Client register(Class<?> componentClass) {
+  public Spf4JClient register(Class<?> componentClass) {
     cl.register(componentClass);
     return this;
   }
 
   @Override
-  public Client register(Class<?> componentClass, int priority) {
+  public Spf4JClient register(Class<?> componentClass, int priority) {
     cl.register(componentClass, priority);
     return this;
   }
 
   @Override
-  public Client register(Class<?> componentClass, Class<?>... contracts) {
+  public Spf4JClient register(Class<?> componentClass, Class<?>... contracts) {
     cl.register(componentClass, contracts);
     return this;
   }
 
   @Override
-  public Client register(Class<?> componentClass, Map<Class<?>, Integer> contracts) {
+  public Spf4JClient register(Class<?> componentClass, Map<Class<?>, Integer> contracts) {
     cl.register(componentClass, contracts);
     return this;
   }
 
   @Override
-  public Client register(Object component) {
+  public Spf4JClient register(Object component) {
     cl.register(component);
     return this;
   }
 
   @Override
-  public Client register(Object component, int priority) {
+  public Spf4JClient register(Object component, int priority) {
     cl.register(component, priority);
     return this;
   }
 
   @Override
-  public Client register(Object component, Class<?>... contracts) {
+  public Spf4JClient register(Object component, Class<?>... contracts) {
     cl.register(component, contracts);
     return this;
   }
 
   @Override
-  public Client register(Object component, Map<Class<?>, Integer> contracts) {
+  public Spf4JClient register(Object component, Map<Class<?>, Integer> contracts) {
     cl.register(component, contracts);
     return this;
   }
