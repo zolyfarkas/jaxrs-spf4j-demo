@@ -1,6 +1,7 @@
 
 package org.spf4j.jaxrs.client;
 
+import java.net.URI;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -24,12 +25,16 @@ import org.spf4j.failsafe.AsyncRetryExecutor;
 public class Spf4jInvocationBuilder implements Invocation.Builder {
 
   private final Invocation.Builder ib;
+  private final URI target;
   private AsyncRetryExecutor<Object, Callable<? extends Object>> executor;
+  private Long timeoutMillis;
 
   public Spf4jInvocationBuilder(final Invocation.Builder ib,
-          final AsyncRetryExecutor<Object, Callable<? extends Object>> executor) {
+          final AsyncRetryExecutor<Object, Callable<? extends Object>> executor,
+          final URI target) {
     this.ib = ib;
     this.executor = executor;
+    this.target = target;
   }
 
   public Spf4jInvocationBuilder withRetryRexecutor(final AsyncRetryExecutor<Object, Callable<? extends Object>> exec) {
@@ -38,37 +43,38 @@ public class Spf4jInvocationBuilder implements Invocation.Builder {
   }
 
   public Spf4jInvocationBuilder withTimeout(final long timeout, final TimeUnit tu) {
-     return property(Spf4jClientProperties.TIMEOUT_MILLIS, tu.toMillis(timeout));
+    timeoutMillis = tu.toMillis(timeout);
+    return this;
   }
 
   @Override
   public Spf4jInvocation build(final String method) {
-    return new Spf4jInvocation(ib.build(method), executor);
+    return new Spf4jInvocation(ib.build(method), executor, timeoutMillis, this.target);
   }
 
   @Override
   public Spf4jInvocation build(final String method, final Entity<?> entity) {
-    return new  Spf4jInvocation(ib.build(method, entity), executor);
+    return new  Spf4jInvocation(ib.build(method, entity), executor, timeoutMillis, this.target);
   }
 
   @Override
   public Spf4jInvocation buildGet() {
-    return new Spf4jInvocation(ib.buildGet(), executor);
+    return new Spf4jInvocation(ib.buildGet(), executor, timeoutMillis, this.target);
   }
 
   @Override
   public Spf4jInvocation buildDelete() {
-    return new Spf4jInvocation(ib.buildDelete(), executor);
+    return new Spf4jInvocation(ib.buildDelete(), executor, timeoutMillis, this.target);
   }
 
   @Override
   public Spf4jInvocation buildPost(Entity<?> entity) {
-    return new Spf4jInvocation(ib.buildPost(entity), executor);
+    return new Spf4jInvocation(ib.buildPost(entity), executor, timeoutMillis, this.target);
   }
 
   @Override
   public Spf4jInvocation buildPut(Entity<?> entity) {
-    return new Spf4jInvocation(ib.buildPut(entity), executor);
+    return new Spf4jInvocation(ib.buildPut(entity), executor, timeoutMillis, this.target);
   }
 
   @Override

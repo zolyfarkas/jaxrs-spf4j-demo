@@ -88,7 +88,7 @@ public class Spf4JClient implements Client {
 
   @Override
   public Spf4jInvocationBuilder invocation(Link link) {
-    return new Spf4jInvocationBuilder(cl.invocation(link), executor);
+    return new Spf4jInvocationBuilder(cl.invocation(link), executor, link.getUri());
   }
 
   @Override

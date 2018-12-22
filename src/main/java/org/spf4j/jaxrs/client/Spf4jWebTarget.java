@@ -96,17 +96,17 @@ public class Spf4jWebTarget implements WebTarget {
 
   @Override
   public Spf4jInvocationBuilder request() {
-    return new Spf4jInvocationBuilder(tg.request(), executor);
+    return new Spf4jInvocationBuilder(tg.request(), executor, getUri());
   }
 
   @Override
   public Spf4jInvocationBuilder request(String... acceptedResponseTypes) {
-    return new Spf4jInvocationBuilder(tg.request(acceptedResponseTypes), executor);
+    return new Spf4jInvocationBuilder(tg.request(acceptedResponseTypes), executor, getUri());
   }
 
   @Override
   public Spf4jInvocationBuilder request(MediaType... acceptedResponseTypes) {
-    return new Spf4jInvocationBuilder(tg.request(acceptedResponseTypes), executor);
+    return new Spf4jInvocationBuilder(tg.request(acceptedResponseTypes), executor, getUri());
   }
 
   @Override
