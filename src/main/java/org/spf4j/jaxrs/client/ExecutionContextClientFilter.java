@@ -22,7 +22,12 @@ import org.spf4j.http.Headers;
 import org.spf4j.log.LogAttribute;
 
 /**
- * @author Pavol Loffay
+ * A client filter for setting the following HTTP timeout headers:
+ * deadline
+ * timeout
+ * requestId
+ *
+ * @author Zoltan farkas
  */
 @Priority(Priorities.HEADER_DECORATOR)
 @Provider
