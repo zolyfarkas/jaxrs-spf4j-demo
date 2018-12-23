@@ -4,12 +4,14 @@ import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.client.ClientProperties;
@@ -27,6 +29,10 @@ import org.spf4j.jaxrs.client.ExecutionContextClientFilter;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
 import org.spf4j.log.Level;
+import org.spf4j.test.log.Attachments;
+import org.spf4j.test.log.LogCollection;
+import org.spf4j.test.log.TestLogRecord;
+import org.spf4j.test.log.TestLoggers;
 import org.spf4j.test.log.annotations.ExpectLog;
 
 public class MyResourceTest {
@@ -84,12 +90,12 @@ public class MyResourceTest {
     Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
   }
 
-  @Test
+  @Test(expected = TimeoutException.class, timeout = 1000)
   @ExpectLog(level = Level.ERROR, messageRegexp = "Done GET /myresource/aTimeout")
   public void testATimeoout() {
     try {
       String responseMsg = target.path("demo/myresource/aTimeout")
-             .request().withTimeout(1, TimeUnit.MILLISECONDS).get(String.class);
+             .request().get(String.class);
       Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
     } catch (InternalServerErrorException ex) {
       LOG.debug("Expected Error Response", ex.getResponse().readEntity(String.class), ex);
@@ -107,14 +113,21 @@ public class MyResourceTest {
   }
 
   @Test
-  @ExpectLog(level = Level.ERROR, messageRegexp = "Done GET /myresource/error")
   public void testGetError() {
+    LogCollection<List<TestLogRecord>> col = TestLoggers.sys().collect("org.spf4j.servlet", Level.ERROR, true,
+            Collectors.mapping((log) -> {
+              log.attach(Attachments.ASSERTED);
+              return log;
+            }, Collectors.toList()));
     Invocation.Builder request = target.path("demo/myresource/error").request();
     try {
       request.get(String.class);
+      Assert.fail();
     } catch (InternalServerErrorException ex) {
       LOG.debug("Expected Error Response", ex.getResponse().readEntity(String.class), ex);
     }
+    List<TestLogRecord> errors = col.get();
+    Assert.assertThat(errors, Matchers.not(Matchers.emptyIterable()));
   }
 
   @Test
