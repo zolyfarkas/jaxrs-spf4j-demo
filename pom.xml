@@ -16,6 +16,7 @@
     <bintray.subject>zolyfarkas</bintray.subject>
     <bintray.repo>core</bintray.repo>
     <bintray.package>${project.artifactId}</bintray.package>
+    <spf4j.version>8.6.0-SNAPSHOT</spf4j.version>
   </properties>
 
   <repositories>
@@ -73,12 +74,12 @@
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-slf4j-test</artifactId>
       <scope>test</scope>
-      <version>8.6.0-SNAPSHOT</version>
+      <version>${spf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-core</artifactId>
-      <version>8.6.0-SNAPSHOT</version>
+      <version>${spf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -139,6 +140,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.22.1</version>
         <configuration>
           <forkCount>1</forkCount>
           <reuseForks>false</reuseForks>
@@ -152,6 +154,13 @@
             </property>
           </properties>
         </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.spf4j</groupId>
+            <artifactId>spf4j-slf4j-test</artifactId>
+            <version>${spf4j.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

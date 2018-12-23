@@ -90,7 +90,7 @@ public class MyResourceTest {
     Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
   }
 
-  @Test(expected = TimeoutException.class, timeout = 1000)
+  @Test(expected = TimeoutException.class, timeout = 1000000)
   @ExpectLog(level = Level.ERROR, messageRegexp = "Done GET /myresource/aTimeout")
   public void testATimeoout() {
     try {
