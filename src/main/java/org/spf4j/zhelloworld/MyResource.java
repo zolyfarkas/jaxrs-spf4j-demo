@@ -65,9 +65,9 @@ public class MyResource {
   @Path("aTimeout")
   @Produces(MediaType.TEXT_PLAIN)
   public void asyncTimeout(@Suspended final AsyncResponse ar) {
-    long timeRelativeToDeadline = ExecutionContexts.current().getTimeRelativeToDeadline(TimeUnit.NANOSECONDS);
-    LOG.getWrapped().info("Async operation timeout {} ns", timeRelativeToDeadline);
-    ar.setTimeout(timeRelativeToDeadline, TimeUnit.NANOSECONDS);
+//    long timeRelativeToDeadline = ExecutionContexts.current().getTimeRelativeToDeadline(TimeUnit.NANOSECONDS);
+//    LOG.getWrapped().info("Async operation timeout {} ns", timeRelativeToDeadline);
+//    ar.setTimeout(timeRelativeToDeadline, TimeUnit.NANOSECONDS);
     DefaultContextAwareExecutor.instance().submit(() -> {
           try {
               //Simulating a long running process
@@ -75,6 +75,7 @@ public class MyResource {
           } catch (InterruptedException e) {
               e.printStackTrace();
           }
+          LOG.debug("Finished the async task");
           ar.resume("A Delayed hello");
       });
   }

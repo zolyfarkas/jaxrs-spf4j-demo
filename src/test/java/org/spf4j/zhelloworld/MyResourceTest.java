@@ -33,6 +33,7 @@ import org.spf4j.log.Level;
 import org.spf4j.test.log.LogAssert;
 import org.spf4j.test.log.TestLogRecord;
 import org.spf4j.test.log.TestLoggers;
+import org.spf4j.test.matchers.LogMatchers;
 
 public class MyResourceTest {
 
@@ -93,8 +94,8 @@ public class MyResourceTest {
 
   @Test(timeout = 10000)
   public void testATimeoout() {
-    LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
-            true, Matchers.any(TestLogRecord.class),
+    LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.WARN,
+            true, LogMatchers.hasMessageWithPattern("Done GET /myresource/aTimeout"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
       String responseMsg = target.path("demo/myresource/aTimeout")
