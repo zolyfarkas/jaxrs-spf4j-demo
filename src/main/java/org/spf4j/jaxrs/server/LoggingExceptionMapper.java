@@ -10,6 +10,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.Throwables;
@@ -26,6 +27,7 @@ import org.spf4j.servlet.ContextTags;
  * @author Zoltan Farkas
  */
 @Provider
+@RequestScoped
 public final class LoggingExceptionMapper implements ExceptionMapper<Exception> {
 
   private final ContainerRequestContext jaxCtx;
@@ -54,11 +56,11 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Exception> 
       try {
           ctx = (ExecutionContext) jaxCtx.getProperty("xCtx");
       } catch (RuntimeException ex) {
-        // THis happens when request already recycled?
+        // This happens when request already recycled?
         // null at HttpServletRequestImpl.java:253)[grizzly-http-servlet-2.4.0.jar:2.4.0]
         ex.addSuppressed(exception);
-        Logger.getLogger("handling.error").log(java.util.logging.Level.SEVERE, "No request context available anymore",
-                ex);
+        Logger.getLogger("handling.error")
+                .log(java.util.logging.Level.FINE, "No request context available anymore", ex);
         return Response.serverError().entity("Context error, see server logs for detail.").build();
       }
     }

@@ -14,7 +14,7 @@ import org.spf4j.base.ExecutionContexts;
  */
 @Provider
 @PreMatching
-@Priority(0)
+@Priority(1)
 public class ExecutionContextRequestFilter implements ContainerRequestFilter  {
 
   @Override

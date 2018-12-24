@@ -50,7 +50,9 @@ public class ExecutionContextClientFilter implements ClientRequestFilter, Client
     headers.add(Headers.REQ_DEADLINE, deadline.getEpochSecond()  + ' ' + deadline.getNano());
     headers.add(Headers.REQ_TIMEOUT, timeoutNanos + " n");
     headers.add(Headers.REQ_ID, reqCtx.getId());
-    requestContext.setProperty(ClientProperties.READ_TIMEOUT, (int) (timeoutNanos / 1000000));
+    int readTimeoutMs = (int) (timeoutNanos / 1000000);
+    log.log(Level.FINE, "read timeout {0} ms", readTimeoutMs);
+    requestContext.setProperty(ClientProperties.READ_TIMEOUT, readTimeoutMs);
   }
 
   @Override

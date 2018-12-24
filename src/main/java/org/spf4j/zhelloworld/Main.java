@@ -11,6 +11,7 @@ import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
 import javax.servlet.ServletRegistration;
 import org.glassfish.grizzly.http.server.NetworkListener;
+import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.spf4j.concurrent.LifoThreadPoolBuilder;
 import org.spf4j.servlet.ExecutionContextFilter;
@@ -38,7 +39,7 @@ public class Main {
     ServletRegistration servletRegistration = webappContext.addServlet("jersey", ServletContainer.class);
     servletRegistration.addMapping("/demo/*");
     servletRegistration.setInitParameter("jersey.config.server.provider.packages",
-            "org.spf4j.zhelloworld;org.spf4j.jaxrs.server");
+            "org.spf4j.zhelloworld;org.spf4j.jaxrs.common;org.spf4j.jaxrs.server");
     HttpServer server = new HttpServer();
 //  final ServerConfiguration config = server.getServerConfiguration();
 //  config.addHttpHandler(new StaticHttpHandler(docRoot), "/");
@@ -46,13 +47,23 @@ public class Main {
             = new NetworkListener("grizzly",
                     "0.0.0.0",
                     8080);
-    listener.getTransport()
-            .setWorkerThreadPool(LifoThreadPoolBuilder.newBuilder()
-            .withCoreSize(Integer.getInteger("spf4j.grizzly.coreSize", 4))
-            .withMaxSize(Integer.getInteger("spf4j.grizzly.auxMaxSize", 1024))
+    TCPNIOTransport transport = listener.getTransport();
+    transport.setKernelThreadPool(LifoThreadPoolBuilder.newBuilder()
+            .withCoreSize(Integer.getInteger("spf4j.grizzly.kernel.coreSize", 2))
+            .withMaxSize(Integer.getInteger("spf4j.grizzly.kernel.maxSize", 8))
+            .withDaemonThreads(true)
+            .withMaxIdleTimeMillis(Integer.getInteger("spf4j.grizzly.kernel.idleMillis", 120000))
+            .withPoolName("gz-core")
+            .withQueueSizeLimit(0)
+            .enableJmx()
+            .build());
+    transport.setSelectorRunnersCount(4);
+    transport.setWorkerThreadPool(LifoThreadPoolBuilder.newBuilder()
+            .withCoreSize(Integer.getInteger("spf4j.grizzly.worker.coreSize", 4))
+            .withMaxSize(Integer.getInteger("spf4j.grizzly.worker.maxSize", 1024))
             .withDaemonThreads(false)
-            .withMaxIdleTimeMillis(Integer.getInteger("spf4j.grizzly.idleMillis", 120000))
-            .withPoolName("gz-http")
+            .withMaxIdleTimeMillis(Integer.getInteger("spf4j.grizzly.worker.idleMillis", 120000))
+            .withPoolName("gz-work")
             .withQueueSizeLimit(0)
             .enableJmx()
             .build());

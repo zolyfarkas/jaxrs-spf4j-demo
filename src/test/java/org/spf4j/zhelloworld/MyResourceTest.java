@@ -4,11 +4,7 @@ import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
@@ -23,17 +19,20 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spf4j.base.UncheckedTimeoutException;
+import org.spf4j.concurrent.DefaultContextAwareExecutor;
+import org.spf4j.concurrent.DefaultContextAwareScheduledExecutor;
 import org.spf4j.concurrent.DefaultExecutor;
 import org.spf4j.concurrent.DefaultScheduler;
 import org.spf4j.jaxrs.client.ExecutionContextClientFilter;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
+import org.spf4j.jaxrs.common.CustomExecutorServiceProvider;
+import org.spf4j.jaxrs.common.CustomScheduledExecutionServiceProvider;
 import org.spf4j.log.Level;
-import org.spf4j.test.log.Attachments;
-import org.spf4j.test.log.LogCollection;
+import org.spf4j.test.log.LogAssert;
 import org.spf4j.test.log.TestLogRecord;
 import org.spf4j.test.log.TestLoggers;
-import org.spf4j.test.log.annotations.ExpectLog;
 
 public class MyResourceTest {
 
@@ -50,10 +49,12 @@ public class MyResourceTest {
     Spf4JClient c = new Spf4JClient(ClientBuilder
             .newBuilder()
             .connectTimeout(2, TimeUnit.SECONDS)
-            .executorService(DefaultExecutor.instance())
-            .scheduledExecutorService(DefaultScheduler.instance())
+            .executorService(DefaultContextAwareExecutor.instance())
+            .scheduledExecutorService(DefaultContextAwareScheduledExecutor.instance())
             .readTimeout(30, TimeUnit.SECONDS)
             .register(ExecutionContextClientFilter.class)
+            .register(CustomExecutorServiceProvider.class)
+            .register(CustomScheduledExecutionServiceProvider.class)
             .property(ClientProperties.USE_ENCODING, "gzip")
             .build());
 
@@ -90,15 +91,18 @@ public class MyResourceTest {
     Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
   }
 
-  @Test(expected = TimeoutException.class, timeout = 1000000)
-  @ExpectLog(level = Level.ERROR, messageRegexp = "Done GET /myresource/aTimeout")
+  @Test(timeout = 1000)
   public void testATimeoout() {
-    try {
+    try (LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
+            true, Matchers.any(TestLogRecord.class),
+            Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)))) {
       String responseMsg = target.path("demo/myresource/aTimeout")
-             .request().get(String.class);
+             .request()
+              .withTimeout(500, TimeUnit.MILLISECONDS)
+              .get(String.class);
       Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
-    } catch (InternalServerErrorException ex) {
-      LOG.debug("Expected Error Response", ex.getResponse().readEntity(String.class), ex);
+    } catch (InternalServerErrorException | UncheckedTimeoutException ex) {
+      LOG.debug("Expected Error Response", ex);
     }
   }
 
@@ -114,11 +118,9 @@ public class MyResourceTest {
 
   @Test
   public void testGetError() {
-    LogCollection<List<TestLogRecord>> col = TestLoggers.sys().collect("org.spf4j.servlet", Level.ERROR, true,
-            Collectors.mapping((log) -> {
-              log.attach(Attachments.ASSERTED);
-              return log;
-            }, Collectors.toList()));
+    LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
+            true, Matchers.any(TestLogRecord.class),
+            Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     Invocation.Builder request = target.path("demo/myresource/error").request();
     try {
       request.get(String.class);
@@ -126,8 +128,7 @@ public class MyResourceTest {
     } catch (InternalServerErrorException ex) {
       LOG.debug("Expected Error Response", ex.getResponse().readEntity(String.class), ex);
     }
-    List<TestLogRecord> errors = col.get();
-    Assert.assertThat(errors, Matchers.not(Matchers.emptyIterable()));
+    expect.assertObservation();
   }
 
   @Test

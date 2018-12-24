@@ -48,19 +48,23 @@ public class Spf4jInvocation implements Invocation {
       return this;
     }
 
-    @Override
-    public Response invoke() {
-      try (ExecutionContext ec = timeoutMillis == null ? ExecutionContexts.start(target.toString())
-              : ExecutionContexts.start(target.toString(), timeoutMillis, TimeUnit.MILLISECONDS)) {
+  @Override
+  public Response invoke() {
+    try {
+      return executor.call(() -> {
+        try (ExecutionContext ec = timeoutMillis == null ? ExecutionContexts.start(target.toString())
+                : ExecutionContexts.start(target.toString(), timeoutMillis, TimeUnit.MILLISECONDS)) {
           invocation.property(Spf4jClientProperties.EXEC_CONTEXT, ec);
-          return executor.call(invocation::invoke, RuntimeException.class, timeoutMillis, TimeUnit.MILLISECONDS);
-      } catch (InterruptedException ex) {
-        Thread.currentThread().interrupt();
-        throw new RuntimeException(ex);
-      } catch (TimeoutException ex) {
-        throw new UncheckedTimeoutException(ex);
-      }
+          return invocation.invoke();
+        }
+      }, RuntimeException.class, timeoutMillis, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException ex) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException(ex);
+    } catch (TimeoutException ex) {
+      throw new UncheckedTimeoutException(ex);
     }
+  }
 
     @Override
     public <T> T invoke(Class<T> responseType) {
