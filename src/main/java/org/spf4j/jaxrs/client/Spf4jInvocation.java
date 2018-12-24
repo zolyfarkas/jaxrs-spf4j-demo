@@ -50,14 +50,10 @@ public class Spf4jInvocation implements Invocation {
 
   @Override
   public Response invoke() {
-    try {
-      return executor.call(() -> {
-        try (ExecutionContext ec = timeoutMillis == null ? ExecutionContexts.start(target.toString())
+    try (ExecutionContext ec = timeoutMillis == null ? ExecutionContexts.start(target.toString())
                 : ExecutionContexts.start(target.toString(), timeoutMillis, TimeUnit.MILLISECONDS)) {
-          invocation.property(Spf4jClientProperties.EXEC_CONTEXT, ec);
-          return invocation.invoke();
-        }
-      }, RuntimeException.class, timeoutMillis, TimeUnit.MILLISECONDS);
+      invocation.property(Spf4jClientProperties.EXEC_CONTEXT, ec);
+      return executor.call(invocation::invoke, RuntimeException.class, timeoutMillis, TimeUnit.MILLISECONDS);
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
       throw new RuntimeException(ex);
@@ -69,7 +65,7 @@ public class Spf4jInvocation implements Invocation {
     @Override
     public <T> T invoke(Class<T> responseType) {
       try (ExecutionContext ec = timeoutMillis == null ? ExecutionContexts.start(target.toString())
-              : ExecutionContexts.start(target.toString(), timeoutMillis, TimeUnit.MILLISECONDS)) {
+                  : ExecutionContexts.start(target.toString(), timeoutMillis, TimeUnit.MILLISECONDS)) {
         invocation.property(Spf4jClientProperties.EXEC_CONTEXT, ec);
         return executor.call(() -> invocation.invoke(responseType), RuntimeException.class);
       } catch (InterruptedException ex) {

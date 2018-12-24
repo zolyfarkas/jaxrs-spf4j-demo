@@ -27,15 +27,7 @@ import org.spf4j.servlet.ContextTags;
  * @author Zoltan Farkas
  */
 @Provider
-@RequestScoped
 public final class LoggingExceptionMapper implements ExceptionMapper<Exception> {
-
-  private final ContainerRequestContext jaxCtx;
-
-  public LoggingExceptionMapper(
-          @Context ContainerRequestContext jaxCtx) {
-    this.jaxCtx = jaxCtx;
-  }
 
   @Override
   public Response toResponse(final Exception exception) {
@@ -52,17 +44,10 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Exception> 
       status = 500;
     }
     ExecutionContext ctx = ExecutionContexts.current();
-    if (ctx == null) { // Exception mapper can execute in a timeout thread, where context is not available.
-      try {
-          ctx = (ExecutionContext) jaxCtx.getProperty("xCtx");
-      } catch (RuntimeException ex) {
-        // This happens when request already recycled?
-        // null at HttpServletRequestImpl.java:253)[grizzly-http-servlet-2.4.0.jar:2.4.0]
-        ex.addSuppressed(exception);
+    if (ctx == null) { // Exception mapper can execute in a timeout thread, where context is not available,
         Logger.getLogger("handling.error")
-                .log(java.util.logging.Level.FINE, "No request context available anymore", ex);
-        return Response.serverError().entity("Context error, see server logs for detail.").build();
-      }
+                .log(java.util.logging.Level.WARNING, "No request context available", exception);
+        return Response.serverError().entity(exception).build();
     }
     if (status >= 500) {
       ctx.put(ContextTags.LOG_LEVEL, Level.ERROR);
@@ -82,7 +67,7 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Exception> 
     }
     ServiceError se = ServiceError.newBuilder()
             .setCode(status)
-            .setDetail(new DebugDetail(jaxCtx.getUriInfo().getRequestUri().toString(),
+            .setDetail(new DebugDetail(ctx.getName(),
                     Converters.convert(ctx.getId().toString(), ctxLogs), Converters.convert(exception)))
             .setType(exception.getClass().getName())
             .setMessage(exception.getMessage())

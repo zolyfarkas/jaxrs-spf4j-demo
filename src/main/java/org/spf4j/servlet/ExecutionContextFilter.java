@@ -118,15 +118,19 @@ public class ExecutionContextFilter implements Filter {
           }
 
           @Override
-          public void onTimeout(final AsyncEvent event) throws IOException {
+          public void onTimeout(final AsyncEvent event) {
+            ctx.put(ContextTags.LOG_LEVEL, Level.WARN);
+            ctx.add(ContextTags.LOG_ATTRIBUTES, LogAttribute.of("asyncEventTimeout", event));
           }
 
           @Override
-          public void onError(final AsyncEvent event) throws IOException {
+          public void onError(final AsyncEvent event)  {
+            ctx.put(ContextTags.LOG_LEVEL, Level.ERROR);
+            ctx.add(ContextTags.LOG_ATTRIBUTES, LogAttribute.of("asyncEventError", event));
           }
 
           @Override
-          public void onStartAsync(final AsyncEvent event) throws IOException {
+          public void onStartAsync(final AsyncEvent event) {
           }
         }, request, response);
       } else {

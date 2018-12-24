@@ -25,7 +25,7 @@ import org.spf4j.log.ExecContextLogger;
 public class MyResource {
 
 
-  private static final Logger LOG = new ExecContextLogger(LoggerFactory.getLogger(MyResource.class));
+  private static final ExecContextLogger LOG = new ExecContextLogger(LoggerFactory.getLogger(MyResource.class));
 
   @GET
   @Produces(MediaType.TEXT_PLAIN)
@@ -65,7 +65,9 @@ public class MyResource {
   @Path("aTimeout")
   @Produces(MediaType.TEXT_PLAIN)
   public void asyncTimeout(@Suspended final AsyncResponse ar) {
-    ar.setTimeout(1, TimeUnit.SECONDS);
+    long timeRelativeToDeadline = ExecutionContexts.current().getTimeRelativeToDeadline(TimeUnit.NANOSECONDS);
+    LOG.getWrapped().info("Async operation timeout {} ns", timeRelativeToDeadline);
+    ar.setTimeout(timeRelativeToDeadline, TimeUnit.NANOSECONDS);
     DefaultContextAwareExecutor.instance().submit(() -> {
           try {
               //Simulating a long running process

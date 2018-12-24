@@ -91,11 +91,12 @@ public class MyResourceTest {
     Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
   }
 
-  @Test(timeout = 1000)
+  @Test(timeout = 10000)
   public void testATimeoout() {
-    try (LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
+    LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
             true, Matchers.any(TestLogRecord.class),
-            Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)))) {
+            Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
+    try  {
       String responseMsg = target.path("demo/myresource/aTimeout")
              .request()
               .withTimeout(500, TimeUnit.MILLISECONDS)
@@ -103,6 +104,8 @@ public class MyResourceTest {
       Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
     } catch (InternalServerErrorException | UncheckedTimeoutException ex) {
       LOG.debug("Expected Error Response", ex);
+    } finally {
+      expect.assertObservation(10, TimeUnit.SECONDS);
     }
   }
 

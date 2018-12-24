@@ -47,11 +47,11 @@ public class ExecutionContextClientFilter implements ClientRequestFilter, Client
     }
     long deadlineNanos = reqCtx.getDeadlineNanos();
     Instant deadline = Timing.getCurrentTiming().fromNanoTimeToInstant(deadlineNanos);
-    headers.add(Headers.REQ_DEADLINE, deadline.getEpochSecond()  + ' ' + deadline.getNano());
+    headers.add(Headers.REQ_DEADLINE, Long.toString(deadline.getEpochSecond())  + ' ' + deadline.getNano());
     headers.add(Headers.REQ_TIMEOUT, timeoutNanos + " n");
     headers.add(Headers.REQ_ID, reqCtx.getId());
     int readTimeoutMs = (int) (timeoutNanos / 1000000);
-    log.log(Level.FINE, "read timeout {0} ms", readTimeoutMs);
+    log.log(Level.FINE, "read timeout {0} ms, deadline  {1}", new Object[] { readTimeoutMs, deadline });
     requestContext.setProperty(ClientProperties.READ_TIMEOUT, readTimeoutMs);
   }
 
