@@ -17,6 +17,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import org.spf4j.base.ExecutionContexts;
 import org.spf4j.failsafe.AsyncRetryExecutor;
 
 /**
@@ -27,14 +28,20 @@ public class Spf4jInvocationBuilder implements Invocation.Builder {
   private final Invocation.Builder ib;
   private final URI target;
   private AsyncRetryExecutor<Object, Callable<? extends Object>> executor;
-  private Long timeoutMillis;
+  private long timeoutNanos;
 
-  public Spf4jInvocationBuilder(final Invocation.Builder ib,
+  public Spf4jInvocationBuilder(final Spf4JClient client, final Invocation.Builder ib,
           final AsyncRetryExecutor<Object, Callable<? extends Object>> executor,
           final URI target) {
     this.ib = ib;
     this.executor = executor;
     this.target = target;
+    Number timeout =  (Number) client.getConfiguration().getProperty(Spf4jClientProperties.TIMEOUT_NANOS);
+    if (timeout != null) {
+      this.timeoutNanos = timeout.longValue();
+    } else {
+      this.timeoutNanos = Long.getLong(Spf4jClientProperties.TIMEOUT_NANOS, 60000000000L);
+    }
   }
 
   public Spf4jInvocationBuilder withRetryRexecutor(final AsyncRetryExecutor<Object, Callable<? extends Object>> exec) {
@@ -43,38 +50,44 @@ public class Spf4jInvocationBuilder implements Invocation.Builder {
   }
 
   public Spf4jInvocationBuilder withTimeout(final long timeout, final TimeUnit tu) {
-    timeoutMillis = tu.toMillis(timeout);
+    timeoutNanos = tu.toNanos(timeout);
     return this;
   }
 
   @Override
   public Spf4jInvocation build(final String method) {
-    return new Spf4jInvocation(ib.build(method), executor, timeoutMillis, this.target);
+    return new Spf4jInvocation(ib.build(method), executor, this.target,
+            ExecutionContexts.computeDeadline(timeoutNanos, TimeUnit.NANOSECONDS));
   }
 
   @Override
   public Spf4jInvocation build(final String method, final Entity<?> entity) {
-    return new  Spf4jInvocation(ib.build(method, entity), executor, timeoutMillis, this.target);
+    return new  Spf4jInvocation(ib.build(method, entity), executor, this.target,
+            ExecutionContexts.computeDeadline(timeoutNanos, TimeUnit.NANOSECONDS));
   }
 
   @Override
   public Spf4jInvocation buildGet() {
-    return new Spf4jInvocation(ib.buildGet(), executor, timeoutMillis, this.target);
+    return new Spf4jInvocation(ib.buildGet(), executor, this.target,
+            ExecutionContexts.computeDeadline(timeoutNanos, TimeUnit.NANOSECONDS));
   }
 
   @Override
   public Spf4jInvocation buildDelete() {
-    return new Spf4jInvocation(ib.buildDelete(), executor, timeoutMillis, this.target);
+    return new Spf4jInvocation(ib.buildDelete(), executor, this.target,
+            ExecutionContexts.computeDeadline(timeoutNanos, TimeUnit.NANOSECONDS));
   }
 
   @Override
   public Spf4jInvocation buildPost(Entity<?> entity) {
-    return new Spf4jInvocation(ib.buildPost(entity), executor, timeoutMillis, this.target);
+    return new Spf4jInvocation(ib.buildPost(entity), executor, this.target,
+            ExecutionContexts.computeDeadline(timeoutNanos, TimeUnit.NANOSECONDS));
   }
 
   @Override
   public Spf4jInvocation buildPut(Entity<?> entity) {
-    return new Spf4jInvocation(ib.buildPut(entity), executor, timeoutMillis, this.target);
+    return new Spf4jInvocation(ib.buildPut(entity), executor, this.target,
+            ExecutionContexts.computeDeadline(timeoutNanos, TimeUnit.NANOSECONDS));
   }
 
   @Override

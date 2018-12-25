@@ -1,4 +1,4 @@
-package org.spf4j.jaxrs.server;
+package org.spf4j.jaxrs.common;
 
 import java.io.IOException;
 import java.io.OutputStream;

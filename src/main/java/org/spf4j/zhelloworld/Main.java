@@ -22,7 +22,6 @@ import org.spf4j.servlet.ExecutionContextFilter;
  */
 public class Main {
   // Base URI the Grizzly HTTP server will listen on
-
   public static final String BASE_URI = "http://0.0.0.0:8080/";
 
   /**
@@ -57,7 +56,7 @@ public class Main {
             .withQueueSizeLimit(0)
             .enableJmx()
             .build());
-    transport.setSelectorRunnersCount(4);
+    transport.setSelectorRunnersCount(Integer.getInteger("spf4j.grizzly.selectorCount", 4));
     transport.setWorkerThreadPool(LifoThreadPoolBuilder.newBuilder()
             .withCoreSize(Integer.getInteger("spf4j.grizzly.worker.coreSize", 4))
             .withMaxSize(Integer.getInteger("spf4j.grizzly.worker.maxSize", 1024))

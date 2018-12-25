@@ -51,12 +51,6 @@ public class MyResource {
   @Produces(MediaType.TEXT_PLAIN)
   public void asyncHello(@Suspended final AsyncResponse ar) {
     DefaultContextAwareExecutor.instance().submit(() -> {
-          try {
-              //Simulating a long running process
-              Thread.sleep(2000);
-          } catch (InterruptedException e) {
-              e.printStackTrace();
-          }
           ar.resume("A Delayed hello");
       });
   }

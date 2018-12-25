@@ -11,7 +11,8 @@ import org.spf4j.failsafe.AsyncRetryExecutor;
 import org.spf4j.failsafe.HedgePolicy;
 import org.spf4j.failsafe.RetryDecision;
 import org.spf4j.failsafe.RetryPolicy;
-import org.spf4j.failsafe.concurrent.DefaultRetryExecutor;
+import org.spf4j.failsafe.concurrent.DefaultContextAwareFailSafeExecutor;
+import org.spf4j.failsafe.concurrent.DefaultFailSafeExecutor;
 
 /**
  * @author Zoltan Farkas
@@ -62,7 +63,7 @@ public final class FailsafeDefaults {
                           })
                   .withRetryOnException(Exception.class, 2) // will retry any other exception twice.
                   .build()
-                  .async(HedgePolicy.DEFAULT, DefaultRetryExecutor.instance());
+                  .async(HedgePolicy.DEFAULT, DefaultContextAwareFailSafeExecutor.instance());
 
   public static AsyncRetryExecutor<Object, Callable<? extends Object>> defaultExecutor() {
     return DEFAULT_HTTP_RETRY_EXEC;
