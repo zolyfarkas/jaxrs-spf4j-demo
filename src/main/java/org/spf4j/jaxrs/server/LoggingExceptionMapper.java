@@ -1,16 +1,15 @@
 package org.spf4j.jaxrs.server;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import org.glassfish.jersey.process.internal.RequestScoped;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.Throwables;
@@ -28,6 +27,21 @@ import org.spf4j.servlet.ContextTags;
  */
 @Provider
 public final class LoggingExceptionMapper implements ExceptionMapper<Exception> {
+
+  private final String host;
+
+  public LoggingExceptionMapper() {
+    String h;
+    try {
+      InetAddress localHost = InetAddress.getLocalHost();
+      h = localHost.getHostName();
+    } catch (UnknownHostException ex) {
+      Logger.getLogger(LoggingExceptionMapper.class.getName())
+              .log(java.util.logging.Level.WARNING, "Unable to figura out host name", ex);
+      h = "unknown";
+    }
+    host = h;
+  }
 
   @Override
   public Response toResponse(final Exception exception) {
@@ -67,8 +81,8 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Exception> 
     }
     ServiceError se = ServiceError.newBuilder()
             .setCode(status)
-            .setDetail(new DebugDetail(ctx.getName(),
-                    Converters.convert(ctx.getId().toString(), ctxLogs), Converters.convert(exception)))
+            .setDetail(new DebugDetail(host + '/' + ctx.getName(),
+                    Converters.convert("", ctx.getId().toString(), ctxLogs), Converters.convert(exception)))
             .setType(exception.getClass().getName())
             .setMessage(exception.getMessage())
             .build();
