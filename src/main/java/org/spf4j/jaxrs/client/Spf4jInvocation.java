@@ -46,7 +46,6 @@ public class Spf4jInvocation implements Invocation {
   public Response invoke() {
     long nanoTime = TimeSource.nanoTime();
     try (ExecutionContext ec = ExecutionContexts.start(target.toString(), nanoTime, deadlineNanos)) {
-      invocation.property(Spf4jClientProperties.EXEC_CONTEXT, ec);
       return executor.call(invocation::invoke, RuntimeException.class, nanoTime, deadlineNanos);
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
@@ -60,7 +59,6 @@ public class Spf4jInvocation implements Invocation {
   public <T> T invoke(Class<T> responseType) {
     long nanoTime = TimeSource.nanoTime();
     try (ExecutionContext ec = ExecutionContexts.start(target.toString(), nanoTime, deadlineNanos)) {
-      invocation.property(Spf4jClientProperties.EXEC_CONTEXT, ec);
       return executor.call(() -> invocation.invoke(responseType), RuntimeException.class);
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
@@ -74,7 +72,6 @@ public class Spf4jInvocation implements Invocation {
   public <T> T invoke(GenericType<T> responseType) {
     long nanoTime = TimeSource.nanoTime();
     try (ExecutionContext ec = ExecutionContexts.start(target.toString(), nanoTime, deadlineNanos)) {
-      invocation.property(Spf4jClientProperties.EXEC_CONTEXT, ec);
       return executor.call(() -> invocation.invoke(responseType), RuntimeException.class);
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();

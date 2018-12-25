@@ -113,7 +113,8 @@ public class ExecutionContextFilter implements Filter {
         asyncContext.addListener(new AsyncListener() {
           @Override
           public void onComplete(final AsyncEvent event) throws IOException {
-            logRequestEnd(org.spf4j.log.Level.INFO, ctx, httpReq.getBytesRead(), httpResp.getBytesWritten());
+            logRequestEnd(org.spf4j.log.Level.INFO, ctx, httpReq.getBytesRead(), httpResp.getBytesWritten(),
+                    httpResp.getStatus());
             ctx.close();
           }
 
@@ -134,7 +135,8 @@ public class ExecutionContextFilter implements Filter {
           }
         }, request, response);
       } else {
-        logRequestEnd(org.spf4j.log.Level.INFO, ctx, httpReq.getBytesRead(), httpResp.getBytesWritten());
+        logRequestEnd(org.spf4j.log.Level.INFO, ctx, httpReq.getBytesRead(), httpResp.getBytesWritten(),
+                httpResp.getStatus());
         ctx.close();
       }
     } catch (Throwable t) {
@@ -142,17 +144,19 @@ public class ExecutionContextFilter implements Filter {
         org.spf4j.base.Runtime.goDownWithError(t, SysExits.EX_SOFTWARE);
       }
       logContextLogs(ctx);
-      logRequestEnd(org.spf4j.log.Level.ERROR, ctx, httpReq.getBytesRead(), httpResp.getBytesWritten());
+      logRequestEnd(org.spf4j.log.Level.ERROR, ctx, httpReq.getBytesRead(), httpResp.getBytesWritten(),
+              httpResp.getStatus());
     }
   }
 
   public void logRequestEnd(final Level plevel, final ExecutionContext ctx,
-          final long contentBytesRead, final long contentBytesWritten) {
-    logRequestEnd(log, plevel, ctx, contentBytesRead, contentBytesWritten);
+          final long contentBytesRead, final long contentBytesWritten, final int httpStatus) {
+    logRequestEnd(log, plevel, ctx, contentBytesRead, contentBytesWritten, httpStatus);
   }
 
   public static void logRequestEnd(final Logger logger, final Level plevel,
-          final ExecutionContext ctx, final long contentBytesRead, final long contentBytesWritten) {
+          final ExecutionContext ctx, final long contentBytesRead, final long contentBytesWritten,
+          final int httpStatus) {
     org.spf4j.log.Level level;
     org.spf4j.log.Level ctxOverride = ctx.get(ContextTags.LOG_LEVEL);
     if (ctxOverride != null && ctxOverride.ordinal() > plevel.ordinal()) {
@@ -165,17 +169,19 @@ public class ExecutionContextFilter implements Filter {
     if (logAttrs == null || logAttrs.isEmpty()) {
       args = new Object[]{ctx.getName(),
         LogAttribute.traceId(ctx.getId()),
+        LogAttribute.value("httpStatus", httpStatus),
         LogAttribute.execTimeMicros(TimeSource.nanoTime() - ctx.getStartTimeNanos(), TimeUnit.NANOSECONDS),
         LogAttribute.value("inBytes", contentBytesRead), LogAttribute.value("outBytes", contentBytesWritten)
       };
     } else {
-      args = new Object[5 + logAttrs.size()];
+      args = new Object[6 + logAttrs.size()];
       args[0] = ctx.getName();
       args[1] = LogAttribute.traceId(ctx.getId());
-      args[2] = LogAttribute.execTimeMicros(TimeSource.nanoTime() - ctx.getStartTimeNanos(), TimeUnit.NANOSECONDS);
-      args[3] = LogAttribute.value("inBytes", contentBytesRead);
-      args[4] = LogAttribute.value("outBytes", contentBytesWritten);
-      int i = 5;
+      args[2] = LogAttribute.value("httpStatus", httpStatus);
+      args[3] = LogAttribute.execTimeMicros(TimeSource.nanoTime() - ctx.getStartTimeNanos(), TimeUnit.NANOSECONDS);
+      args[4] = LogAttribute.value("inBytes", contentBytesRead);
+      args[5] = LogAttribute.value("outBytes", contentBytesWritten);
+      int i = 6;
       for (Object obj : logAttrs) {
         args[i++] = obj;
       }

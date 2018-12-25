@@ -4,7 +4,10 @@ import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import java.nio.ByteBuffer;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
@@ -89,6 +92,18 @@ public class MyResourceTest {
     String responseMsg = request.get(String.class);
     Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
   }
+
+  @Test
+  public void testFlakyHello() throws InterruptedException, ExecutionException, TimeoutException {
+    LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
+            true, LogMatchers.hasMessageWithPattern("Done GET /myresource/flakyHello"),
+            Matchers.any((Class) Iterable.class));
+    Invocation.Builder request = target.path("demo/myresource/flakyHello").request();
+    Future<String> responseMsg = request.buildGet().submit(String.class);
+    Assert.assertThat(responseMsg.get(2, TimeUnit.SECONDS), Matchers.startsWith("Hello world"));
+    expect.assertObservation();
+  }
+
 
   @Test(timeout = 10000)
   public void testATimeoout() {

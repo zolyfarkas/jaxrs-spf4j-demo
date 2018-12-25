@@ -15,6 +15,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.Provider;
 import org.glassfish.jersey.client.ClientProperties;
 import org.spf4j.base.ExecutionContext;
+import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.TimeSource;
 import org.spf4j.base.Timing;
 import org.spf4j.base.UncheckedTimeoutException;
@@ -37,7 +38,7 @@ public class ExecutionContextClientFilter implements ClientRequestFilter, Client
 
   @Override
   public void filter(ClientRequestContext requestContext) {
-    ExecutionContext reqCtx = (ExecutionContext) requestContext.getProperty(Spf4jClientProperties.EXEC_CONTEXT);
+    ExecutionContext reqCtx = ExecutionContexts.current();
     MultivaluedMap<String, Object> headers = requestContext.getHeaders();
     long timeoutNanos;
     try {
@@ -57,7 +58,7 @@ public class ExecutionContextClientFilter implements ClientRequestFilter, Client
 
   @Override
   public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) {
-    ExecutionContext reqCtx = (ExecutionContext) requestContext.getProperty(Spf4jClientProperties.EXEC_CONTEXT);
+    ExecutionContext reqCtx = ExecutionContexts.current();
     if (log.isLoggable(Level.FINE)) {
       log.log(Level.FINE, "Done {0}", new Object[] {reqCtx.getName(),
         LogAttribute.traceId(reqCtx.getId()),
