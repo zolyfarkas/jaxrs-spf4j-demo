@@ -5,13 +5,15 @@ import java.io.IOException;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.WriteListener;
+import org.spf4j.base.Wrapper;
 
 /**
  *
  * @author Zoltan Farkas
  */
 @ParametersAreNonnullByDefault
-public final class CountingServletOutputStream extends ServletOutputStream {
+public final class CountingServletOutputStream extends ServletOutputStream
+         implements Wrapper<ServletOutputStream> {
 
   private final ServletOutputStream out;
 
@@ -62,6 +64,16 @@ public final class CountingServletOutputStream extends ServletOutputStream {
   @Override
   public String toString() {
     return "CountingServletOutputStream{" + "out=" + out + ", count=" + count + '}';
+  }
+
+  @Override
+  public ServletOutputStream getWrapped() {
+    return this.out;
+  }
+
+  @Override
+  public ServletOutputStream wrap(final ServletOutputStream toWrap) {
+    return new CountingServletOutputStream(toWrap);
   }
 
 }

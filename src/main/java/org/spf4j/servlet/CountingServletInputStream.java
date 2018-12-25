@@ -4,12 +4,14 @@ import java.io.IOException;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
+import org.spf4j.base.Wrapper;
 
 /**
  * @author Zoltan Farkas
  */
 @ParametersAreNonnullByDefault
-public final class CountingServletInputStream extends ServletInputStream  {
+public final class CountingServletInputStream extends ServletInputStream
+  implements Wrapper<ServletInputStream> {
 
   private final ServletInputStream in;
 
@@ -114,6 +116,16 @@ public final class CountingServletInputStream extends ServletInputStream  {
   @Override
   public synchronized String toString() {
     return "CountingServletInputStream{" + "in=" + in + ", count=" + count + ", mark=" + mark + '}';
+  }
+
+  @Override
+  public ServletInputStream getWrapped() {
+    return this.in;
+  }
+
+  @Override
+  public ServletInputStream wrap(ServletInputStream toWrap) {
+    return new CountingServletInputStream(toWrap);
   }
 
 }
