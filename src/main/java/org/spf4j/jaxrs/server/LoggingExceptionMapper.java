@@ -50,10 +50,10 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Exception> 
         return Response.serverError().entity(exception).build();
     }
     if (status >= 500) {
-      ctx.put(ContextTags.LOG_LEVEL, Level.ERROR);
+      ctx.putToRoot(ContextTags.LOG_LEVEL, Level.ERROR);
     }
-    ctx.add(ContextTags.LOG_ATTRIBUTES, exception);
-    List<Slf4jLogRecord> ctxLogs = new ArrayList();
+    ctx.addToRoot(ContextTags.LOG_ATTRIBUTES, exception);
+    List<Slf4jLogRecord> ctxLogs = new ArrayList<>();
     ctx.streamLogs((log) -> {
       if (!log.isLogged()) {
         ctxLogs.add(log);

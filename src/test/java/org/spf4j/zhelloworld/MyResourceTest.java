@@ -22,8 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.spf4j.base.UncheckedTimeoutException;
 import org.spf4j.concurrent.DefaultContextAwareExecutor;
 import org.spf4j.concurrent.DefaultContextAwareScheduledExecutor;
-import org.spf4j.concurrent.DefaultExecutor;
-import org.spf4j.concurrent.DefaultScheduler;
 import org.spf4j.jaxrs.client.ExecutionContextClientFilter;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
@@ -98,11 +96,11 @@ public class MyResourceTest {
             true, LogMatchers.hasMessageWithPattern("Done GET /myresource/aTimeout"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
-      String responseMsg = target.path("demo/myresource/aTimeout")
+      target.path("demo/myresource/aTimeout")
              .request()
               .withTimeout(500, TimeUnit.MILLISECONDS)
               .get(String.class);
-      Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
+      Assert.fail();
     } catch (InternalServerErrorException | UncheckedTimeoutException ex) {
       LOG.debug("Expected Error Response", ex);
     } finally {
@@ -110,6 +108,24 @@ public class MyResourceTest {
     }
   }
 
+
+  @Test(timeout = 10000)
+  public void testAError() {
+    LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
+            true, LogMatchers.hasMessageWithPattern("Done GET /myresource/aError"),
+            Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
+    try  {
+      target.path("demo/myresource/aError")
+             .request()
+              .withTimeout(500, TimeUnit.MILLISECONDS)
+              .get(String.class);
+      Assert.fail();
+    } catch (InternalServerErrorException | UncheckedTimeoutException ex) {
+      LOG.debug("Expected Error Response", ex);
+    } finally {
+      expect.assertObservation(10, TimeUnit.SECONDS);
+    }
+  }
 
 
   @Test
