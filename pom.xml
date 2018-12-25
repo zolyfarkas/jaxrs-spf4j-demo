@@ -7,7 +7,7 @@
   <artifactId>jaxrs-spf4j-demo</artifactId>
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>${artifactId}</name>
+  <name>${project.artifactId}</name>
 
   <properties>
     <jersey.version>2.27</jersey.version>
