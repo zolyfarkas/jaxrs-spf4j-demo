@@ -86,7 +86,7 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Exception> 
             .setType(exception.getClass().getName())
             .setMessage(exception.getMessage())
             .build();
-    return Response.status(500).entity(se).build();
+    return Response.status(status).entity(se).build();
   }
 
 }
