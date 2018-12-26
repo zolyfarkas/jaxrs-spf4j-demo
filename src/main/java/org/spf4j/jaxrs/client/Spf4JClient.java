@@ -18,8 +18,6 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
-import org.glassfish.jersey.client.JerseyClient;
-import org.glassfish.jersey.client.JerseyWebTarget;
 import org.spf4j.failsafe.AsyncRetryExecutor;
 
 /**

@@ -52,7 +52,6 @@ public class ExecutionContextClientFilter implements ClientRequestFilter, Client
     headers.add(Headers.REQ_TIMEOUT, timeoutNanos + " n");
     headers.add(Headers.REQ_ID, reqCtx.getId());
     int readTimeoutMs = (int) (timeoutNanos / 1000000);
-    log.log(Level.FINE, "read timeout {0} ms, deadline  {1}", new Object[] { readTimeoutMs, deadline });
     requestContext.setProperty(ClientProperties.READ_TIMEOUT, readTimeoutMs);
   }
 
@@ -62,6 +61,7 @@ public class ExecutionContextClientFilter implements ClientRequestFilter, Client
       ExecutionContext reqCtx = ExecutionContexts.current();
       log.log(Level.FINE, "Done {0}", new Object[] {reqCtx.getName(),
         LogAttribute.traceId(reqCtx.getId()),
+        LogAttribute.value("httpStatus", responseContext.getStatus()),
         LogAttribute.execTimeMicros(TimeSource.nanoTime() - reqCtx.getStartTimeNanos(), TimeUnit.NANOSECONDS)});
     }
   }

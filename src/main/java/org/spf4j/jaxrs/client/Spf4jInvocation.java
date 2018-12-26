@@ -79,10 +79,8 @@ public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
     long nanoTime = TimeSource.nanoTime();
     ExecutionContext current = ExecutionContexts.current();
     long deadlineNanos = ExecutionContexts.computeDeadline(current, timeoutNanos, TimeUnit.NANOSECONDS);
-    try (ExecutionContext ec = ExecutionContexts.start(getName(),
-            current, nanoTime, deadlineNanos)) {
-      return executor.submit(what, nanoTime, deadlineNanos);
-    }
+    Callable<T> pc = ExecutionContexts.propagatingCallable(what, current, getName(), deadlineNanos);
+    return executor.submit(pc, nanoTime, deadlineNanos);
   }
 
   @Override
