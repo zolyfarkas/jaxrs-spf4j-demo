@@ -58,8 +58,8 @@ public class ExecutionContextClientFilter implements ClientRequestFilter, Client
 
   @Override
   public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) {
-    ExecutionContext reqCtx = ExecutionContexts.current();
     if (log.isLoggable(Level.FINE)) {
+      ExecutionContext reqCtx = ExecutionContexts.current();
       log.log(Level.FINE, "Done {0}", new Object[] {reqCtx.getName(),
         LogAttribute.traceId(reqCtx.getId()),
         LogAttribute.execTimeMicros(TimeSource.nanoTime() - reqCtx.getStartTimeNanos(), TimeUnit.NANOSECONDS)});

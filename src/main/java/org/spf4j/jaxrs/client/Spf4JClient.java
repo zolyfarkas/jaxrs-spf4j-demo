@@ -42,9 +42,22 @@ public class Spf4JClient implements Client {
     ClientConfig configuration = (ClientConfig) cl.getConfiguration();
     HttpUrlConnectorProvider httpUrlConnectorProvider = new HttpUrlConnectorProvider();
     httpUrlConnectorProvider.connectionFactory(new HttpUrlConnectorProvider.ConnectionFactory() {
+
+      /**
+       * Attempt to client side load balance...
+       * Approach works for HTTP only.
+       * for HTTPS  we would need to register a new HTTP URL connection.
+       *
+       * @param url
+       * @return
+       * @throws IOException
+       */
       @Override
       public HttpURLConnection getConnection(final URL url) throws IOException {
         try {
+          if (url.getProtocol().equals("https")) {
+            return (HttpURLConnection) url.openConnection();
+          }
           URI uri = url.toURI();
           InetAddress[] targets = InetAddress.getAllByName(uri.getHost());
           InetAddress chosen = targets[ThreadLocalRandom.current().nextInt(targets.length)];
