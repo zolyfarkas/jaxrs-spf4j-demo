@@ -22,11 +22,19 @@ public class Spf4jWebTarget implements WebTarget {
 
   private final Spf4JClient client;
 
+  private final Spf4jWebTarget fromTemplate;
+
   public Spf4jWebTarget(final Spf4JClient client,
-          final WebTarget tg, final AsyncRetryExecutor<Object, Callable<? extends Object>> executor) {
+          final WebTarget tg, final AsyncRetryExecutor<Object, Callable<? extends Object>> executor,
+          final Spf4jWebTarget fromTemplate) {
     this.tg = tg;
     this.client = client;
     this.executor = executor;
+    this.fromTemplate = fromTemplate;
+  }
+
+  public Spf4jWebTarget getFromTemplate() {
+    return fromTemplate;
   }
 
   public Spf4jWebTarget withRetryRexecutor(final AsyncRetryExecutor<Object, Callable<? extends Object>> exec) {
@@ -46,22 +54,22 @@ public class Spf4jWebTarget implements WebTarget {
 
   @Override
   public Spf4jWebTarget path(String path) {
-    return new Spf4jWebTarget(client, tg.path(path), executor);
+    return new Spf4jWebTarget(client, tg.path(path), executor, this.fromTemplate);
   }
 
   @Override
   public Spf4jWebTarget resolveTemplate(String name, Object value) {
-    return new Spf4jWebTarget(client, tg.resolveTemplate(name, value), executor);
+    return new Spf4jWebTarget(client, tg.resolveTemplate(name, value), executor, this);
   }
 
   @Override
   public Spf4jWebTarget resolveTemplate(String name, Object value, boolean encodeSlashInPath) {
-    return new Spf4jWebTarget(client, tg.resolveTemplate(name, value, encodeSlashInPath), executor);
+    return new Spf4jWebTarget(client, tg.resolveTemplate(name, value, encodeSlashInPath), executor, this);
   }
 
   @Override
   public Spf4jWebTarget resolveTemplateFromEncoded(String name, Object value) {
-    return new Spf4jWebTarget(client, tg.resolveTemplateFromEncoded(name, value), executor);
+    return new Spf4jWebTarget(client, tg.resolveTemplateFromEncoded(name, value), executor, this);
   }
 
   @Override
@@ -69,7 +77,7 @@ public class Spf4jWebTarget implements WebTarget {
     if (templateValues.isEmpty()) {
       return this;
     }
-    return new Spf4jWebTarget(client, tg.resolveTemplates(templateValues), executor);
+    return new Spf4jWebTarget(client, tg.resolveTemplates(templateValues), executor, this);
   }
 
   @Override
@@ -77,7 +85,7 @@ public class Spf4jWebTarget implements WebTarget {
     if (templateValues.isEmpty()) {
       return this;
     }
-    return new Spf4jWebTarget(client, tg.resolveTemplates(templateValues, encodeSlashInPath), executor);
+    return new Spf4jWebTarget(client, tg.resolveTemplates(templateValues, encodeSlashInPath), executor, this);
   }
 
   @Override
@@ -85,32 +93,32 @@ public class Spf4jWebTarget implements WebTarget {
     if (templateValues.isEmpty()) {
       return this;
     }
-    return new Spf4jWebTarget(client, tg.resolveTemplatesFromEncoded(templateValues), executor);
+    return new Spf4jWebTarget(client, tg.resolveTemplatesFromEncoded(templateValues), executor, this);
   }
 
   @Override
   public Spf4jWebTarget matrixParam(String name, Object... values) {
-    return new Spf4jWebTarget(client, tg.matrixParam(name, values), executor);
+    return new Spf4jWebTarget(client, tg.matrixParam(name, values), executor, this.fromTemplate);
   }
 
   @Override
   public Spf4jWebTarget queryParam(String name, Object... values) {
-    return new Spf4jWebTarget(client, tg.queryParam(name, values), executor);
+    return new Spf4jWebTarget(client, tg.queryParam(name, values), executor, this.fromTemplate);
   }
 
   @Override
   public Spf4jInvocationBuilder request() {
-    return new Spf4jInvocationBuilder(client, tg.request(), executor, getUri());
+    return new Spf4jInvocationBuilder(client, tg.request(), executor, this);
   }
 
   @Override
   public Spf4jInvocationBuilder request(String... acceptedResponseTypes) {
-    return new Spf4jInvocationBuilder(client, tg.request(acceptedResponseTypes), executor, getUri());
+    return new Spf4jInvocationBuilder(client, tg.request(acceptedResponseTypes), executor, this);
   }
 
   @Override
   public Spf4jInvocationBuilder request(MediaType... acceptedResponseTypes) {
-    return new Spf4jInvocationBuilder(client, tg.request(acceptedResponseTypes), executor, getUri());
+    return new Spf4jInvocationBuilder(client, tg.request(acceptedResponseTypes), executor, this);
   }
 
   @Override

@@ -41,9 +41,4 @@ public final class CountingHttpServletRequest extends HttpServletRequestWrapper
     return (HttpServletRequest) super.getRequest();
   }
 
-  @Override
-  public HttpServletRequest wrap(HttpServletRequest toWrap) {
-    return new CountingHttpServletRequest(toWrap);
-  }
-
 }

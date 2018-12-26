@@ -71,9 +71,4 @@ public final class CountingServletOutputStream extends ServletOutputStream
     return this.out;
   }
 
-  @Override
-  public ServletOutputStream wrap(final ServletOutputStream toWrap) {
-    return new CountingServletOutputStream(toWrap);
-  }
-
 }

@@ -94,13 +94,13 @@ public class MyResourceTest {
   }
 
   @Test
-  public void testFlakyHello() throws InterruptedException, ExecutionException, TimeoutException {
+  public void testFlakyHelloWorld() throws InterruptedException, ExecutionException, TimeoutException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
-            true, LogMatchers.hasMessageWithPattern("Done GET /myresource/flakyHello"),
+            true, LogMatchers.hasMessageWithPattern("Done GET /myresource.*"),
             Matchers.any((Class) Iterable.class));
-    Invocation.Builder request = target.path("demo/myresource/flakyHello").request();
+    Invocation.Builder request = target.path("demo/myresource/flakyHelloWorld").request();
     Future<String> responseMsg = request.buildGet().submit(String.class);
-    Assert.assertThat(responseMsg.get(2, TimeUnit.SECONDS), Matchers.startsWith("Hello world"));
+    Assert.assertThat(responseMsg.get(2, TimeUnit.SECONDS), Matchers.startsWith("Hello World"));
     expect.assertObservation();
   }
 

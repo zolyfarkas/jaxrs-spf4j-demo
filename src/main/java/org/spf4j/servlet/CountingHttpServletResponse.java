@@ -42,8 +42,4 @@ public final class CountingHttpServletResponse extends HttpServletResponseWrappe
     return (HttpServletResponse) super.getResponse();
   }
 
-  @Override
-  public HttpServletResponse wrap(final HttpServletResponse toWrap) {
-    return new CountingHttpServletResponse(toWrap);
-  }
 }

@@ -123,9 +123,5 @@ public final class CountingServletInputStream extends ServletInputStream
     return this.in;
   }
 
-  @Override
-  public ServletInputStream wrap(ServletInputStream toWrap) {
-    return new CountingServletInputStream(toWrap);
-  }
 
 }

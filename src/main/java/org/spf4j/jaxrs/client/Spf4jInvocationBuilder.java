@@ -1,7 +1,6 @@
 
 package org.spf4j.jaxrs.client;
 
-import java.net.URI;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +16,6 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import org.spf4j.base.ExecutionContexts;
 import org.spf4j.failsafe.AsyncRetryExecutor;
 
 /**
@@ -26,13 +24,13 @@ import org.spf4j.failsafe.AsyncRetryExecutor;
 public class Spf4jInvocationBuilder implements Invocation.Builder {
 
   private final Invocation.Builder ib;
-  private final URI target;
+  private final Spf4jWebTarget target;
   private AsyncRetryExecutor<Object, Callable<? extends Object>> executor;
   private long timeoutNanos;
 
   public Spf4jInvocationBuilder(final Spf4JClient client, final Invocation.Builder ib,
           final AsyncRetryExecutor<Object, Callable<? extends Object>> executor,
-          final URI target) {
+          final Spf4jWebTarget target) {
     this.ib = ib;
     this.executor = executor;
     this.target = target;
@@ -42,6 +40,14 @@ public class Spf4jInvocationBuilder implements Invocation.Builder {
     } else {
       this.timeoutNanos = Long.getLong(Spf4jClientProperties.TIMEOUT_NANOS, 60000000000L);
     }
+  }
+
+  public Spf4jWebTarget getTarget() {
+    return target;
+  }
+
+  public long getTimeoutNanos() {
+    return timeoutNanos;
   }
 
   public Spf4jInvocationBuilder withRetryRexecutor(final AsyncRetryExecutor<Object, Callable<? extends Object>> exec) {
@@ -56,43 +62,37 @@ public class Spf4jInvocationBuilder implements Invocation.Builder {
 
   @Override
   public Spf4jInvocation build(final String method) {
-    return new Spf4jInvocation(ib.build(method), executor, this.target,
-            ExecutionContexts.computeDeadline(timeoutNanos, TimeUnit.NANOSECONDS));
+    return new Spf4jInvocation(ib.build(method), timeoutNanos, executor, this.target, method);
   }
 
   @Override
   public Spf4jInvocation build(final String method, final Entity<?> entity) {
-    return new  Spf4jInvocation(ib.build(method, entity), executor, this.target,
-            ExecutionContexts.computeDeadline(timeoutNanos, TimeUnit.NANOSECONDS));
+    return new  Spf4jInvocation(ib.build(method, entity), timeoutNanos, executor, this.target, method);
   }
 
   @Override
   public Spf4jInvocation buildGet() {
-    return new Spf4jInvocation(ib.buildGet(), executor, this.target,
-            ExecutionContexts.computeDeadline(timeoutNanos, TimeUnit.NANOSECONDS));
+    return new Spf4jInvocation(ib.buildGet(), timeoutNanos, executor, this.target, HttpMethod.GET);
   }
 
   @Override
   public Spf4jInvocation buildDelete() {
-    return new Spf4jInvocation(ib.buildDelete(), executor, this.target,
-            ExecutionContexts.computeDeadline(timeoutNanos, TimeUnit.NANOSECONDS));
+    return new Spf4jInvocation(ib.buildDelete(), timeoutNanos, executor, this.target, HttpMethod.DELETE);
   }
 
   @Override
   public Spf4jInvocation buildPost(Entity<?> entity) {
-    return new Spf4jInvocation(ib.buildPost(entity), executor, this.target,
-            ExecutionContexts.computeDeadline(timeoutNanos, TimeUnit.NANOSECONDS));
+    return new Spf4jInvocation(ib.buildPost(entity), timeoutNanos, executor, this.target, HttpMethod.POST);
   }
 
   @Override
   public Spf4jInvocation buildPut(Entity<?> entity) {
-    return new Spf4jInvocation(ib.buildPut(entity), executor, this.target,
-            ExecutionContexts.computeDeadline(timeoutNanos, TimeUnit.NANOSECONDS));
+    return new Spf4jInvocation(ib.buildPut(entity), timeoutNanos, executor, this.target, HttpMethod.PUT);
   }
 
   @Override
   public AsyncInvoker async() {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   @Override
@@ -163,7 +163,7 @@ public class Spf4jInvocationBuilder implements Invocation.Builder {
 
   @Override
   public CompletionStageRxInvoker rx() {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    return new Spf4jCompletionStageRxInvoker(this, executor);
   }
 
   @Override

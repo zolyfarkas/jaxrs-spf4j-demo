@@ -18,6 +18,8 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
+import org.glassfish.jersey.client.JerseyClient;
+import org.glassfish.jersey.client.JerseyWebTarget;
 import org.spf4j.failsafe.AsyncRetryExecutor;
 
 /**
@@ -81,27 +83,28 @@ public class Spf4JClient implements Client {
 
   @Override
   public Spf4jWebTarget target(String uri) {
-    return new Spf4jWebTarget(this, cl.target(uri), executor);
+    return new Spf4jWebTarget(this, cl.target(uri), executor, null);
   }
 
   @Override
   public Spf4jWebTarget target(URI uri) {
-    return new Spf4jWebTarget(this, cl.target(uri), executor);
+    return new Spf4jWebTarget(this, cl.target(uri), executor, null);
   }
 
   @Override
   public Spf4jWebTarget target(UriBuilder uriBuilder) {
-    return new Spf4jWebTarget(this, cl.target(uriBuilder), executor);
+    return new Spf4jWebTarget(this, cl.target(uriBuilder), executor, null);
   }
 
   @Override
   public Spf4jWebTarget target(Link link) {
-    return new Spf4jWebTarget(this, cl.target(link), executor);
+    return new Spf4jWebTarget(this, cl.target(link), executor, null);
   }
 
   @Override
   public Spf4jInvocationBuilder invocation(Link link) {
-    return new Spf4jInvocationBuilder(this, cl.invocation(link), executor, link.getUri());
+    return new Spf4jInvocationBuilder(this, cl.invocation(link), executor, new Spf4jWebTarget(this, cl.target(link),
+            executor, null));
   }
 
   @Override

@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.InvocationCallback;
@@ -14,26 +15,44 @@ import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.TimeSource;
 import org.spf4j.base.UncheckedTimeoutException;
+import org.spf4j.base.Wrapper;
 import org.spf4j.failsafe.AsyncRetryExecutor;
 
 /**
  * @author Zoltan Farkas
  */
-public class Spf4jInvocation implements Invocation {
+public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
 
   private final Invocation invocation;
   private final AsyncRetryExecutor<Object, Callable<? extends Object>> executor;
-  private final URI target;
+  private final Spf4jWebTarget target;
+  private final long timeoutNanos;
+  private final String method;
 
-  private final long deadlineNanos;
-
-  public Spf4jInvocation(final Invocation invocation,
+  public Spf4jInvocation(final Invocation invocation, final long timeoutNanos,
           final AsyncRetryExecutor<Object, Callable<? extends Object>> policy,
-          final URI target, final long deadlineNanos) {
+          final Spf4jWebTarget target, final String method) {
     this.invocation = invocation;
     this.executor = policy;
-    this.deadlineNanos = deadlineNanos;
+    this.timeoutNanos = timeoutNanos;
     this.target = target;
+    this.method = method;
+  }
+
+  public String getMethod() {
+    return method;
+  }
+
+  public long getTimeoutNanos() {
+    return timeoutNanos;
+  }
+
+  public Spf4jWebTarget getTarget() {
+    return target;
+  }
+
+  public String getName() {
+    return method + ' ' + target.getUri();
   }
 
   @Override
@@ -42,72 +61,62 @@ public class Spf4jInvocation implements Invocation {
     return this;
   }
 
-  @Override
-  public Response invoke() {
+  private <T> T invoke(Callable<T> what) {
     long nanoTime = TimeSource.nanoTime();
-    try (ExecutionContext ec = ExecutionContexts.start(target.toString(), nanoTime, deadlineNanos)) {
-      return executor.call(invocation::invoke, RuntimeException.class, nanoTime, deadlineNanos);
+    ExecutionContext current = ExecutionContexts.current();
+    long deadlineNanos = ExecutionContexts.computeDeadline(current, timeoutNanos, TimeUnit.NANOSECONDS);
+    try (ExecutionContext ec = ExecutionContexts.start(getName(), current, nanoTime, deadlineNanos)) {
+      return executor.call(what, RuntimeException.class, nanoTime, deadlineNanos);
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
       throw new RuntimeException(ex);
     } catch (TimeoutException ex) {
       throw new UncheckedTimeoutException(ex);
     }
+  }
+
+  private <T> Future<T> submit(Callable<T> what) {
+    long nanoTime = TimeSource.nanoTime();
+    ExecutionContext current = ExecutionContexts.current();
+    long deadlineNanos = ExecutionContexts.computeDeadline(current, timeoutNanos, TimeUnit.NANOSECONDS);
+    try (ExecutionContext ec = ExecutionContexts.start(getName(),
+            current, nanoTime, deadlineNanos)) {
+      return executor.submit(what, nanoTime, deadlineNanos);
+    }
+  }
+
+  @Override
+  public Response invoke() {
+    return invoke(invocation::invoke);
   }
 
   @Override
   public <T> T invoke(Class<T> responseType) {
-    long nanoTime = TimeSource.nanoTime();
-    try (ExecutionContext ec = ExecutionContexts.start(target.toString(), nanoTime, deadlineNanos)) {
-      return executor.call(() -> invocation.invoke(responseType), RuntimeException.class);
-    } catch (InterruptedException ex) {
-      Thread.currentThread().interrupt();
-      throw new RuntimeException(ex);
-    } catch (TimeoutException ex) {
-      throw new UncheckedTimeoutException(ex);
-    }
+    return invoke(() -> invocation.invoke(responseType));
   }
 
   @Override
   public <T> T invoke(GenericType<T> responseType) {
-    long nanoTime = TimeSource.nanoTime();
-    try (ExecutionContext ec = ExecutionContexts.start(target.toString(), nanoTime, deadlineNanos)) {
-      return executor.call(() -> invocation.invoke(responseType), RuntimeException.class);
-    } catch (InterruptedException ex) {
-      Thread.currentThread().interrupt();
-      throw new RuntimeException(ex);
-    } catch (TimeoutException ex) {
-      throw new UncheckedTimeoutException(ex);
-    }
+    return invoke(() -> invocation.invoke(responseType));
   }
 
   @Override
   public Future<Response> submit() {
-    long nanoTime = TimeSource.nanoTime();
-    try (ExecutionContext ec = ExecutionContexts.start(target.toString(), nanoTime, deadlineNanos)) {
-      return executor.submit(invocation::invoke);
-    }
+    return submit(invocation::invoke);
   }
 
   @Override
   public <T> Future<T> submit(Class<T> responseType) {
-    long nanoTime = TimeSource.nanoTime();
-    try (ExecutionContext ec = ExecutionContexts.start(target.toString(), nanoTime, deadlineNanos)) {
-      return executor.submit(() -> invocation.invoke(responseType));
-    }
+    return submit(() -> invocation.invoke(responseType));
   }
 
   @Override
   public <T> Future<T> submit(GenericType<T> responseType) {
-    long nanoTime = TimeSource.nanoTime();
-    try (ExecutionContext ec = ExecutionContexts.start(target.toString(), nanoTime, deadlineNanos)) {
-      return executor.submit(() -> invocation.invoke(responseType));
-    }
+    return submit(() -> invocation.invoke(responseType));
   }
 
   @Override
   public <T> Future<T> submit(InvocationCallback<T> callback) {
-
     final Type callbackParamType;
     final ReflectionHelper.DeclaringClassInterfacePair pair
             = ReflectionHelper.getClass(callback.getClass(), InvocationCallback.class);
@@ -118,32 +127,34 @@ public class Spf4jInvocation implements Invocation {
       callbackParamType = typeArguments[0];
     }
     final Class<T> callbackParamClass = ReflectionHelper.erasure(callbackParamType);
-    long nanoTime = TimeSource.nanoTime();
-    try (ExecutionContext ec = ExecutionContexts.start(target.toString(), nanoTime, deadlineNanos)) {
-      if (Response.class == callbackParamClass) {
-        return executor.submit(() -> {
-          try {
-            Response resp = invocation.invoke();
-            callback.completed((T) resp);
-            return resp;
-          } catch (Throwable t) {
-            callback.failed(t);
-            throw t;
-          }
-        });
-      } else {
-        return executor.submit(() -> {
-          try {
-            T resp = invocation.invoke(new GenericType<>(callbackParamType));
-            callback.completed(resp);
-            return resp;
-          } catch (Throwable t) {
-            callback.failed(t);
-            throw t;
-          }
-        });
-      }
+    if (Response.class == callbackParamClass) {
+      return (Future<T>) submit(() -> {
+        try {
+          Response resp = invocation.invoke();
+          callback.completed((T) resp);
+          return resp;
+        } catch (Throwable t) {
+          callback.failed(t);
+          throw t;
+        }
+      });
+    } else {
+      return (Future<T>) submit(() -> {
+        try {
+          T resp = invocation.invoke(new GenericType<>(callbackParamType));
+          callback.completed(resp);
+          return resp;
+        } catch (Throwable t) {
+          callback.failed(t);
+          throw t;
+        }
+      });
     }
-
   }
+
+  @Override
+  public Invocation getWrapped() {
+    return this.invocation;
+  }
+
 }
