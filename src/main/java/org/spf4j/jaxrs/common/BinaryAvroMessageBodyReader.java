@@ -8,25 +8,24 @@ import javax.ws.rs.ext.Provider;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaResolver;
 import org.apache.avro.io.Decoder;
-import org.apache.avro.io.ExtendedJsonDecoder;
+import org.apache.avro.io.DecoderFactory;
 
 /**
  * @author Zoltan Farkas
  */
 @Provider
-@Consumes({"application/json", "text/plain"})
-public class JsonAvroMessageBodyReader extends AvroMessageBodyReader {
+@Consumes({"application/octet-stream"})
+public class BinaryAvroMessageBodyReader extends AvroMessageBodyReader {
 
 
   @Inject
-  public JsonAvroMessageBodyReader(final SchemaResolver client) {
+  public BinaryAvroMessageBodyReader(final SchemaResolver client) {
     super(client);
   }
 
   @Override
   public Decoder getDecoder(Schema writerSchema, InputStream is) throws IOException {
-    return new ExtendedJsonDecoder(writerSchema, is);
+    return DecoderFactory.get().binaryDecoder(is, null);
   }
-
 
 }

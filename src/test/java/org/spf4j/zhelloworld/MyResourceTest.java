@@ -9,11 +9,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 
 import org.glassfish.grizzly.http.server.HttpServer;
-import org.glassfish.jersey.client.ClientProperties;
 import org.hamcrest.Matchers;
 
 import org.junit.AfterClass;
@@ -24,15 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spf4j.base.UncheckedTimeoutException;
 import org.spf4j.base.avro.ServiceError;
-import org.spf4j.concurrent.DefaultContextAwareExecutor;
-import org.spf4j.concurrent.DefaultContextAwareScheduledExecutor;
-import org.spf4j.jaxrs.client.ExecutionContextClientFilter;
-import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
-import org.spf4j.jaxrs.common.CustomExecutorServiceProvider;
-import org.spf4j.jaxrs.common.CustomScheduledExecutionServiceProvider;
-import org.spf4j.jaxrs.common.JsonAvroMessageBodyReader;
-import org.spf4j.jaxrs.common.JsonAvroMessageBodyWriter;
 import org.spf4j.log.Level;
 import org.spf4j.test.log.LogAssert;
 import org.spf4j.test.log.TestLogRecord;
@@ -51,27 +41,14 @@ public class MyResourceTest {
     // start the server
     server = Main.startServer();
     // create the client
-    Spf4JClient c = new Spf4JClient(ClientBuilder
-            .newBuilder()
-            .connectTimeout(2, TimeUnit.SECONDS)
-            .executorService(DefaultContextAwareExecutor.instance())
-            .scheduledExecutorService(DefaultContextAwareScheduledExecutor.instance())
-            .readTimeout(30, TimeUnit.SECONDS)
-            .register(DemoApplication.getInstance().getAppBinder())
-            .register(ExecutionContextClientFilter.class)
-            .register(CustomExecutorServiceProvider.class)
-            .register(CustomScheduledExecutionServiceProvider.class)
-            .register(new JsonAvroMessageBodyReader(DemoApplication.getInstance().getSchemaClient()))
-            .register(new JsonAvroMessageBodyWriter(DemoApplication.getInstance().getSchemaClient()))
-            .property(ClientProperties.USE_ENCODING, "gzip")
-            .build());
+
 
     // uncomment the following line if you want to enable
     // support for JSON in the client (you also have to uncomment
     // dependency on jersey-media-json module in pom.xml and Main.startServer())
     // --
     // c.configuration().enable(new org.glassfish.jersey.media.json.JsonJaxbFeature());
-    target = c.target(Main.BASE_URI);
+    target = DemoApplication.getInstance().getRestClient().target(Main.BASE_URI);
   }
 
   @AfterClass

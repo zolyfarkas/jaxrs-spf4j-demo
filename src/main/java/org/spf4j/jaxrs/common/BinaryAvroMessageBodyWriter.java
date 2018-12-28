@@ -8,23 +8,23 @@ import javax.ws.rs.ext.Provider;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaResolver;
 import org.apache.avro.io.Encoder;
-import org.apache.avro.io.ExtendedJsonEncoder;
+import org.apache.avro.io.EncoderFactory;
 
 /**
  * @author Zoltan Farkas
  */
 @Provider
-@Produces({"application/json", "text/plain"})
-public class JsonAvroMessageBodyWriter extends  AvroMessageBodyWriter {
+@Produces({"application/octet-stream"})
+public class BinaryAvroMessageBodyWriter extends  AvroMessageBodyWriter {
 
   @Inject
-  public JsonAvroMessageBodyWriter(final SchemaResolver client) {
+  public BinaryAvroMessageBodyWriter(final SchemaResolver client) {
     super(client);
   }
 
   @Override
   public Encoder getEncoder(Schema writerSchema, OutputStream os) throws IOException {
-    return new ExtendedJsonEncoder(writerSchema, os);
+    return EncoderFactory.get().binaryEncoder(os, null);
   }
 
 

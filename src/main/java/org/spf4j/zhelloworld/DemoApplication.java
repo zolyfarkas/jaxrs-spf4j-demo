@@ -16,6 +16,8 @@ import org.spf4j.concurrent.DefaultContextAwareExecutor;
 import org.spf4j.concurrent.DefaultContextAwareScheduledExecutor;
 import org.spf4j.jaxrs.client.ExecutionContextClientFilter;
 import org.spf4j.jaxrs.client.Spf4JClient;
+import org.spf4j.jaxrs.common.BinaryAvroMessageBodyReader;
+import org.spf4j.jaxrs.common.BinaryAvroMessageBodyWriter;
 import org.spf4j.jaxrs.common.CustomExecutorServiceProvider;
 import org.spf4j.jaxrs.common.CustomScheduledExecutionServiceProvider;
 import org.spf4j.jaxrs.common.JsonAvroMessageBodyReader;
@@ -48,12 +50,13 @@ public class DemoApplication extends ResourceConfig {
             .executorService(DefaultContextAwareExecutor.instance())
             .scheduledExecutorService(DefaultContextAwareScheduledExecutor.instance())
             .readTimeout(60, TimeUnit.SECONDS)
-            .register(DemoApplication.getInstance().getAppBinder())
             .register(ExecutionContextClientFilter.class)
             .register(CustomExecutorServiceProvider.class)
             .register(CustomScheduledExecutionServiceProvider.class)
-            .register(new JsonAvroMessageBodyReader(DemoApplication.getInstance().getClient()))
-            .register(new JsonAvroMessageBodyWriter(DemoApplication.getInstance().getClient()))
+            .register(new JsonAvroMessageBodyReader(schemaClient))
+            .register(new JsonAvroMessageBodyWriter(schemaClient))
+            .register(new BinaryAvroMessageBodyReader(schemaClient))
+            .register(new BinaryAvroMessageBodyWriter(schemaClient))
             .property(ClientProperties.USE_ENCODING, "gzip")
             .build());
     appBinder = new AppBinder();
