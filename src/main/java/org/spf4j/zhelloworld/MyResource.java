@@ -138,8 +138,11 @@ public class MyResource {
   @Produces(MediaType.TEXT_PLAIN)
   @Path("flakyHello")
   public String flakyHello() throws InterruptedException, TimeoutException {
-      if (ThreadLocalRandom.current().nextInt(10) > 3) {
+      int randomNr = ThreadLocalRandom.current().nextInt(10);
+      if (randomNr < 3) {
         throw new ServiceUnavailableException(0L);
+      } else if (randomNr < 6) {
+        Thread.sleep(1000);
       }
       return "Hello";
   }
@@ -148,8 +151,11 @@ public class MyResource {
   @Produces(MediaType.TEXT_PLAIN)
   @Path("flakyWorld")
   public String flakyWorld() throws InterruptedException, TimeoutException {
-      if (ThreadLocalRandom.current().nextInt(10) > 3) {
+      int randomNr = ThreadLocalRandom.current().nextInt(10);
+      if (randomNr < 3) {
         throw new ServiceUnavailableException(0L);
+      } else if (randomNr < 6) {
+        Thread.sleep(1000);
       }
       return "World";
   }
