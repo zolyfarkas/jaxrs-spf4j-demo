@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spf4j.base.UncheckedTimeoutException;
+import org.spf4j.base.avro.ServiceError;
 import org.spf4j.concurrent.DefaultContextAwareExecutor;
 import org.spf4j.concurrent.DefaultContextAwareScheduledExecutor;
 import org.spf4j.jaxrs.client.ExecutionContextClientFilter;
@@ -30,6 +31,8 @@ import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
 import org.spf4j.jaxrs.common.CustomExecutorServiceProvider;
 import org.spf4j.jaxrs.common.CustomScheduledExecutionServiceProvider;
+import org.spf4j.jaxrs.common.JsonAvroMessageBodyReader;
+import org.spf4j.jaxrs.common.JsonAvroMessageBodyWriter;
 import org.spf4j.log.Level;
 import org.spf4j.test.log.LogAssert;
 import org.spf4j.test.log.TestLogRecord;
@@ -54,9 +57,12 @@ public class MyResourceTest {
             .executorService(DefaultContextAwareExecutor.instance())
             .scheduledExecutorService(DefaultContextAwareScheduledExecutor.instance())
             .readTimeout(30, TimeUnit.SECONDS)
+            .register(DemoApplication.getInstance().getAppBinder())
             .register(ExecutionContextClientFilter.class)
             .register(CustomExecutorServiceProvider.class)
             .register(CustomScheduledExecutionServiceProvider.class)
+            .register(new JsonAvroMessageBodyReader(DemoApplication.getInstance().getSchemaClient()))
+            .register(new JsonAvroMessageBodyWriter(DemoApplication.getInstance().getSchemaClient()))
             .property(ClientProperties.USE_ENCODING, "gzip")
             .build());
 
@@ -161,7 +167,7 @@ public class MyResourceTest {
       request.get(String.class);
       Assert.fail();
     } catch (InternalServerErrorException ex) {
-      LOG.debug("Expected Error Response", ex.getResponse().readEntity(String.class), ex);
+      LOG.debug("Expected Error Response", ex.getResponse().readEntity(ServiceError.class), ex);
     }
     expect.assertObservation();
   }

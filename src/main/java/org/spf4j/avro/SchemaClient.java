@@ -29,6 +29,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import org.apache.avro.Schema;
+import org.apache.avro.SchemaResolver;
 import org.glassfish.jersey.client.ClientProperties;
 import org.spf4j.base.UncheckedExecutionException;
 import org.spf4j.concurrent.DefaultContextAwareExecutor;
@@ -42,7 +43,7 @@ import org.spf4j.jaxrs.common.CustomScheduledExecutionServiceProvider;
 /**
  * @author Zoltan Farkas
  */
-public final class SchemaClient implements SchemaSupplier {
+public final class SchemaClient implements SchemaResolver {
 
   private final String schemaArtifactClassifier;
 
@@ -93,7 +94,7 @@ public final class SchemaClient implements SchemaSupplier {
   }
 
   @Override
-  public Schema get(final String id) {
+  public Schema resolveSchema(final String id) {
     try {
       return memoryCache.get(id);
     } catch (ExecutionException | com.google.common.util.concurrent.UncheckedExecutionException ex) {
@@ -182,25 +183,30 @@ public final class SchemaClient implements SchemaSupplier {
         }
       }
     }
-      URI mUri = remoteMavenRepo.resolve(groupPath).resolve(artifactId).resolve(version)
-              .resolve(fileName);
-      Files.createDirectories(folder);
-      Path tmpDownload = Files.createTempFile(folder, ".schArtf", ".tmp");
-      try {
-        try (InputStream is = client.target(mUri).request(MediaType.WILDCARD_TYPE).get(InputStream.class);
-                BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(tmpDownload))) {
-          Streams.copy(is, bos);
-        }
-        Files.move(tmpDownload, result, StandardCopyOption.ATOMIC_MOVE);
-      } catch (IOException | RuntimeException ex) {
-        Logger logger = Logger.getLogger(SchemaClient.class.getName());
-        logger.log(Level.FINE, "Cannot download {0}", mUri);
-        logger.log(Level.FINE, "Exception detail", ex);
-        Files.write(tmpDownload, java.util.Arrays.asList(Instant.now().toString()), StandardCharsets.UTF_8);
-        Files.move(tmpDownload, folder.resolve(fileName + ".fts"), StandardCopyOption.ATOMIC_MOVE);
-        throw ex;
+    URI mUri = remoteMavenRepo.resolve(groupPath).resolve(artifactId).resolve(version)
+            .resolve(fileName);
+    Files.createDirectories(folder);
+    Path tmpDownload = Files.createTempFile(folder, ".schArtf", ".tmp");
+    try {
+      try (InputStream is = client.target(mUri).request(MediaType.WILDCARD_TYPE).get(InputStream.class);
+              BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(tmpDownload))) {
+        Streams.copy(is, bos);
       }
-      return result;
+      Files.move(tmpDownload, result, StandardCopyOption.ATOMIC_MOVE);
+    } catch (IOException | RuntimeException ex) {
+      Logger logger = Logger.getLogger(SchemaClient.class.getName());
+      logger.log(Level.FINE, "Cannot download {0}", mUri);
+      logger.log(Level.FINE, "Exception detail", ex);
+      Files.write(tmpDownload, java.util.Arrays.asList(Instant.now().toString()), StandardCharsets.UTF_8);
+      Files.move(tmpDownload, folder.resolve(fileName + ".fts"), StandardCopyOption.ATOMIC_MOVE);
+      throw ex;
     }
-
+    return result;
   }
+
+  @Override
+  public String getId(Schema schema) {
+    return schema.getProp("mvnId");
+  }
+
+}

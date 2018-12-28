@@ -7,11 +7,13 @@ import org.glassfish.grizzly.servlet.WebappContext;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
-import javax.servlet.ServletRegistration;
+import javax.ws.rs.client.ClientBuilder;
 import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
+import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.spf4j.concurrent.LifoThreadPoolBuilder;
 import org.spf4j.servlet.ExecutionContextFilter;
@@ -31,14 +33,15 @@ public class Main {
    */
   public static HttpServer startServer() throws IOException {
     WebappContext webappContext = new WebappContext("grizzly web context", "");
-
     FilterRegistration testFilterReg = webappContext.addFilter("server", ExecutionContextFilter.class);
     testFilterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
-
     ServletRegistration servletRegistration = webappContext.addServlet("jersey", ServletContainer.class);
     servletRegistration.addMapping("/demo/*");
+    servletRegistration.setInitParameter("javax.ws.rs.Application", "org.spf4j.zhelloworld.DemoApplication");
     servletRegistration.setInitParameter("jersey.config.server.provider.packages",
             "org.spf4j.zhelloworld;org.spf4j.jaxrs.common;org.spf4j.jaxrs.server");
+    servletRegistration.setLoadOnStartup(1);
+
     HttpServer server = new HttpServer();
 //  final ServerConfiguration config = server.getServerConfiguration();
 //  config.addHttpHandler(new StaticHttpHandler(docRoot), "/");
@@ -73,8 +76,6 @@ public class Main {
     return server;
   }
 
-  private static final CountDownLatch latch = new CountDownLatch(1);
-
   /**
    * Main method.
    *
@@ -82,6 +83,7 @@ public class Main {
    * @throws IOException
    */
   public static void main(String[] args) throws IOException, InterruptedException {
+    final CountDownLatch latch = new CountDownLatch(1);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
@@ -89,15 +91,11 @@ public class Main {
       }
 
     });
-    GlobalTracer.register(
-            new Configuration(
-                    "zhelloworld"
-            ).getTracer());
-
     final HttpServer server = startServer();
     System.out.println(String.format("Jersey app started with WADL available at "
             + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
     latch.await();
-    server.stop();
+    server.shutdown(30, TimeUnit.SECONDS);
+    server.shutdownNow();
   }
 }

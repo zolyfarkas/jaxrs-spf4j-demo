@@ -2,8 +2,10 @@ package org.spf4j.jaxrs.common;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import javax.inject.Inject;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -11,11 +13,16 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
 import org.apache.avro.Schema;
+import org.apache.avro.SchemaResolver;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
 import org.apache.avro.io.ExtendedJsonEncoder;
 import org.apache.avro.specific.ExtendedSpecificDatumWriter;
 import org.apache.avro.specific.SpecificRecord;
+import org.codehaus.jackson.JsonGenerator;
+import org.apache.avro.AvroNamesRefResolver;
+import org.spf4j.base.Json;
+import org.spf4j.http.Headers;
 
 /**
  * @author Zoltan Farkas
@@ -23,6 +30,14 @@ import org.apache.avro.specific.SpecificRecord;
 @Provider
 @Produces({"application/json", "text/plain"})
 public class JsonAvroMessageBodyWriter implements MessageBodyWriter<SpecificRecord> {
+
+
+  private final SchemaResolver client;
+
+  @Inject
+  public JsonAvroMessageBodyWriter(final SchemaResolver client) {
+    this.client = client;
+  }
 
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -36,11 +51,17 @@ public class JsonAvroMessageBodyWriter implements MessageBodyWriter<SpecificReco
           throws IOException, WebApplicationException {
     Schema schema = t.getSchema();
     String id = schema.getProp("mvnId");
+    String strSchema;
     if (id  == null || id.contains("SNAPSHOT")) {
-      httpHeaders.add("Content-Schema", schema);
+      strSchema = schema.toString();
     } else {
-      httpHeaders.add("Content-Schema-Ref", id);
+      StringWriter sw = new StringWriter();
+      JsonGenerator jgen = Json.FACTORY.createJsonGenerator(sw);
+      schema.toJson(new AvroNamesRefResolver(client), jgen);
+      jgen.flush();
+      strSchema = sw.toString();
     }
+    httpHeaders.add(Headers.CONTENT_SCHEMA, strSchema);
     DatumWriter writer = new ExtendedSpecificDatumWriter(t.getClass());
     Encoder encoder = new ExtendedJsonEncoder(schema, entityStream);
     writer.write(t, encoder);

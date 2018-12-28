@@ -23,7 +23,7 @@ public class SchemaClientTest {
   @Test
   public void testSchemaClient() throws URISyntaxException {
     SchemaClient client = new SchemaClient(new URI("https://dl.bintray.com/zolyfarkas/core"));
-    Schema schema = client.get(DebugDetail.getClassSchema().getProp("mvnId"));
+    Schema schema = client.resolveSchema(DebugDetail.getClassSchema().getProp("mvnId"));
     Assert.assertEquals(DebugDetail.SCHEMA$.getName(), schema.getName());
   }
 
@@ -31,13 +31,13 @@ public class SchemaClientTest {
   public void testSchemaClient2() throws URISyntaxException {
     SchemaClient client = new SchemaClient(new URI("https://dl.bintray.com/zolyfarkas/core"));
     try {
-      client.get("a:b:c:r");
+      client.resolveSchema("a:b:c:r");
       Assert.fail();
     } catch (NotFoundException ex) {
       LOG.debug("Expected exception", ex);
     }
     try {
-      client.get("a:b:c:r");
+      client.resolveSchema("a:b:c:r");
     } catch (NotFoundException ex) {
       Assert.assertThat(ex.getMessage(), Matchers.containsString("re-attempt"));
       LOG.debug("Expected exception", ex);
