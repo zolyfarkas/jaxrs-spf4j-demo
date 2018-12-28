@@ -7,21 +7,15 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import org.spf4j.failsafe.AsyncRetryExecutor;
-import org.spf4j.failsafe.HedgePolicy;
 import org.spf4j.failsafe.RetryDecision;
 import org.spf4j.failsafe.RetryPolicy;
-import org.spf4j.failsafe.concurrent.DefaultFailSafeExecutor;
 
 /**
  * @author Zoltan Farkas
  */
 public final class FailsafeDefaults {
 
-  private FailsafeDefaults() { }
-
-  private static final AsyncRetryExecutor<Object, Callable<? extends Object>> DEFAULT_HTTP_RETRY_EXEC
-          = RetryPolicy.newBuilder()
+  public static final RetryPolicy HTTP_RETRY_POLICY = RetryPolicy.newBuilder()
                   .withDefaultThrowableRetryPredicate()
                   .withExceptionPartialPredicate(WebApplicationException.class,
                           (WebApplicationException ex, Callable<? extends Object> c) -> {
@@ -61,11 +55,13 @@ public final class FailsafeDefaults {
                             return null;
                           })
                   .withRetryOnException(Exception.class, 2) // will retry any other exception twice.
-                  .build()
-                  .async(HedgePolicy.DEFAULT, DefaultFailSafeExecutor.instance());
+                  .build();
 
-  public static AsyncRetryExecutor<Object, Callable<? extends Object>> defaultExecutor() {
-    return DEFAULT_HTTP_RETRY_EXEC;
+  private FailsafeDefaults() { }
+
+  public static RetryPolicy defaultRetryPolicy() {
+    return HTTP_RETRY_POLICY;
   }
+
 
 }

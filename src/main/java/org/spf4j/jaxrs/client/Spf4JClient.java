@@ -19,6 +19,10 @@ import javax.ws.rs.core.UriBuilder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.spf4j.failsafe.AsyncRetryExecutor;
+import org.spf4j.failsafe.HedgePolicy;
+import org.spf4j.failsafe.RetryPolicy;
+import org.spf4j.failsafe.concurrent.DefaultFailSafeExecutor;
+import org.spf4j.failsafe.concurrent.FailSafeExecutor;
 
 /**
  *
@@ -35,9 +39,21 @@ public class Spf4JClient implements Client {
 
   private final Client cl;
 
+  private final RetryPolicy retryPolicy;
+
+  private final HedgePolicy hedgePolicy;
+
+  private final FailSafeExecutor fsExec;
+
   private final AsyncRetryExecutor<Object, Callable<? extends Object>> executor;
 
   public Spf4JClient(final  Client cl) {
+    this(cl, FailsafeDefaults.defaultRetryPolicy(), HedgePolicy.DEFAULT, DefaultFailSafeExecutor.instance());
+  }
+
+
+  public Spf4JClient(final  Client cl, final RetryPolicy retryPolicy, final HedgePolicy hedgePolicy,
+          final FailSafeExecutor fsExec) {
     this.cl = cl;
     ClientConfig configuration = (ClientConfig) cl.getConfiguration();
     HttpUrlConnectorProvider httpUrlConnectorProvider = new HttpUrlConnectorProvider();
@@ -71,7 +87,15 @@ public class Spf4JClient implements Client {
       }
     });
     configuration.connectorProvider(httpUrlConnectorProvider);
-    this.executor = FailsafeDefaults.defaultExecutor();
+    this.retryPolicy = retryPolicy;
+    this.hedgePolicy = hedgePolicy;
+    this.fsExec = fsExec;
+    this.executor = retryPolicy.async(hedgePolicy, fsExec);
+  }
+
+
+  public Spf4JClient withHedgePolicy(final HedgePolicy hp) {
+    return new Spf4JClient(cl, retryPolicy, hp, fsExec);
   }
 
   @Override

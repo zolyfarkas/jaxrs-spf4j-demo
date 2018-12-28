@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spf4j.base.UncheckedTimeoutException;
 import org.spf4j.base.avro.ServiceError;
+import org.spf4j.failsafe.TimeoutRelativeHedge;
+import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
 import org.spf4j.log.Level;
 import org.spf4j.test.log.LogAssert;
@@ -35,12 +37,14 @@ public class MyResourceTest {
 
   private static HttpServer server;
   private static Spf4jWebTarget target;
+  private static Spf4JClient client;
 
   @BeforeClass
   public static void setUp() throws Exception {
     // start the server
     server = Main.startServer();
     // create the client
+    client = DemoApplication.getInstance().getRestClient();
 
 
     // uncomment the following line if you want to enable
@@ -48,7 +52,7 @@ public class MyResourceTest {
     // dependency on jersey-media-json module in pom.xml and Main.startServer())
     // --
     // c.configuration().enable(new org.glassfish.jersey.media.json.JsonJaxbFeature());
-    target = DemoApplication.getInstance().getRestClient().target(Main.BASE_URI);
+    target = client.target(Main.BASE_URI);
   }
 
   @AfterClass
@@ -81,7 +85,9 @@ public class MyResourceTest {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
             true, LogMatchers.hasMessageWithPattern("Done GET /myresource.*"),
             Matchers.any((Class) Iterable.class));
-    Invocation.Builder request = target.path("demo/myresource/flakyHelloWorld").request();
+    Invocation.Builder request = client.withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
+        TimeUnit.MILLISECONDS.toNanos(200), 2))
+        .target(Main.BASE_URI).path("demo/myresource/flakyHelloWorld").request();
     Future<String> responseMsg = request.buildGet().submit(String.class);
     Assert.assertThat(responseMsg.get(2, TimeUnit.SECONDS), Matchers.startsWith("Hello World"));
     expect.assertObservation();

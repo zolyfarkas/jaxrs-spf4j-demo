@@ -117,8 +117,11 @@ public class MyResource {
   @Produces(MediaType.TEXT_PLAIN)
   @Path("flakyHelloWorld")
   public void flakyHelloWorld(@Suspended final AsyncResponse ar) throws InterruptedException, TimeoutException {
-      if (ThreadLocalRandom.current().nextInt(10) > 3) {
+      int randomNr = ThreadLocalRandom.current().nextInt(10);
+      if (randomNr < 3) {
         throw new ServiceUnavailableException(0L);
+      } else if (randomNr < 6) {
+        Thread.sleep(1000);
       }
       Spf4jWebTarget base = cl.target(Main.BASE_URI).path("demo/myresource");
       base.path("flakyHello").request(MediaType.TEXT_PLAIN).rx().get(String.class)
