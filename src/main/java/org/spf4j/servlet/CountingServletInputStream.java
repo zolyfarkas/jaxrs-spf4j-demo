@@ -93,7 +93,7 @@ public final class CountingServletInputStream extends ServletInputStream
     return in;
   }
 
-  public long getMark() {
+  public synchronized long getMark() {
     return mark;
   }
 
