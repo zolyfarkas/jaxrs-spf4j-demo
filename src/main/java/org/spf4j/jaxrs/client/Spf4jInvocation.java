@@ -1,11 +1,13 @@
 package org.spf4j.jaxrs.client;
 
 import java.lang.reflect.Type;
-import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import javax.annotation.CheckReturnValue;
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.core.GenericType;
@@ -13,10 +15,16 @@ import javax.ws.rs.core.Response;
 import org.glassfish.jersey.internal.util.ReflectionHelper;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
+import org.spf4j.base.Throwables;
 import org.spf4j.base.TimeSource;
 import org.spf4j.base.UncheckedTimeoutException;
 import org.spf4j.base.Wrapper;
+import org.spf4j.base.avro.Converters;
+import org.spf4j.base.avro.DebugDetail;
+import org.spf4j.base.avro.LogRecord;
+import org.spf4j.base.avro.ServiceError;
 import org.spf4j.failsafe.AsyncRetryExecutor;
+import org.spf4j.log.AvroLogRecordImpl;
 
 /**
  * @author Zoltan Farkas
@@ -72,7 +80,36 @@ public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
       throw new RuntimeException(ex);
     } catch (TimeoutException ex) {
       throw new UncheckedTimeoutException(ex);
+    } catch (WebApplicationException ex) {
+      throw handleServiceError(ex, current);
     }
+  }
+
+  @CheckReturnValue
+  public WebApplicationException handleServiceError(final WebApplicationException ex,
+          final ExecutionContext current) throws WebApplicationException {
+    Response response = ex.getResponse();
+    ServiceError se;
+    try {
+      se = response.readEntity(ServiceError.class);
+    } catch (ProcessingException e) {
+      // not a Propagable service error.
+      ex.addSuppressed(e);
+      return ex;
+    }
+    DebugDetail detail = se.getDetail();
+    if (detail != null) {
+      org.spf4j.base.avro.Throwable throwable = detail.getThrowable();
+      if (throwable != null) {
+        Throwables.setRootCause(ex, Converters.convert(detail.getOrigin(), throwable));
+      }
+      if (current != null) {
+        for (LogRecord log : detail.getLogs()) {
+          current.addLog(new AvroLogRecordImpl(log));
+        }
+      }
+    }
+    return ex;
   }
 
   private <T> Future<T> submit(Callable<T> what) {

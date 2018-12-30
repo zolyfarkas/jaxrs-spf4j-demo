@@ -14,7 +14,7 @@ import org.apache.avro.io.ExtendedJsonEncoder;
  * @author Zoltan Farkas
  */
 @Provider
-@Produces({"application/json", "text/plain"})
+@Produces({"application/json;fmt=avro", "text/plain;fmt=avro"})
 public class JsonAvroMessageBodyWriter extends  AvroMessageBodyWriter {
 
   @Inject

@@ -14,7 +14,7 @@ import org.apache.avro.io.ExtendedJsonDecoder;
  * @author Zoltan Farkas
  */
 @Provider
-@Consumes({"application/json", "text/plain"})
+@Consumes({"application/json;fmt=avro", "text/plain;fmt=avro"})
 public class JsonAvroMessageBodyReader extends AvroMessageBodyReader {
 
 
