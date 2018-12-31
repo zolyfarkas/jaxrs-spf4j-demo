@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spf4j.base.UncheckedTimeoutException;
+import org.spf4j.base.avro.RemoteException;
 import org.spf4j.base.avro.ServiceError;
 import org.spf4j.failsafe.TimeoutRelativeHedge;
 import org.spf4j.jaxrs.client.Spf4JClient;
@@ -126,6 +127,26 @@ public class MyResourceTest {
       Assert.fail();
     } catch (InternalServerErrorException | UncheckedTimeoutException ex) {
       LOG.debug("Expected Error Response", ex);
+      Assert.assertEquals(RemoteException.class, com.google.common.base.Throwables.getRootCause(ex).getClass());
+    } finally {
+      expect.assertObservation(10, TimeUnit.SECONDS);
+    }
+  }
+
+  @Test(timeout = 10000)
+  public void testAError2() throws InterruptedException {
+    LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
+            true, LogMatchers.hasMessageWithPattern("Done GET /myresource/aError"),
+            Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
+    try  {
+      target.path("demo/myresource/aError")
+             .request()
+              .withTimeout(500, TimeUnit.MILLISECONDS)
+              .async().get(String.class).get();
+      Assert.fail();
+    } catch (ExecutionException ex) {
+      LOG.debug("Expected Error Response", ex);
+      Assert.assertEquals(RemoteException.class, com.google.common.base.Throwables.getRootCause(ex).getClass());
     } finally {
       expect.assertObservation(10, TimeUnit.SECONDS);
     }

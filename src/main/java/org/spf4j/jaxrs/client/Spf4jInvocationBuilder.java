@@ -92,7 +92,7 @@ public class Spf4jInvocationBuilder implements Invocation.Builder {
 
   @Override
   public AsyncInvoker async() {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return new Spf4jAsyncInvoker(this);
   }
 
   @Override

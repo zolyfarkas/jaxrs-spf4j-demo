@@ -5,17 +5,26 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.CheckReturnValue;
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import org.spf4j.base.ExecutionContext;
+import org.spf4j.base.Throwables;
+import org.spf4j.base.avro.Converters;
+import org.spf4j.base.avro.DebugDetail;
+import org.spf4j.base.avro.LogRecord;
+import org.spf4j.base.avro.ServiceError;
 import org.spf4j.failsafe.RetryDecision;
 import org.spf4j.failsafe.RetryPolicy;
+import org.spf4j.log.AvroLogRecordImpl;
 
 /**
  * @author Zoltan Farkas
  */
-public final class FailsafeDefaults {
+public final class Utils {
 
-  public static final RetryPolicy HTTP_RETRY_POLICY = RetryPolicy.newBuilder()
+  public static final RetryPolicy DEFAULT_HTTP_RETRY_POLICY = RetryPolicy.newBuilder()
                   .withDefaultThrowableRetryPredicate()
                   .withExceptionPartialPredicate(WebApplicationException.class,
                           (WebApplicationException ex, Callable<? extends Object> c) -> {
@@ -57,11 +66,37 @@ public final class FailsafeDefaults {
                   .withRetryOnException(Exception.class, 2) // will retry any other exception twice.
                   .build();
 
-  private FailsafeDefaults() { }
+  private Utils() { }
 
   public static RetryPolicy defaultRetryPolicy() {
-    return HTTP_RETRY_POLICY;
+    return DEFAULT_HTTP_RETRY_POLICY;
   }
 
+  @CheckReturnValue
+  public static WebApplicationException handleServiceError(final WebApplicationException ex,
+          final ExecutionContext current) throws WebApplicationException {
+    Response response = ex.getResponse();
+    ServiceError se;
+    try {
+      se = response.readEntity(ServiceError.class);
+    } catch (ProcessingException e) {
+      // not a Propagable service error.
+      ex.addSuppressed(e);
+      return ex;
+    }
+    DebugDetail detail = se.getDetail();
+    if (detail != null) {
+      org.spf4j.base.avro.Throwable throwable = detail.getThrowable();
+      if (throwable != null) {
+        Throwables.setRootCause(ex, Converters.convert(detail.getOrigin(), throwable));
+      }
+      if (current != null) {
+        for (LogRecord log : detail.getLogs()) {
+          current.addLog(new AvroLogRecordImpl(log));
+        }
+      }
+    }
+    return ex;
+  }
 
 }

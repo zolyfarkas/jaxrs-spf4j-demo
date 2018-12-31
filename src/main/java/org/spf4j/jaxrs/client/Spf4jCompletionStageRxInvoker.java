@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.CompletionStageRxInvoker;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
@@ -38,7 +39,19 @@ public class Spf4jCompletionStageRxInvoker
     ExecutionContext current = ExecutionContexts.current();
     long deadlineNanos = ExecutionContexts.computeDeadline(current, invocation.getTimeoutNanos(), TimeUnit.NANOSECONDS);
     Callable<T> pc = ExecutionContexts.propagatingCallable(what, current, name, deadlineNanos);
-    return executor.submitRx(pc, nanoTime, deadlineNanos);
+    return executor.submitRx(pc, nanoTime, deadlineNanos)
+            .handle((result, ex) -> {
+              if (ex != null) {
+                Throwable rex = com.google.common.base.Throwables.getRootCause(ex);
+                if (rex instanceof WebApplicationException) {
+                  throw Utils.handleServiceError((WebApplicationException) rex, current);
+                } else {
+                  throw new RuntimeException(ex);
+                }
+              } else {
+                return (T) result;
+              }
+            });
   }
 
   @Override
