@@ -98,7 +98,7 @@ public class MyResourceTest {
 
 
   @Test(timeout = 10000)
-  public void testATimeoout() {
+  public void testATimeoout() throws InterruptedException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.WARN,
             true, LogMatchers.hasMessageWithPattern("Done GET /myresource/aTimeout"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
@@ -111,6 +111,7 @@ public class MyResourceTest {
     } catch (InternalServerErrorException | UncheckedTimeoutException ex) {
       LOG.debug("Expected Error Response", ex);
     } finally {
+      Thread.sleep(3000); // wait for the server to try to write to diconnected client.
       expect.assertObservation(10, TimeUnit.SECONDS);
     }
   }
