@@ -59,7 +59,6 @@ public class MyResource {
   @Produces(MediaType.TEXT_PLAIN)
   @Path("error")
   public String error()  {
-    LOG.debug("entered error method");
     throw new RuntimeException("some exception in " + this);
   }
 

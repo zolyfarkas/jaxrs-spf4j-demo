@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -116,7 +117,7 @@ public final class SchemaClient implements SchemaResolver {
     synchronized (zipUri.toString().intern()) { // newFileSystem fails if already one there...
       try {
         zipFs = FileSystems.newFileSystem(zipUri, Collections.emptyMap());
-      } catch (IOException ex) {
+      } catch (FileSystemAlreadyExistsException ex) {
         zipFs = FileSystems.getFileSystem(zipUri);
       } catch (ZipError ze) {
         Logger logger = Logger.getLogger(SchemaClient.class.getName());

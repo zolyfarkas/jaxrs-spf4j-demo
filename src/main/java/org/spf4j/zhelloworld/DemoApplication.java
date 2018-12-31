@@ -22,7 +22,7 @@ import org.spf4j.jaxrs.common.CustomExecutorServiceProvider;
 import org.spf4j.jaxrs.common.CustomScheduledExecutionServiceProvider;
 import org.spf4j.jaxrs.common.JsonAvroMessageBodyReader;
 import org.spf4j.jaxrs.common.JsonAvroMessageBodyWriter;
-import org.spf4j.jaxrs.server.TimeoutInterceptionService;
+import org.spf4j.jaxrs.server.Spf4jInterceptionService;
 
 /**
  *
@@ -86,7 +86,7 @@ public class DemoApplication extends ResourceConfig {
       protected void configure() {
           bind(schemaClient).to(SchemaResolver.class);
           bind(restClient).to(Client.class);
-          bind(TimeoutInterceptionService.class)
+          bind(Spf4jInterceptionService.class)
                 .to(org.glassfish.hk2.api.InterceptionService.class)
                 .in(Singleton.class);
       }
