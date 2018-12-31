@@ -76,7 +76,7 @@ public class MyResource {
   @GET
   @Path("aTimeout")
   @Produces(MediaType.TEXT_PLAIN)
-  public void asyncTimeout(@Suspended final AsyncResponse ar) {
+  public void asyncTimeout(@Suspended final AsyncResponse ar) throws TimeoutException {
     DefaultContextAwareExecutor.instance().submit(() -> {
           try {
               //Simulating a long running process
