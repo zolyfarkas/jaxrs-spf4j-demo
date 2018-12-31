@@ -61,7 +61,13 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Exception> 
     if (ctx == null) { // Exception mapper can execute in a timeout thread, where context is not available,
         Logger.getLogger("handling.error")
                 .log(java.util.logging.Level.WARNING, "No request context available", exception);
-        return Response.serverError().entity(exception).build();
+        return Response.serverError().entity(ServiceError.newBuilder()
+            .setCode(status)
+            .setDetail(new DebugDetail(host,
+                    Collections.EMPTY_LIST, Converters.convert(exception)))
+            .setType(exception.getClass().getName())
+            .setMessage(exception.getMessage())
+            .build()).build();
     }
     if (status >= 500) {
       ctx.putToRoot(ContextTags.LOG_LEVEL, Level.ERROR);

@@ -91,6 +91,7 @@ public class MyResourceTest {
         .target(Main.BASE_URI).path("demo/myresource/flakyHelloWorld").request();
     Future<String> responseMsg = request.buildGet().submit(String.class);
     Assert.assertThat(responseMsg.get(2, TimeUnit.SECONDS), Matchers.startsWith("Hello World"));
+    LOG.info("Finished Flaky test");
     expect.assertObservation();
   }
 
