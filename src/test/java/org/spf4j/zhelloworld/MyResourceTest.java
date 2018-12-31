@@ -92,6 +92,7 @@ public class MyResourceTest {
     Future<String> responseMsg = request.buildGet().submit(String.class);
     Assert.assertThat(responseMsg.get(2, TimeUnit.SECONDS), Matchers.startsWith("Hello World"));
     LOG.info("Finished Flaky test");
+    Thread.sleep(3000); // to make sure simulated delayed errored calls finish.
     expect.assertObservation();
   }
 
