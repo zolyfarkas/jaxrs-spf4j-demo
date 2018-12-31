@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemAlreadyExistsException;
@@ -73,7 +74,16 @@ public final class SchemaClient implements SchemaResolver {
     this.schemaArtifactExtension = schemaArtifactExtension;
     this.failureCacheMillis = 5000;
     this.snapshotCacheMillis = 300000;
-    this.remoteMavenRepo = remoteMavenRepo;
+    try {
+      this.remoteMavenRepo = remoteMavenRepo.getPath().endsWith("/") ? remoteMavenRepo
+              : new URI(remoteMavenRepo.getScheme(),
+                      remoteMavenRepo.getUserInfo(),
+                      remoteMavenRepo.getHost(),
+                      remoteMavenRepo.getPort(), remoteMavenRepo.getPath() + '/',
+                      remoteMavenRepo.getQuery(), remoteMavenRepo.getFragment());
+    } catch (URISyntaxException ex) {
+     throw new RuntimeException(ex);
+    }
     this.localMavenRepo = localMavenRepo;
     this.client = new Spf4JClient(ClientBuilder
             .newBuilder()
@@ -157,7 +167,7 @@ public final class SchemaClient implements SchemaResolver {
    * @throws IOException
    */
   Path getSchemaPackage(final SchemaRef ref) throws IOException {
-    String groupPath = ref.getGroupId().replace('.', '/');
+    String groupPath = ref.getGroupId().replace('.', '/') + '/';
     String artifactId = ref.getArtifactId();
     String version = ref.getVersion();
     Path folder = localMavenRepo.resolve(groupPath)
@@ -184,7 +194,7 @@ public final class SchemaClient implements SchemaResolver {
         }
       }
     }
-    URI mUri = remoteMavenRepo.resolve(groupPath).resolve(artifactId).resolve(version)
+    URI mUri = remoteMavenRepo.resolve(groupPath).resolve(artifactId + '/').resolve(version + '/')
             .resolve(fileName);
     Files.createDirectories(folder);
     Path tmpDownload = Files.createTempFile(folder, ".schArtf", ".tmp");

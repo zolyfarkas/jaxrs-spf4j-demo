@@ -17,6 +17,7 @@ import org.spf4j.base.avro.LogRecord;
 import org.spf4j.base.avro.ServiceError;
 import org.spf4j.failsafe.RetryDecision;
 import org.spf4j.failsafe.RetryPolicy;
+import org.spf4j.http.Headers;
 import org.spf4j.log.AvroLogRecordImpl;
 
 /**
@@ -76,6 +77,9 @@ public final class Utils {
   public static WebApplicationException handleServiceError(final WebApplicationException ex,
           final ExecutionContext current) throws WebApplicationException {
     Response response = ex.getResponse();
+    if (response.getHeaders().getFirst(Headers.CONTENT_SCHEMA) == null) {
+      return ex;
+    }
     ServiceError se;
     try {
       se = response.readEntity(ServiceError.class);
