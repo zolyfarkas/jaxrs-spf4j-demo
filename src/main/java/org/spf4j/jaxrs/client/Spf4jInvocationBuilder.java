@@ -91,7 +91,7 @@ public class Spf4jInvocationBuilder implements Invocation.Builder {
   }
 
   @Override
-  public AsyncInvoker async() {
+  public Spf4jAsyncInvoker async() {
     return new Spf4jAsyncInvoker(this);
   }
 
