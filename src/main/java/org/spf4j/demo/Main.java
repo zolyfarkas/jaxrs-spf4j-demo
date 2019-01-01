@@ -1,4 +1,4 @@
-package org.spf4j.zhelloworld;
+package org.spf4j.demo;
 
 import io.jaegertracing.Configuration;
 import io.opentracing.util.GlobalTracer;
@@ -37,9 +37,9 @@ public class Main {
     testFilterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
     ServletRegistration servletRegistration = webappContext.addServlet("jersey", ServletContainer.class);
     servletRegistration.addMapping("/demo/*");
-    servletRegistration.setInitParameter("javax.ws.rs.Application", "org.spf4j.zhelloworld.DemoApplication");
+    servletRegistration.setInitParameter("javax.ws.rs.Application", "org.spf4j.demo.DemoApplication");
     servletRegistration.setInitParameter("jersey.config.server.provider.packages",
-            "org.spf4j.zhelloworld;org.spf4j.jaxrs.common;org.spf4j.jaxrs.server");
+            "org.spf4j.demo;org.spf4j.jaxrs.common;org.spf4j.jaxrs.server");
     servletRegistration.setLoadOnStartup(1);
 
     HttpServer server = new HttpServer();

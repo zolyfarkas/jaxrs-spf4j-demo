@@ -1,4 +1,4 @@
-package org.spf4j.zhelloworld;
+package org.spf4j.demo;
 
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -27,10 +27,10 @@ import org.spf4j.log.ExecContextLogger;
 /**
  * Root resource (exposed at "myresource" path)
  */
-@Path("myresource")
-public class MyResource {
+@Path("helloResource")
+public class HelloResource {
 
-  private static final ExecContextLogger LOG = new ExecContextLogger(LoggerFactory.getLogger(MyResource.class));
+  private static final ExecContextLogger LOG = new ExecContextLogger(LoggerFactory.getLogger(HelloResource.class));
 
   private final Spf4JClient cl = new Spf4JClient(ClientBuilder
             .newBuilder()
@@ -122,7 +122,7 @@ public class MyResource {
       } else if (randomNr < 6) {
         Thread.sleep(1000);
       }
-      Spf4jWebTarget base = cl.target(Main.BASE_URI).path("demo/myresource");
+      Spf4jWebTarget base = cl.target(Main.BASE_URI).path("demo/helloResource");
       base.path("flakyHello").request(MediaType.TEXT_PLAIN).rx().get(String.class)
               .thenCombine(base.path("flakyWorld").request(MediaType.TEXT_PLAIN).rx().get(String.class),
                       (h, w) -> h + ' ' + w
@@ -135,6 +135,21 @@ public class MyResource {
                       });
   }
 
+
+  @GET
+  @Produces(MediaType.TEXT_PLAIN)
+  @Path("flakyHelloWorldSync")
+  public String flakyHelloWorldSync() throws InterruptedException, TimeoutException {
+      int randomNr = ThreadLocalRandom.current().nextInt(10);
+      if (randomNr < 3) {
+        throw new ServiceUnavailableException(0L);
+      } else if (randomNr < 6) {
+        Thread.sleep(1000);
+      }
+      Spf4jWebTarget base = cl.target(Main.BASE_URI).path("demo/helloResource");
+      return base.path("flakyHello").request(MediaType.TEXT_PLAIN).get(String.class)
+              + ' ' + base.path("flakyWorld").request(MediaType.TEXT_PLAIN).get(String.class);
+  }
 
   @GET
   @Produces(MediaType.TEXT_PLAIN)

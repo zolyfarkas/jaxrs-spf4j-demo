@@ -1,5 +1,5 @@
 
-package org.spf4j.zhelloworld;
+package org.spf4j.demo;
 
 import java.net.URI;
 import java.net.URISyntaxException;

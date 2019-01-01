@@ -1,5 +1,7 @@
 package org.spf4j.zhelloworld;
 
+import org.spf4j.demo.DemoApplication;
+import org.spf4j.demo.Main;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
@@ -68,7 +70,7 @@ public class MyResourceTest {
   @Test
   public void testHello() {
     for (int i = 0; i < 100; i++) {
-      Invocation.Builder request = target.path("demo/myresource/hello").request();
+      Invocation.Builder request = target.path("demo/helloResource/hello").request();
       String responseMsg = request.get(String.class);
       Assert.assertThat(responseMsg, Matchers.startsWith("Hello world"));
     }
@@ -76,7 +78,7 @@ public class MyResourceTest {
 
   @Test
   public void testAHello() {
-    Invocation.Builder request = target.path("demo/myresource/ahello").request();
+    Invocation.Builder request = target.path("demo/helloResource/ahello").request();
     String responseMsg = request.get(String.class);
     Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
   }
@@ -84,15 +86,29 @@ public class MyResourceTest {
   @Test
   public void testFlakyHelloWorld() throws InterruptedException, ExecutionException, TimeoutException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
-            true, LogMatchers.hasMessageWithPattern("Done GET /myresource.*"),
+            true, LogMatchers.hasMessageWithPattern("Done GET /helloResource.*"),
             Matchers.any((Class) Iterable.class));
     Invocation.Builder request = client.withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
         TimeUnit.MILLISECONDS.toNanos(200), 2))
-        .target(Main.BASE_URI).path("demo/myresource/flakyHelloWorld").request();
+        .target(Main.BASE_URI).path("demo/helloResource/flakyHelloWorld").request();
     Future<String> responseMsg = request.buildGet().submit(String.class);
     Assert.assertThat(responseMsg.get(2, TimeUnit.SECONDS), Matchers.startsWith("Hello World"));
     LOG.info("Finished Flaky test");
-    Thread.sleep(3000); // to make sure simulated delayed errored calls finish.
+    expect.assertObservation();
+  }
+
+
+  @Test
+  public void testFlakyHelloWorldSync() throws InterruptedException, ExecutionException, TimeoutException {
+    LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
+            true, LogMatchers.hasMessageWithPattern("Done GET /helloResource.*"),
+            Matchers.any((Class) Iterable.class));
+    Invocation.Builder request = client.withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
+        TimeUnit.MILLISECONDS.toNanos(200), 2))
+        .target(Main.BASE_URI).path("demo/helloResource/flakyHelloWorldSync").request();
+    String responseMsg = request.get(String.class);
+    Assert.assertThat(responseMsg, Matchers.startsWith("Hello World"));
+    LOG.info("Finished Flaky test");
     expect.assertObservation();
   }
 
@@ -100,10 +116,10 @@ public class MyResourceTest {
   @Test(timeout = 10000)
   public void testATimeoout() throws InterruptedException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.WARN,
-            true, LogMatchers.hasMessageWithPattern("Done GET /myresource/aTimeout"),
+            true, LogMatchers.hasMessageWithPattern("Done GET /helloResource/aTimeout"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
-      target.path("demo/myresource/aTimeout")
+      target.path("demo/helloResource/aTimeout")
              .request()
               .withTimeout(500, TimeUnit.MILLISECONDS)
               .get(String.class);
@@ -120,10 +136,10 @@ public class MyResourceTest {
   @Test(timeout = 10000)
   public void testAError() {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
-            true, LogMatchers.hasMessageWithPattern("Done GET /myresource/aError"),
+            true, LogMatchers.hasMessageWithPattern("Done GET /helloResource/aError"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
-      target.path("demo/myresource/aError")
+      target.path("demo/helloResource/aError")
              .request()
               .withTimeout(500, TimeUnit.MILLISECONDS)
               .get(String.class);
@@ -139,10 +155,10 @@ public class MyResourceTest {
   @Test(timeout = 10000)
   public void testAError2() throws InterruptedException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
-            true, LogMatchers.hasMessageWithPattern("Done GET /myresource/aError"),
+            true, LogMatchers.hasMessageWithPattern("Done GET /helloResource/aError"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
-      target.path("demo/myresource/aError")
+      target.path("demo/helloResource/aError")
              .request()
               .withTimeout(500, TimeUnit.MILLISECONDS)
               .async().get(String.class).get();
@@ -158,7 +174,7 @@ public class MyResourceTest {
 
   @Test
   public void testGetExecCtx() {
-    Invocation.Builder request = target.path("demo/myresource/execContext")
+    Invocation.Builder request = target.path("demo/helloResource/execContext")
             .request();
     String responseMsg = request.get(String.class);
     LOG.debug("Response", responseMsg);
@@ -169,7 +185,7 @@ public class MyResourceTest {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
             true, Matchers.any(TestLogRecord.class),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
-    Invocation.Builder request = target.path("demo/myresource/error").request();
+    Invocation.Builder request = target.path("demo/helloResource/error").request();
     try {
       request.get(String.class);
       Assert.fail();
