@@ -48,12 +48,12 @@ public class CustomExecutorServiceProvider implements ExecutorServiceProvider {
               TimeUnit.SECONDS)) {
         List<Runnable> stillRunning = executorService.shutdownNow();
         Logger.getLogger("jerser.executor").log(Level.WARNING,
-                "Unsable to shutdown cleanly, stilll running {0}", stillRunning);
+                "Unable to shutdown cleanly, still running {0}", stillRunning);
       }
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
       List<Runnable> stillRunning = executorService.shutdownNow();
-      Logger.getLogger("jerser.executor").log(Level.WARNING,
+      Logger.getLogger("jersey.executor").log(Level.WARNING,
               "Interrupted during shutdown, stilll running {0}", stillRunning);
     }
   }
