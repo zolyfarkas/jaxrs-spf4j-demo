@@ -58,7 +58,7 @@ public class ExecutionContextClientFilter implements ClientRequestFilter,
 
 
   @Override
-  public void filter(ClientRequestContext requestContext) {
+  public void filter(final ClientRequestContext requestContext) {
     ExecutionContext reqCtx = ExecutionContexts.current();
     MultivaluedMap<String, Object> headers = requestContext.getHeaders();
     long timeoutNanos;
@@ -74,6 +74,9 @@ public class ExecutionContextClientFilter implements ClientRequestFilter,
     headers.add(Headers.REQ_ID, reqCtx.getId());
     int readTimeoutMs = (int) (timeoutNanos / 1000000);
     requestContext.setProperty(ClientProperties.READ_TIMEOUT, readTimeoutMs);
+    if (log.isLoggable(Level.FINE)) {
+      log.log(Level.FINE, "Invoking {0}", new Object[] {reqCtx.getName(), LogAttribute.of("headers", headers)});
+    }
   }
 
   @Override

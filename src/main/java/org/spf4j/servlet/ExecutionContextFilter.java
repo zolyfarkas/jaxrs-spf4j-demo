@@ -144,6 +144,7 @@ public class ExecutionContextFilter implements Filter {
         org.spf4j.base.Runtime.goDownWithError(t, SysExits.EX_SOFTWARE);
       }
       logContextLogs(ctx);
+      ctx.add(ContextTags.LOG_ATTRIBUTES, t);
       logRequestEnd(org.spf4j.log.Level.ERROR, ctx, httpReq.getBytesRead(), httpResp.getBytesWritten(),
               httpResp.getStatus());
     }

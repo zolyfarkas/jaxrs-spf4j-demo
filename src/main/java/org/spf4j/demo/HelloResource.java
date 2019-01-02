@@ -3,6 +3,7 @@ package org.spf4j.demo;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -32,18 +33,12 @@ public class HelloResource {
 
   private static final ExecContextLogger LOG = new ExecContextLogger(LoggerFactory.getLogger(HelloResource.class));
 
-  private final Spf4JClient cl = new Spf4JClient(ClientBuilder
-            .newBuilder()
-            .connectTimeout(2, TimeUnit.SECONDS)
-            .executorService(DefaultContextAwareExecutor.instance())
-            .scheduledExecutorService(DefaultContextAwareScheduledExecutor.instance())
-            .readTimeout(30, TimeUnit.SECONDS)
-            .register(ExecutionContextClientFilter.class)
-            .register(CustomExecutorServiceProvider.class)
-            .register(CustomScheduledExecutionServiceProvider.class)
-            .property(ClientProperties.USE_ENCODING, "gzip")
-            .build());
+  private final Spf4JClient cl;
 
+  @Inject
+  public HelloResource(final Spf4JClient cl) {
+    this.cl = cl;
+  }
 
   @GET
   @Produces(MediaType.TEXT_PLAIN)
@@ -123,6 +118,24 @@ public class HelloResource {
         Thread.sleep(1000);
       }
       Spf4jWebTarget base = cl.target(Main.BASE_URI).path("demo/helloResource");
+      base.path("flakyHello").request(MediaType.TEXT_PLAIN).rx().get(String.class)
+              .thenCombine(base.path("flakyWorld").request(MediaType.TEXT_PLAIN).rx().get(String.class),
+                      (h, w) -> h + ' ' + w
+              ).whenComplete((r,  t) -> {
+                        if (t != null) {
+                          ar.resume(t);
+                        } else {
+                          ar.resume(r);
+                        }
+                      });
+  }
+
+
+  @GET
+  @Produces(MediaType.TEXT_PLAIN)
+  @Path("buggyHelloWorld")
+  public void buggyHelloWorld(@Suspended final AsyncResponse ar) throws InterruptedException, TimeoutException {
+      Spf4jWebTarget base = cl.target(Main.BASE_URI).path("demo/404");
       base.path("flakyHello").request(MediaType.TEXT_PLAIN).rx().get(String.class)
               .thenCombine(base.path("flakyWorld").request(MediaType.TEXT_PLAIN).rx().get(String.class),
                       (h, w) -> h + ' ' + w

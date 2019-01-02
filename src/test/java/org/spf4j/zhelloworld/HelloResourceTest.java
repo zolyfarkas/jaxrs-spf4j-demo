@@ -25,8 +25,10 @@ import org.slf4j.LoggerFactory;
 import org.spf4j.base.UncheckedTimeoutException;
 import org.spf4j.base.avro.RemoteException;
 import org.spf4j.base.avro.ServiceError;
+import org.spf4j.failsafe.HedgePolicy;
 import org.spf4j.failsafe.TimeoutRelativeHedge;
 import org.spf4j.jaxrs.client.Spf4JClient;
+import org.spf4j.jaxrs.client.Spf4jInvocationBuilder;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
 import org.spf4j.log.Level;
 import org.spf4j.test.log.LogAssert;
@@ -34,9 +36,9 @@ import org.spf4j.test.log.TestLogRecord;
 import org.spf4j.test.log.TestLoggers;
 import org.spf4j.test.matchers.LogMatchers;
 
-public class MyResourceTest {
+public class HelloResourceTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(MyResourceTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(HelloResourceTest.class);
 
   private static HttpServer server;
   private static Spf4jWebTarget target;
@@ -86,12 +88,13 @@ public class MyResourceTest {
   @Test
   public void testFlakyHelloWorld() throws InterruptedException, ExecutionException, TimeoutException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
-            true, LogMatchers.hasMessageWithPattern("Done GET /helloResource.*"),
+            false, LogMatchers.hasMessageWithPattern("Done GET /helloResource.*"),
             Matchers.any((Class) Iterable.class));
-    Invocation.Builder request = client.withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
-        TimeUnit.MILLISECONDS.toNanos(200), 2))
-        .target(Main.BASE_URI).path("demo/helloResource/flakyHelloWorld").request();
-    Future<String> responseMsg = request.buildGet().submit(String.class);
+    Spf4jInvocationBuilder request = client.withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
+            TimeUnit.MILLISECONDS.toNanos(200), 2))
+            .target(Main.BASE_URI).path("demo/helloResource/flakyHelloWorld").request();
+    Future<String> responseMsg = request.withTimeout(2, TimeUnit.SECONDS)
+            .buildGet().submit(String.class);
     Assert.assertThat(responseMsg.get(2, TimeUnit.SECONDS), Matchers.startsWith("Hello World"));
     LOG.info("Finished Flaky test");
     expect.assertObservation();
@@ -99,13 +102,35 @@ public class MyResourceTest {
 
 
   @Test
+  public void testBuggyHelloWorld() throws InterruptedException, ExecutionException, TimeoutException {
+    LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
+            false, LogMatchers.hasMessageWithPattern("Done GET /helloResource.*"),
+            Matchers.any((Class) Iterable.class));
+    Spf4jInvocationBuilder request = client.withHedgePolicy(HedgePolicy.NONE)
+        .target(Main.BASE_URI).path("demo/helloResource/buggyHelloWorld").request();
+    Future<String> responseMsg = request
+            .withTimeout(3, TimeUnit.SECONDS)
+            .buildGet().submit(String.class);
+    try {
+      responseMsg.get(10, TimeUnit.SECONDS);
+    } catch (ExecutionException ex) {
+      //expected
+      LOG.debug("Excepted exception", ex);
+    }
+    LOG.info("Finished buggy test");
+    expect.assertObservation();
+  }
+
+
+  @Test
   public void testFlakyHelloWorldSync() throws InterruptedException, ExecutionException, TimeoutException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
-            true, LogMatchers.hasMessageWithPattern("Done GET /helloResource.*"),
+            false, LogMatchers.hasMessageWithPattern("Done GET /helloResource.*"),
             Matchers.any((Class) Iterable.class));
-    Invocation.Builder request = client.withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
+    Spf4jInvocationBuilder request = client.withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
         TimeUnit.MILLISECONDS.toNanos(200), 2))
-        .target(Main.BASE_URI).path("demo/helloResource/flakyHelloWorldSync").request();
+        .target(Main.BASE_URI).path("demo/helloResource/flakyHelloWorldSync").request()
+            .withTimeout(2, TimeUnit.SECONDS);
     String responseMsg = request.get(String.class);
     Assert.assertThat(responseMsg, Matchers.startsWith("Hello World"));
     LOG.info("Finished Flaky test");

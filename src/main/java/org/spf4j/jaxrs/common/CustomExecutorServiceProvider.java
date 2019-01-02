@@ -9,6 +9,7 @@ import javax.ws.rs.ext.Provider;
 import org.glassfish.jersey.client.ClientAsyncExecutor;
 import org.glassfish.jersey.server.ManagedAsyncExecutor;
 import org.glassfish.jersey.spi.ExecutorServiceProvider;
+import org.spf4j.base.Threads;
 import org.spf4j.concurrent.ContextPropagatingExecutorService;
 import org.spf4j.concurrent.LifoThreadPool;
 import org.spf4j.concurrent.LifoThreadPoolBuilder;
@@ -49,6 +50,7 @@ public class CustomExecutorServiceProvider implements ExecutorServiceProvider {
         List<Runnable> stillRunning = executorService.shutdownNow();
         Logger.getLogger("jerser.executor").log(Level.WARNING,
                 "Unable to shutdown cleanly, still running {0}", stillRunning);
+        Threads.dumpToPrintStream(System.err);
       }
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
