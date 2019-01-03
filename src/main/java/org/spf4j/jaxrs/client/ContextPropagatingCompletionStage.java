@@ -250,28 +250,35 @@ public class ContextPropagatingCompletionStage<T>
 
   @Override
   public CompletableFuture<T> whenCompleteAsync(BiConsumer<? super T, ? super Throwable> action) {
-    return new ContextPropagatingCompletionStage(cs.whenCompleteAsync(ExecutionContexts.propagatingBiConsumer(action, parentContext, null, deadlinenanos)), parentContext, deadlinenanos);
+    return new ContextPropagatingCompletionStage(
+            cs.whenCompleteAsync(ExecutionContexts.propagatingBiConsumer(action, parentContext, null, deadlinenanos)), parentContext, deadlinenanos);
   }
 
   @Override
   public CompletableFuture<T> whenCompleteAsync(BiConsumer<? super T, ? super Throwable> action, Executor executor) {
-    return new ContextPropagatingCompletionStage(cs.whenCompleteAsync(ExecutionContexts.propagatingBiConsumer(action, parentContext, null, deadlinenanos),
+    return new ContextPropagatingCompletionStage(
+            cs.whenCompleteAsync(ExecutionContexts.propagatingBiConsumer(action, parentContext, null, deadlinenanos),
             executor), parentContext, deadlinenanos);
   }
 
   @Override
   public <U> CompletableFuture<U> handle(BiFunction<? super T, Throwable, ? extends U> fn) {
-    return new ContextPropagatingCompletionStage(cs.handle(ExecutionContexts.propagatingBiFunction(fn, parentContext, null, deadlinenanos)), parentContext, deadlinenanos);
+    return new ContextPropagatingCompletionStage(
+            cs.handle(ExecutionContexts.propagatingBiFunction(fn, parentContext, null, deadlinenanos)), parentContext, deadlinenanos);
   }
 
   @Override
   public <U> CompletableFuture<U> handleAsync(BiFunction<? super T, Throwable, ? extends U> fn) {
-    return new ContextPropagatingCompletionStage(cs.handle(ExecutionContexts.propagatingBiFunction(fn, parentContext, null, deadlinenanos)), parentContext, deadlinenanos);
+    return new ContextPropagatingCompletionStage(cs.handleAsync(
+            ExecutionContexts.propagatingBiFunction(fn, parentContext, null, deadlinenanos)),
+            parentContext, deadlinenanos);
   }
 
   @Override
   public <U> CompletableFuture<U> handleAsync(BiFunction<? super T, Throwable, ? extends U> fn, Executor executor) {
-    return new ContextPropagatingCompletionStage(cs.handle(ExecutionContexts.propagatingBiFunction(fn, parentContext, null, deadlinenanos)), parentContext, deadlinenanos);
+    return new ContextPropagatingCompletionStage(cs.handleAsync(
+            ExecutionContexts.propagatingBiFunction(fn, parentContext, null, deadlinenanos), executor),
+            parentContext, deadlinenanos);
   }
 
   @Override
