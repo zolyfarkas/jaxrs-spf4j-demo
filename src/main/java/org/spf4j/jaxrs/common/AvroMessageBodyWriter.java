@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -16,7 +18,6 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaResolver;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
-import org.apache.avro.io.ExtendedJsonEncoder;
 import org.apache.avro.specific.ExtendedSpecificDatumWriter;
 import org.apache.avro.specific.SpecificRecord;
 import org.codehaus.jackson.JsonGenerator;
@@ -63,10 +64,16 @@ public abstract class AvroMessageBodyWriter implements MessageBodyWriter<Specifi
       strSchema = sw.toString();
     }
     httpHeaders.add(Headers.CONTENT_SCHEMA, strSchema);
-    DatumWriter writer = new ExtendedSpecificDatumWriter(t.getClass());
-    Encoder encoder = getEncoder(schema, entityStream);
-    writer.write(t, encoder);
-    encoder.flush();
+    try {
+      DatumWriter writer = new ExtendedSpecificDatumWriter(t.getClass());
+      Encoder encoder = getEncoder(schema, entityStream);
+      writer.write(t, encoder);
+      encoder.flush();
+    } catch (IOException | RuntimeException e) {
+      Logger.getLogger(AvroMessageBodyWriter.class.getName())
+              .log(Level.SEVERE, "Serialization exception", e);
+      throw e;
+    }
   }
 
 }

@@ -16,12 +16,9 @@ import org.spf4j.concurrent.DefaultContextAwareExecutor;
 import org.spf4j.concurrent.DefaultContextAwareScheduledExecutor;
 import org.spf4j.jaxrs.client.ExecutionContextClientFilter;
 import org.spf4j.jaxrs.client.Spf4JClient;
-import org.spf4j.jaxrs.common.BinaryAvroMessageBodyReader;
-import org.spf4j.jaxrs.common.BinaryAvroMessageBodyWriter;
+import org.spf4j.jaxrs.common.AvroFeature;
 import org.spf4j.jaxrs.common.CustomExecutorServiceProvider;
 import org.spf4j.jaxrs.common.CustomScheduledExecutionServiceProvider;
-import org.spf4j.jaxrs.common.JsonAvroMessageBodyReader;
-import org.spf4j.jaxrs.common.JsonAvroMessageBodyWriter;
 import org.spf4j.jaxrs.server.Spf4jInterceptionService;
 
 /**
@@ -45,6 +42,7 @@ public class DemoApplication extends ResourceConfig {
     } catch (URISyntaxException ex) {
       throw new RuntimeException(ex);
     }
+    AvroFeature avroFeature = new AvroFeature(schemaClient);
     restClient = new Spf4JClient(ClientBuilder
             .newBuilder()
             .connectTimeout(2, TimeUnit.SECONDS)
@@ -54,14 +52,13 @@ public class DemoApplication extends ResourceConfig {
             .register(ExecutionContextClientFilter.class)
             .register(CustomExecutorServiceProvider.class)
             .register(CustomScheduledExecutionServiceProvider.class)
-            .register(new JsonAvroMessageBodyReader(schemaClient))
-            .register(new JsonAvroMessageBodyWriter(schemaClient))
-            .register(new BinaryAvroMessageBodyReader(schemaClient))
-            .register(new BinaryAvroMessageBodyWriter(schemaClient))
+            .register(avroFeature)
             .property(ClientProperties.USE_ENCODING, "gzip")
             .build());
     appBinder = new AppBinder();
     register(appBinder);
+    register(avroFeature);
+    property("jersey.config.server.tracing.type ", "ALL");
     instance = this;
   }
 

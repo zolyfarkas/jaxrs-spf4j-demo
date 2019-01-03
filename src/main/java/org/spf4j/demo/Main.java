@@ -39,7 +39,7 @@ public class Main {
     servletRegistration.addMapping("/demo/*");
     servletRegistration.setInitParameter("javax.ws.rs.Application", "org.spf4j.demo.DemoApplication");
     servletRegistration.setInitParameter("jersey.config.server.provider.packages",
-            "org.spf4j.demo;org.spf4j.jaxrs.common;org.spf4j.jaxrs.server");
+            "org.spf4j.demo;org.spf4j.jaxrs.server");
     servletRegistration.setLoadOnStartup(1);
 
     HttpServer server = new HttpServer();

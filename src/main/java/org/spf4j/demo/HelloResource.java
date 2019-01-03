@@ -1,28 +1,21 @@
 package org.spf4j.demo;
 
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.ServiceUnavailableException;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
-import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.LoggerFactory;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
 import org.spf4j.concurrent.DefaultContextAwareExecutor;
-import org.spf4j.concurrent.DefaultContextAwareScheduledExecutor;
-import org.spf4j.jaxrs.client.ExecutionContextClientFilter;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
-import org.spf4j.jaxrs.common.CustomExecutorServiceProvider;
-import org.spf4j.jaxrs.common.CustomScheduledExecutionServiceProvider;
 import org.spf4j.log.ExecContextLogger;
 
 /**
@@ -140,6 +133,7 @@ public class HelloResource {
               .thenCombine(base.path("flakyWorld").request(MediaType.TEXT_PLAIN).rx().get(String.class),
                       (h, w) -> h + ' ' + w
               ).whenComplete((r,  t) -> {
+                        LOG.debug("Result received {}", r, t);
                         if (t != null) {
                           ar.resume(t);
                         } else {

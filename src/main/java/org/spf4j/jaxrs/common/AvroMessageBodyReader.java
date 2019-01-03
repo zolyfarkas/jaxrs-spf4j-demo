@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.spf4j.jaxrs.common;
 
 import java.io.IOException;
@@ -22,6 +17,7 @@ import org.apache.avro.io.Decoder;
 import org.apache.avro.reflect.ReflectData;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.spf4j.http.Headers;
+import org.spf4j.io.MemorizingBufferedInputStream;
 
 /**
  *
@@ -44,16 +40,25 @@ public abstract class AvroMessageBodyReader implements MessageBodyReader<Object>
   public abstract Decoder getDecoder(final Schema writerSchema, final InputStream is)
           throws IOException;
 
+  public  InputStream wrapInputStream(InputStream pentityStream) {
+    return new MemorizingBufferedInputStream(pentityStream);
+  }
+
   @Override
   public Object readFrom(Class<Object> type, Type genericType, Annotation[] annotations,
-          MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
+          MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream pentityStream)
           throws IOException, WebApplicationException {
     String schemaStr = httpHeaders.getFirst(Headers.CONTENT_SCHEMA);
     Schema writerSchema = new Schema.Parser(new AvroNamesRefResolver(client)).parse(schemaStr);
     Schema readerSchema = ReflectData.get().getSchema(genericType);
     DatumReader reader = new SpecificDatumReader(writerSchema, readerSchema);
-    Decoder decoder = getDecoder(writerSchema, entityStream);
-    return reader.read(null, decoder);
+    InputStream entityStream = wrapInputStream(pentityStream);
+    try {
+      Decoder decoder = getDecoder(writerSchema, entityStream);
+      return reader.read(null, decoder);
+    } catch (IOException | RuntimeException ex) {
+      throw new RuntimeException(this + " parsing failed for " + writerSchema + ", from " + entityStream, ex);
+    }
   }
 
 }

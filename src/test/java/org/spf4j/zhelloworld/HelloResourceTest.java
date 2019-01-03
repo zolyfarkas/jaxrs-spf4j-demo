@@ -6,6 +6,7 @@ import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import java.nio.ByteBuffer;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.spf4j.base.UncheckedTimeoutException;
 import org.spf4j.base.avro.RemoteException;
 import org.spf4j.base.avro.ServiceError;
+import org.spf4j.concurrent.DefaultExecutor;
 import org.spf4j.failsafe.HedgePolicy;
 import org.spf4j.failsafe.TimeoutRelativeHedge;
 import org.spf4j.jaxrs.client.Spf4JClient;
@@ -103,22 +105,60 @@ public class HelloResourceTest {
 
   @Test
   public void testBuggyHelloWorld() throws InterruptedException, ExecutionException, TimeoutException {
-    LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
-            false, LogMatchers.hasMessageWithPattern("Done GET /helloResource.*"),
+    LogAssert expect = TestLoggers.sys().expect("", Level.ERROR,
+            false, LogMatchers.hasMessageWithPattern(".*"),
             Matchers.any((Class) Iterable.class));
     Spf4jInvocationBuilder request = client.withHedgePolicy(HedgePolicy.NONE)
         .target(Main.BASE_URI).path("demo/helloResource/buggyHelloWorld").request();
     Future<String> responseMsg = request
-            .withTimeout(3, TimeUnit.SECONDS)
+            .withTimeout(3000, TimeUnit.SECONDS)
             .buildGet().submit(String.class);
     try {
-      responseMsg.get(10, TimeUnit.SECONDS);
+      responseMsg.get(10000, TimeUnit.SECONDS);
+      Assert.fail();
     } catch (ExecutionException ex) {
       //expected
       LOG.debug("Excepted exception", ex);
     }
     LOG.info("Finished buggy test");
     expect.assertObservation();
+  }
+
+  @Test
+  public void completableFuturestest() throws InterruptedException, ExecutionException {
+    CompletableFuture<String> handle = CompletableFuture.supplyAsync(() -> {
+      throw new RuntimeException("ex 1");
+    }).thenCombine(CompletableFuture.supplyAsync(() -> {
+      throw new RuntimeException("ex 2");
+    }), (x, y) -> "=" + x + y)
+            .handle((r, t) ->  "yupee" + r + t);
+    LOG.debug(handle.get());
+  }
+
+  @Test
+  public void completableFuturestest2() throws InterruptedException, ExecutionException {
+    CompletableFuture<String> f1 = new CompletableFuture<>();
+    CompletableFuture<String> f2 = new CompletableFuture<>();
+    CompletableFuture<String> handle = f1.handle((r,  t) -> {
+      throw new RuntimeException(t);
+    }).thenCombine(f2.handle((r,  t) -> {
+      throw new RuntimeException(t);
+    }), (x, y) -> "=" + x + y)
+            .handle((r, t) ->  "yupee" + r + t);
+    DefaultExecutor.INSTANCE.submit(() -> f1.completeExceptionally(new RuntimeException("ex 1")));
+    DefaultExecutor.INSTANCE.submit(() -> f2.completeExceptionally(new RuntimeException("ex 2")));
+    LOG.debug(handle.get());
+  }
+
+  @Test
+  public void completableFuturestest3() throws InterruptedException, ExecutionException {
+    CompletableFuture f1 = new CompletableFuture();
+    CompletableFuture f2 = new CompletableFuture();
+    DefaultExecutor.INSTANCE.submit(() -> f1.completeExceptionally(new RuntimeException("ex 1")));
+    DefaultExecutor.INSTANCE.submit(() -> f2.completeExceptionally(new RuntimeException("ex 2")));
+    CompletableFuture<String> handle = f1.thenCombine(f2, (x, y) -> "=" + x + y)
+            .handle((r, t) ->  "yupee" + r + t);
+    LOG.debug(handle.get());
   }
 
 

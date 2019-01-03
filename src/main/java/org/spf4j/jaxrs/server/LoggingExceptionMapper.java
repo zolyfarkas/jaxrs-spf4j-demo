@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -58,16 +59,23 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Exception> 
       status = 500;
     }
     ExecutionContext ctx = ExecutionContexts.current();
+    String message = exception.getMessage();
+    if (message == null) {
+      message = "";
+    }
     if (ctx == null) { // Exception mapper can execute in a timeout thread, where context is not available,
         Logger.getLogger("handling.error")
                 .log(java.util.logging.Level.WARNING, "No request context available", exception);
-        return Response.serverError().entity(ServiceError.newBuilder()
+        return Response.serverError()
+                .entity(ServiceError.newBuilder()
             .setCode(status)
             .setDetail(new DebugDetail(host,
                     Collections.EMPTY_LIST, Converters.convert(exception)))
             .setType(exception.getClass().getName())
-            .setMessage(exception.getMessage())
-            .build()).build();
+            .setMessage(message)
+            .build())
+                .type(MediaType.APPLICATION_JSON_TYPE)
+                .build();
     }
     if (status >= 500) {
       ctx.putToRoot(ContextTags.LOG_LEVEL, Level.ERROR);
@@ -90,9 +98,11 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Exception> 
             .setDetail(new DebugDetail(host + '/' + ctx.getName(),
                     Converters.convert("", ctx.getId().toString(), ctxLogs), Converters.convert(exception)))
             .setType(exception.getClass().getName())
-            .setMessage(exception.getMessage())
+            .setMessage(message)
             .build();
-    return Response.status(status).entity(se).build();
+    return Response.status(status).entity(se)
+            .type(MediaType.APPLICATION_JSON_TYPE)
+            .build();
   }
 
 }

@@ -34,12 +34,13 @@ public class Spf4jCompletionStageRxInvoker
     return method + ' ' + invocation.getTarget().getUri();
   }
 
-  private <T> CompletableFuture<T> submit(Callable<T> what, final String name) {
+  private <T> CompletionStage<T> submit(Callable<T> what, final String name) {
     long nanoTime = TimeSource.nanoTime();
     ExecutionContext current = ExecutionContexts.current();
     long deadlineNanos = ExecutionContexts.computeDeadline(current, invocation.getTimeoutNanos(), TimeUnit.NANOSECONDS);
     Callable<T> pc = ExecutionContexts.propagatingCallable(what, current, name, deadlineNanos);
-    return executor.submitRx(pc, nanoTime, deadlineNanos)
+    return new ContextPropagatingCompletionStage<T>(
+            executor.submitRx(pc, nanoTime, deadlineNanos), current, deadlineNanos)
             .handle((result, ex) -> {
               if (ex != null) {
                 Throwable rex = com.google.common.base.Throwables.getRootCause(ex);
