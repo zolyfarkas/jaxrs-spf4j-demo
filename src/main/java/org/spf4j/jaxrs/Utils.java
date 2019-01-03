@@ -1,4 +1,4 @@
-package org.spf4j.jaxrs.client;
+package org.spf4j.jaxrs;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.CheckReturnValue;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Response;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.Throwables;
@@ -104,6 +105,25 @@ public final class Utils {
       }
     }
     return ex;
+  }
+
+
+  public static int getIntConfigValue(final Configuration cfg, final String cfgKey, final int defaultValue) {
+    Number nr = (Number) cfg.getProperty(cfgKey);
+    if (nr == null) {
+      return Integer.getInteger(cfgKey, defaultValue);
+    } else {
+      return nr.intValue();
+    }
+  }
+
+  public static String getStringConfigValue(final Configuration cfg, final String cfgKey, final String defaultValue) {
+    String val = (String) cfg.getProperty(cfgKey);
+    if (val == null) {
+      return System.getProperty(cfgKey, defaultValue);
+    } else {
+      return val;
+    }
   }
 
 }

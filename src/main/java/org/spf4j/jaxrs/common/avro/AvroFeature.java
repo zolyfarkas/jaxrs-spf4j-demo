@@ -1,5 +1,5 @@
 
-package org.spf4j.jaxrs.common;
+package org.spf4j.jaxrs.common.avro;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Feature;

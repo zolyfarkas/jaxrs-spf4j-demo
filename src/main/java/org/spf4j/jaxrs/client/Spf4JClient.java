@@ -1,6 +1,7 @@
 
 package org.spf4j.jaxrs.client;
 
+import org.spf4j.jaxrs.Utils;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;

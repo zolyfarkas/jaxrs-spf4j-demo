@@ -1,4 +1,4 @@
-package org.spf4j.jaxrs.common;
+package org.spf4j.jaxrs.common.avro;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -8,23 +8,23 @@ import javax.ws.rs.ext.Provider;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaResolver;
 import org.apache.avro.io.Encoder;
-import org.apache.avro.io.EncoderFactory;
+import org.apache.avro.io.ExtendedJsonEncoder;
 
 /**
  * @author Zoltan Farkas
  */
 @Provider
-@Produces({"application/octet-stream;fmt=avro"})
-public class BinaryAvroMessageBodyWriter extends  AvroMessageBodyWriter {
+@Produces({"application/json;fmt=avro", "text/plain;fmt=avro"})
+public class JsonAvroMessageBodyWriter extends  AvroMessageBodyWriter {
 
   @Inject
-  public BinaryAvroMessageBodyWriter(final SchemaResolver client) {
+  public JsonAvroMessageBodyWriter(final SchemaResolver client) {
     super(client);
   }
 
   @Override
   public Encoder getEncoder(Schema writerSchema, OutputStream os) throws IOException {
-    return EncoderFactory.get().binaryEncoder(os, null);
+    return new ExtendedJsonEncoder(writerSchema, os);
   }
 
 

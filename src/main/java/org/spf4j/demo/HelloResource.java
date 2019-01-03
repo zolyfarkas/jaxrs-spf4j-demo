@@ -1,5 +1,6 @@
 package org.spf4j.demo;
 
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeoutException;
 import javax.inject.Inject;
@@ -129,9 +130,9 @@ public class HelloResource {
   @Path("buggyHelloWorld")
   public void buggyHelloWorld(@Suspended final AsyncResponse ar) throws InterruptedException, TimeoutException {
       Spf4jWebTarget base = cl.target(Main.BASE_URI).path("demo/404");
-      base.path("flakyHello").request(MediaType.TEXT_PLAIN).rx().get(String.class)
-              .thenCombine(base.path("flakyWorld").request(MediaType.TEXT_PLAIN).rx().get(String.class),
-                      (h, w) -> h + ' ' + w
+    CompletionStage<String> cf1 = base.path("flakyHello").request(MediaType.TEXT_PLAIN).rx().get(String.class);
+    CompletionStage<String> cf2 = base.path("flakyWorld").request(MediaType.TEXT_PLAIN).rx().get(String.class);
+    cf1.thenCombine(cf2, (h, w) -> h + ' ' + w
               ).whenComplete((r,  t) -> {
                         LOG.debug("Result received {}", r, t);
                         if (t != null) {

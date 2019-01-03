@@ -12,13 +12,11 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.spf4j.avro.SchemaClient;
-import org.spf4j.concurrent.DefaultContextAwareExecutor;
-import org.spf4j.concurrent.DefaultContextAwareScheduledExecutor;
+import org.spf4j.jaxrs.client.ClientCustomExecutorServiceProvider;
+import org.spf4j.jaxrs.client.ClientCustomScheduledExecutionServiceProvider;
 import org.spf4j.jaxrs.client.ExecutionContextClientFilter;
 import org.spf4j.jaxrs.client.Spf4JClient;
-import org.spf4j.jaxrs.common.AvroFeature;
-import org.spf4j.jaxrs.common.CustomExecutorServiceProvider;
-import org.spf4j.jaxrs.common.CustomScheduledExecutionServiceProvider;
+import org.spf4j.jaxrs.common.avro.AvroFeature;
 import org.spf4j.jaxrs.server.Spf4jInterceptionService;
 
 /**
@@ -46,12 +44,12 @@ public class DemoApplication extends ResourceConfig {
     restClient = new Spf4JClient(ClientBuilder
             .newBuilder()
             .connectTimeout(2, TimeUnit.SECONDS)
-            .executorService(DefaultContextAwareExecutor.instance())
-            .scheduledExecutorService(DefaultContextAwareScheduledExecutor.instance())
+//            .executorService(DefaultContextAwareExecutor.instance())
+//            .scheduledExecutorService(DefaultContextAwareScheduledExecutor.instance())
             .readTimeout(60, TimeUnit.SECONDS)
             .register(ExecutionContextClientFilter.class)
-            .register(CustomExecutorServiceProvider.class)
-            .register(CustomScheduledExecutionServiceProvider.class)
+            .register(ClientCustomExecutorServiceProvider.class)
+            .register(ClientCustomScheduledExecutionServiceProvider.class)
             .register(avroFeature)
             .property(ClientProperties.USE_ENCODING, "gzip")
             .build());

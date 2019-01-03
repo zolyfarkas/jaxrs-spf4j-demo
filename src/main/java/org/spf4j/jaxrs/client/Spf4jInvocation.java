@@ -1,5 +1,6 @@
 package org.spf4j.jaxrs.client;
 
+import org.spf4j.jaxrs.Utils;
 import java.lang.reflect.Type;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;

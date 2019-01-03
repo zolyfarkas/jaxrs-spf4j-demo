@@ -34,13 +34,11 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaResolver;
 import org.glassfish.jersey.client.ClientProperties;
 import org.spf4j.base.UncheckedExecutionException;
-import org.spf4j.concurrent.DefaultContextAwareExecutor;
-import org.spf4j.concurrent.DefaultContextAwareScheduledExecutor;
 import org.spf4j.io.Streams;
+import org.spf4j.jaxrs.client.ClientCustomExecutorServiceProvider;
+import org.spf4j.jaxrs.client.ClientCustomScheduledExecutionServiceProvider;
 import org.spf4j.jaxrs.client.ExecutionContextClientFilter;
 import org.spf4j.jaxrs.client.Spf4JClient;
-import org.spf4j.jaxrs.common.CustomExecutorServiceProvider;
-import org.spf4j.jaxrs.common.CustomScheduledExecutionServiceProvider;
 
 /**
  * @author Zoltan Farkas
@@ -70,6 +68,23 @@ public final class SchemaClient implements SchemaResolver {
 
   public SchemaClient(final URI remoteMavenRepo, final Path localMavenRepo,
           final String schemaArtifactClassifier, final String schemaArtifactExtension) {
+    this(remoteMavenRepo, localMavenRepo, schemaArtifactClassifier, schemaArtifactExtension,
+            new Spf4JClient(ClientBuilder
+            .newBuilder()
+            .connectTimeout(2, TimeUnit.SECONDS)
+//            .executorService(DefaultContextAwareExecutor.instance())
+//            .scheduledExecutorService(DefaultContextAwareScheduledExecutor.instance())
+            .readTimeout(30, TimeUnit.SECONDS)
+            .register(ExecutionContextClientFilter.class)
+            .register(ClientCustomExecutorServiceProvider.class)
+            .register(ClientCustomScheduledExecutionServiceProvider.class)
+            .property(ClientProperties.USE_ENCODING, "gzip")
+            .build()));
+  }
+
+  public SchemaClient(final URI remoteMavenRepo, final Path localMavenRepo,
+          final String schemaArtifactClassifier, final String schemaArtifactExtension,
+          final Spf4JClient client) {
     this.schemaArtifactClassifier = schemaArtifactClassifier;
     this.schemaArtifactExtension = schemaArtifactExtension;
     this.failureCacheMillis = 5000;
@@ -85,17 +100,7 @@ public final class SchemaClient implements SchemaResolver {
      throw new RuntimeException(ex);
     }
     this.localMavenRepo = localMavenRepo;
-    this.client = new Spf4JClient(ClientBuilder
-            .newBuilder()
-            .connectTimeout(2, TimeUnit.SECONDS)
-            .executorService(DefaultContextAwareExecutor.instance())
-            .scheduledExecutorService(DefaultContextAwareScheduledExecutor.instance())
-            .readTimeout(30, TimeUnit.SECONDS)
-            .register(ExecutionContextClientFilter.class)
-            .register(CustomExecutorServiceProvider.class)
-            .register(CustomScheduledExecutionServiceProvider.class)
-            .property(ClientProperties.USE_ENCODING, "gzip")
-            .build());
+    this.client = client;
     this.memoryCache = CacheBuilder.newBuilder().weakKeys().build(new CacheLoader<String, Schema>() {
       @Override
       public Schema load(final String key) throws Exception {

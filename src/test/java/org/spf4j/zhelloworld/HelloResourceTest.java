@@ -95,9 +95,9 @@ public class HelloResourceTest {
     Spf4jInvocationBuilder request = client.withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
             TimeUnit.MILLISECONDS.toNanos(200), 2))
             .target(Main.BASE_URI).path("demo/helloResource/flakyHelloWorld").request();
-    Future<String> responseMsg = request.withTimeout(2, TimeUnit.SECONDS)
+    Future<String> responseMsg = request.withTimeout(3000, TimeUnit.SECONDS)
             .buildGet().submit(String.class);
-    Assert.assertThat(responseMsg.get(2, TimeUnit.SECONDS), Matchers.startsWith("Hello World"));
+    Assert.assertThat(responseMsg.get(3000, TimeUnit.SECONDS), Matchers.startsWith("Hello World"));
     LOG.info("Finished Flaky test");
     expect.assertObservation();
   }

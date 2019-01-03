@@ -39,20 +39,21 @@ public class Spf4jCompletionStageRxInvoker
     ExecutionContext current = ExecutionContexts.current();
     long deadlineNanos = ExecutionContexts.computeDeadline(current, invocation.getTimeoutNanos(), TimeUnit.NANOSECONDS);
     Callable<T> pc = ExecutionContexts.propagatingCallable(what, current, name, deadlineNanos);
-    return new ContextPropagatingCompletionStage<T>(
-            executor.submitRx(pc, nanoTime, deadlineNanos), current, deadlineNanos)
-            .handle((result, ex) -> {
-              if (ex != null) {
-                Throwable rex = com.google.common.base.Throwables.getRootCause(ex);
-                if (rex instanceof WebApplicationException) {
-                  throw Utils.handleServiceError((WebApplicationException) rex, current);
-                } else {
-                  throw new RuntimeException(ex);
-                }
-              } else {
-                return (T) result;
-              }
-            });
+    return executor.submitRx(pc, nanoTime, deadlineNanos);
+//    return new ContextPropagatingCompletionStage<T>(
+//            executor.submitRx(pc, nanoTime, deadlineNanos), current, deadlineNanos)
+//            .handle((result, ex) -> {
+//              if (ex != null) {
+//                Throwable rex = com.google.common.base.Throwables.getRootCause(ex);
+//                if (rex instanceof WebApplicationException) {
+//                  throw Utils.handleServiceError((WebApplicationException) rex, current);
+//                } else {
+//                  throw new RuntimeException(ex);
+//                }
+//              } else {
+//                return (T) result;
+//              }
+//            });
   }
 
   @Override
@@ -62,7 +63,9 @@ public class Spf4jCompletionStageRxInvoker
 
   @Override
   public <T> CompletionStage<T> get(Class<T> responseType) {
-    return submit(() -> invocation.buildGet().getWrapped().invoke(responseType), getName(HttpMethod.GET));
+    return submit(() ->  {
+      return invocation.buildGet().getWrapped().invoke(responseType);
+    }, getName(HttpMethod.GET));
   }
 
   @Override
