@@ -81,6 +81,11 @@
       <artifactId>spf4j-core</artifactId>
       <version>${spf4j.version}</version>
     </dependency>
+        <dependency> <!-- missing in jdk 11 -->
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
+        </dependency>
     <dependency>
       <groupId>org.spf4j.demo</groupId>
       <artifactId>jaxrs-spf4j-demo-schema</artifactId>
@@ -121,6 +126,12 @@
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-grizzly2-servlet</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.glassfish.jersey.media</groupId>
+          <artifactId>jersey-media-jaxb</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.inject</groupId>
@@ -138,6 +149,7 @@
         <artifactId>jersey-media-moxy</artifactId>
     </dependency>
     -->
+
   </dependencies>
 
   <build>

@@ -11,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import org.glassfish.jersey.server.spi.ResponseErrorMapper;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.Throwables;
@@ -27,7 +28,7 @@ import org.spf4j.servlet.ContextTags;
  * @author Zoltan Farkas
  */
 @Provider
-public final class LoggingExceptionMapper implements ExceptionMapper<Exception> {
+public final class LoggingExceptionMapper implements ExceptionMapper<Throwable>, ResponseErrorMapper {
 
   private final String host;
 
@@ -45,14 +46,14 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Exception> 
   }
 
   @Override
-  public Response toResponse(final Exception exception) {
+  public Response toResponse(final Throwable exception) {
     WebApplicationException wex = Throwables.first(exception, WebApplicationException.class);
     int status;
     if (wex != null) {
       Response response = wex.getResponse();
-      Object entity = response.getEntity();
-      if (entity != null) {
-        return response;
+      if (response.hasEntity()) {
+         response.getEntity();
+         return response;
       }
       status = response.getStatus();
     } else {

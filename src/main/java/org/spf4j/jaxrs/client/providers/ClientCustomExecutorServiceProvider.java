@@ -1,4 +1,4 @@
-package org.spf4j.jaxrs.client;
+package org.spf4j.jaxrs.client.providers;
 
 import org.spf4j.jaxrs.common.executors.*;
 import javax.inject.Inject;

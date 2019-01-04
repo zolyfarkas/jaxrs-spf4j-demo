@@ -36,6 +36,7 @@ import org.spf4j.log.Level;
 import org.spf4j.test.log.LogAssert;
 import org.spf4j.test.log.TestLogRecord;
 import org.spf4j.test.log.TestLoggers;
+import org.spf4j.test.log.annotations.ExpectLog;
 import org.spf4j.test.matchers.LogMatchers;
 
 public class HelloResourceTest {
@@ -88,10 +89,8 @@ public class HelloResourceTest {
   }
 
   @Test
+  @ExpectLog(level = Level.ERROR)
   public void testFlakyHelloWorld() throws InterruptedException, ExecutionException, TimeoutException {
-    LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
-            false, LogMatchers.hasMessageWithPattern("Done GET /helloResource.*"),
-            Matchers.any((Class) Iterable.class));
     Spf4jInvocationBuilder request = client.withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
             TimeUnit.MILLISECONDS.toNanos(200), 2))
             .target(Main.BASE_URI).path("demo/helloResource/flakyHelloWorld").request();
@@ -99,29 +98,23 @@ public class HelloResourceTest {
             .buildGet().submit(String.class);
     Assert.assertThat(responseMsg.get(3000, TimeUnit.SECONDS), Matchers.startsWith("Hello World"));
     LOG.info("Finished Flaky test");
-    expect.assertObservation();
   }
 
 
   @Test
   public void testBuggyHelloWorld() throws InterruptedException, ExecutionException, TimeoutException {
-    LogAssert expect = TestLoggers.sys().expect("", Level.ERROR,
-            false, LogMatchers.hasMessageWithPattern(".*"),
-            Matchers.any((Class) Iterable.class));
     Spf4jInvocationBuilder request = client.withHedgePolicy(HedgePolicy.NONE)
         .target(Main.BASE_URI).path("demo/helloResource/buggyHelloWorld").request();
-    Future<String> responseMsg = request
-            .withTimeout(3000, TimeUnit.SECONDS)
-            .buildGet().submit(String.class);
     try {
-      responseMsg.get(10000, TimeUnit.SECONDS);
+        request
+            .withTimeout(3000, TimeUnit.SECONDS)
+            .buildGet().invoke(String.class);
       Assert.fail();
-    } catch (ExecutionException ex) {
+    } catch (RuntimeException ex) {
       //expected
       LOG.debug("Excepted exception", ex);
     }
     LOG.info("Finished buggy test");
-    expect.assertObservation();
   }
 
   @Test
@@ -238,11 +231,19 @@ public class HelloResourceTest {
 
 
   @Test
-  public void testGetExecCtx() {
-    Invocation.Builder request = target.path("demo/helloResource/execContext")
+  public void testGetDeadline() throws InterruptedException {
+    Spf4jInvocationBuilder request = target.path("demo/helloResource/deadline")
             .request();
-    String responseMsg = request.get(String.class);
-    LOG.debug("Response", responseMsg);
+    long deadline = System.currentTimeMillis() + 2000;
+    Long responseMsg = request
+            .withTimeout(2, TimeUnit.SECONDS)
+            .get(Long.class);
+    deadline = System.currentTimeMillis() + 2000;
+    responseMsg = request
+            .withTimeout(2, TimeUnit.SECONDS)
+            .get(Long.class);
+    LOG.debug("Deadline is {}", responseMsg);
+    Assert.assertEquals(deadline, responseMsg.longValue());
   }
 
   @Test

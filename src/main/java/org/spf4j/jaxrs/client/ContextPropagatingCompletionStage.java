@@ -10,11 +10,14 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.TimeSource;
 import org.spf4j.base.Timing;
 import org.spf4j.base.UncheckedTimeoutException;
+import org.spf4j.concurrent.ContextPropagatingExecutorService;
+import org.spf4j.concurrent.DefaultContextAwareExecutor;
 
 /**
  *
@@ -362,7 +365,56 @@ public class ContextPropagatingCompletionStage<T>
 
   @Override
   public boolean isDone() {
-    return cs.isDone(); //To change body of generated methods, choose Tools | Templates.
+    return cs.isDone();
   }
+
+  @Override
+  public CompletableFuture<T> completeOnTimeout(T value, long timeout, TimeUnit unit) {
+    return new ContextPropagatingCompletionStage<T>(cs.completeOnTimeout(value, timeout, unit),
+            parentContext, deadlinenanos);
+  }
+
+  @Override
+  public CompletableFuture<T> orTimeout(long timeout, TimeUnit unit) {
+    return new ContextPropagatingCompletionStage<T>(cs.orTimeout(timeout, unit),
+            parentContext, deadlinenanos);
+  }
+
+  @Override
+  public CompletableFuture<T> completeAsync(Supplier<? extends T> supplier) {
+    return new ContextPropagatingCompletionStage<T>(
+            cs.completeAsync(ExecutionContexts.propagatingSupplier(supplier, parentContext, null, deadlinenanos)),
+            parentContext, deadlinenanos);
+  }
+
+  @Override
+  public CompletableFuture<T> completeAsync(Supplier<? extends T> supplier, Executor executor) {
+    return new ContextPropagatingCompletionStage<T>(
+            cs.completeAsync(ExecutionContexts.propagatingSupplier(supplier, parentContext, null, deadlinenanos),
+                    executor),
+            parentContext, deadlinenanos);
+  }
+
+  @Override
+  public CompletionStage<T> minimalCompletionStage() {
+    return this;
+  }
+
+  @Override
+  public CompletableFuture<T> copy() {
+    return new ContextPropagatingCompletionStage<>(cs.copy(), parentContext, deadlinenanos);
+  }
+
+  @Override
+  public Executor defaultExecutor() {
+    return DefaultContextAwareExecutor.instance();
+  }
+
+  @Override
+  public <U> CompletableFuture<U> newIncompleteFuture() {
+    return new ContextPropagatingCompletionStage<>(cs.newIncompleteFuture(), parentContext, deadlinenanos);
+  }
+
+
 
 }

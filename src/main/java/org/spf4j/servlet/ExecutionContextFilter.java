@@ -113,9 +113,9 @@ public class ExecutionContextFilter implements Filter {
         asyncContext.addListener(new AsyncListener() {
           @Override
           public void onComplete(final AsyncEvent event) throws IOException {
-            logRequestEnd(org.spf4j.log.Level.INFO, ctx, httpReq.getBytesRead(), httpResp.getBytesWritten(),
-                    httpResp.getStatus());
-            ctx.close();
+              logRequestEnd(org.spf4j.log.Level.INFO, ctx, httpReq.getBytesRead(), httpResp.getBytesWritten(),
+                      httpResp.getStatus());
+              ctx.close();
           }
 
           @Override

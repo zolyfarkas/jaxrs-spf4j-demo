@@ -18,8 +18,8 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaResolver;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
-import org.apache.avro.specific.ExtendedSpecificDatumWriter;
-import org.apache.avro.specific.SpecificRecord;
+import org.apache.avro.reflect.ExtendedReflectDatumWriter;
+import org.apache.avro.reflect.ReflectData;
 import org.codehaus.jackson.JsonGenerator;
 import org.spf4j.base.Json;
 import org.spf4j.http.Headers;
@@ -27,7 +27,7 @@ import org.spf4j.http.Headers;
 /**
  * @author Zoltan Farkas
  */
-public abstract class AvroMessageBodyWriter implements MessageBodyWriter<SpecificRecord> {
+public abstract class AvroMessageBodyWriter implements MessageBodyWriter<Object> {
 
 
   private final SchemaResolver client;
@@ -39,7 +39,7 @@ public abstract class AvroMessageBodyWriter implements MessageBodyWriter<Specifi
 
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return SpecificRecord.class.isAssignableFrom(type);
+    return true;
   }
 
   public abstract Encoder getEncoder(final Schema writerSchema, final OutputStream os)
@@ -47,11 +47,11 @@ public abstract class AvroMessageBodyWriter implements MessageBodyWriter<Specifi
 
 
   @Override
-  public void writeTo(SpecificRecord t, Class<?> type,
+  public void writeTo(Object t, Class<?> type,
           Type genericType, Annotation[] annotations,
           MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
           throws IOException, WebApplicationException {
-    Schema schema = t.getSchema();
+    Schema schema = ReflectData.get().getSchema(type);
     String id = schema.getProp("mvnId");
     String strSchema;
     if (id  == null || id.contains("SNAPSHOT")) {
@@ -65,7 +65,7 @@ public abstract class AvroMessageBodyWriter implements MessageBodyWriter<Specifi
     }
     httpHeaders.add(Headers.CONTENT_SCHEMA, strSchema);
     try {
-      DatumWriter writer = new ExtendedSpecificDatumWriter(t.getClass());
+      DatumWriter writer = new ExtendedReflectDatumWriter(t.getClass());
       Encoder encoder = getEncoder(schema, entityStream);
       writer.write(t, encoder);
       encoder.flush();

@@ -1,4 +1,4 @@
-package org.spf4j.jaxrs.client;
+package org.spf4j.jaxrs.client.providers;
 
 import java.io.IOException;
 import java.time.Instant;

@@ -99,6 +99,10 @@ public class Spf4JClient implements Client {
     return new Spf4JClient(cl, retryPolicy, hp, fsExec);
   }
 
+  public Spf4JClient withRetryPolicy(final RetryPolicy rp) {
+    return new Spf4JClient(cl, rp, hedgePolicy, fsExec);
+  }
+
   @Override
   public void close() {
     cl.close();

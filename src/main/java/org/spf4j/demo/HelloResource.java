@@ -14,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 import org.slf4j.LoggerFactory;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
+import org.spf4j.base.Timing;
 import org.spf4j.concurrent.DefaultContextAwareExecutor;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
@@ -36,12 +37,10 @@ public class HelloResource {
 
   @GET
   @Produces(MediaType.TEXT_PLAIN)
-  @Path("execContext")
-  public String getIt() throws InterruptedException, TimeoutException {
+  @Path("deadline")
+  public long getDeadline() throws InterruptedException, TimeoutException {
       ExecutionContext ec = ExecutionContexts.current();
-      StringBuilder sb = new StringBuilder();
-      ec.writeTo(sb);
-      return sb.toString();
+      return Timing.getCurrentTiming().fromNanoTimeToInstant(ec.getDeadlineNanos()).toEpochMilli();
   }
 
   @GET

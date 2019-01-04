@@ -35,9 +35,9 @@ import org.apache.avro.SchemaResolver;
 import org.glassfish.jersey.client.ClientProperties;
 import org.spf4j.base.UncheckedExecutionException;
 import org.spf4j.io.Streams;
-import org.spf4j.jaxrs.client.ClientCustomExecutorServiceProvider;
-import org.spf4j.jaxrs.client.ClientCustomScheduledExecutionServiceProvider;
-import org.spf4j.jaxrs.client.ExecutionContextClientFilter;
+import org.spf4j.jaxrs.client.providers.ClientCustomExecutorServiceProvider;
+import org.spf4j.jaxrs.client.providers.ClientCustomScheduledExecutionServiceProvider;
+import org.spf4j.jaxrs.client.providers.ExecutionContextClientFilter;
 import org.spf4j.jaxrs.client.Spf4JClient;
 
 /**

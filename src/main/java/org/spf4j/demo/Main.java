@@ -5,15 +5,20 @@ import io.opentracing.util.GlobalTracer;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.servlet.WebappContext;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.EnumSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration;
+import javax.servlet.Servlet;
 import javax.ws.rs.client.ClientBuilder;
 import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
+import org.glassfish.grizzly.servlet.FixedWebappContext;
 import org.glassfish.grizzly.servlet.ServletRegistration;
+import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.spf4j.concurrent.LifoThreadPoolBuilder;
 import org.spf4j.servlet.ExecutionContextFilter;
@@ -31,24 +36,27 @@ public class Main {
    *
    * @return Grizzly HTTP server.
    */
-  public static HttpServer startServer() throws IOException {
-    WebappContext webappContext = new WebappContext("grizzly web context", "");
+  public static HttpServer startServer() throws IOException, URISyntaxException {
+    FixedWebappContext webappContext = new FixedWebappContext("grizzly web context", "");
     FilterRegistration testFilterReg = webappContext.addFilter("server", ExecutionContextFilter.class);
     testFilterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
     ServletRegistration servletRegistration = webappContext.addServlet("jersey", ServletContainer.class);
     servletRegistration.addMapping("/demo/*");
     servletRegistration.setInitParameter("javax.ws.rs.Application", "org.spf4j.demo.DemoApplication");
-    servletRegistration.setInitParameter("jersey.config.server.provider.packages",
+    servletRegistration.setInitParameter(ServerProperties.PROVIDER_PACKAGES,
             "org.spf4j.demo;org.spf4j.jaxrs.server");
-    servletRegistration.setLoadOnStartup(1);
-
+//    servletRegistration.setInitParameter("jersey.config.server.tracing.type", "ALL");
+    servletRegistration.setInitParameter("baseUri", BASE_URI);
+    servletRegistration.setInitParameter(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, "true");
+    servletRegistration.setLoadOnStartup(0);
+    URI srvUri = new URI(BASE_URI);
     HttpServer server = new HttpServer();
 //  final ServerConfiguration config = server.getServerConfiguration();
 //  config.addHttpHandler(new StaticHttpHandler(docRoot), "/");
     final NetworkListener listener
             = new NetworkListener("grizzly",
-                    "0.0.0.0",
-                    8080);
+                    srvUri.getHost(),
+                    srvUri.getPort());
     TCPNIOTransport transport = listener.getTransport();
     transport.setKernelThreadPool(LifoThreadPoolBuilder.newBuilder()
             .withCoreSize(Integer.getInteger("spf4j.grizzly.kernel.coreSize", 2))
@@ -73,6 +81,7 @@ public class Main {
 
     webappContext.deploy(server);
     server.start();
+    DemoApplication.getInstance().start();
     return server;
   }
 
@@ -82,7 +91,7 @@ public class Main {
    * @param args
    * @throws IOException
    */
-  public static void main(String[] args) throws IOException, InterruptedException {
+  public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
     final CountDownLatch latch = new CountDownLatch(1);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
