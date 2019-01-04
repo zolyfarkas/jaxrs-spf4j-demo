@@ -1,9 +1,7 @@
 package org.spf4j.jaxrs.client.providers;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Priority;
@@ -19,8 +17,6 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.TimeSource;
-import org.spf4j.base.Timing;
-import org.spf4j.base.UncheckedTimeoutException;
 import org.spf4j.http.DeadlineProtocol;
 import org.spf4j.http.Headers;
 import org.spf4j.log.LogAttribute;
@@ -51,16 +47,8 @@ public class ExecutionContextClientFilter implements ClientRequestFilter,
   public void filter(final ClientRequestContext requestContext) {
     ExecutionContext reqCtx = ExecutionContexts.current();
     MultivaluedMap<String, Object> headers = requestContext.getHeaders();
-    long timeoutNanos;
-    try {
-      timeoutNanos = reqCtx.getTimeToDeadline(TimeUnit.NANOSECONDS);
-    } catch (TimeoutException ex) {
-      throw new UncheckedTimeoutException(ex);
-    }
     long deadlineNanos = reqCtx.getDeadlineNanos();
-    Instant deadline = Timing.getCurrentTiming().fromNanoTimeToInstant(deadlineNanos);
-    headers.add(Headers.REQ_DEADLINE, Long.toString(deadline.getEpochSecond())  + ' ' + deadline.getNano());
-    headers.add(Headers.REQ_TIMEOUT, timeoutNanos + " n");
+    long timeoutNanos  = protocol.serialize(headers::addFirst, deadlineNanos);
     headers.add(Headers.REQ_ID, reqCtx.getId());
     int readTimeoutMs = (int) (timeoutNanos / 1000000);
     requestContext.setProperty(ClientProperties.READ_TIMEOUT, readTimeoutMs);

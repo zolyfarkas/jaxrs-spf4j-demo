@@ -24,6 +24,7 @@ import org.spf4j.base.SysExits;
 import org.spf4j.base.Throwables;
 import org.spf4j.base.TimeSource;
 import org.spf4j.http.DeadlineProtocol;
+import org.spf4j.http.DefaultDeadlineProtocol;
 import org.spf4j.http.Headers;
 import org.spf4j.log.Level;
 import org.spf4j.log.LogAttribute;
@@ -52,7 +53,7 @@ public class ExecutionContextFilter implements Filter {
   private Logger log;
 
   public ExecutionContextFilter() {
-    this(new DeadlineProtocol());
+    this(new DefaultDeadlineProtocol());
   }
 
   public ExecutionContextFilter(final DeadlineProtocol deadlineProtocol) {

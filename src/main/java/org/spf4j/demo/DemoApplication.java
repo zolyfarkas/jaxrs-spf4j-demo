@@ -22,7 +22,7 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.spf4j.avro.SchemaClient;
-import org.spf4j.http.DeadlineProtocol;
+import org.spf4j.http.DefaultDeadlineProtocol;
 import org.spf4j.jaxrs.client.providers.ClientCustomExecutorServiceProvider;
 import org.spf4j.jaxrs.client.providers.ClientCustomScheduledExecutionServiceProvider;
 import org.spf4j.jaxrs.client.providers.ExecutionContextClientFilter;
@@ -54,7 +54,7 @@ public class DemoApplication extends ResourceConfig {
     } catch (URISyntaxException ex) {
       throw new RuntimeException(ex);
     }
-    DeadlineProtocol dp = new DeadlineProtocol();
+    DefaultDeadlineProtocol dp = new DefaultDeadlineProtocol();
     FilterRegistration testFilterReg = srvContext.addFilter("server", new ExecutionContextFilter(dp));
     testFilterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
     AvroFeature avroFeature = new AvroFeature(schemaClient);

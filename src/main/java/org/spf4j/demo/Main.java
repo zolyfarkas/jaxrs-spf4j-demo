@@ -21,7 +21,7 @@ import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.spf4j.concurrent.LifoThreadPoolBuilder;
-import org.spf4j.http.DeadlineProtocol;
+import org.spf4j.http.DefaultDeadlineProtocol;
 import org.spf4j.servlet.ExecutionContextFilter;
 
 /**

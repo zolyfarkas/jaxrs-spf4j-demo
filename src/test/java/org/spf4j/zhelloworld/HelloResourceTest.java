@@ -247,7 +247,7 @@ public class HelloResourceTest {
             .withTimeout(2, TimeUnit.SECONDS)
             .get(Long.class);
     LOG.debug("Deadline is {}", responseMsg);
-    Assert.assertEquals(deadline, responseMsg.longValue());
+    Assert.assertTrue(Math.abs(deadline - responseMsg) < 2);
   }
 
   @Test
