@@ -98,7 +98,7 @@ public class ExecutionContextFilter implements Filter {
     } else {
       deadlineNanos = ProtocolTimeUnit.parseDeadlineNanos(deadlineStr);
     }
-    ExecutionContext ctx = ExecutionContexts.start(httpReq.getMethod() + ' ' + httpReq.getPathInfo(),
+    ExecutionContext ctx = ExecutionContexts.start(httpReq.getMethod() + httpReq.getPathInfo(),
             httpReq.getHeader(idHeaderName), null, startTimeNanos, deadlineNanos);
     ctx.put(ContextTags.HTTP_REQ, httpReq);
     ctx.put(ContextTags.HTTP_RESP, httpResp);

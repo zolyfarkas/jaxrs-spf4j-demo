@@ -104,8 +104,10 @@ public final class Utils {
           current.addLog(new AvroLogRecordImpl(log));
         }
       }
+    } else {
+      result = new RuntimeException(ex);
     }
-    return ex;
+    return result;
   }
 
 

@@ -12,6 +12,7 @@ import javax.ws.rs.core.Response;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.TimeSource;
+import org.spf4j.concurrent.ContextPropagatingCompletableFuture;
 import org.spf4j.failsafe.AsyncRetryExecutor;
 import org.spf4j.jaxrs.Utils;
 
@@ -31,7 +32,7 @@ public class Spf4jCompletionStageRxInvoker
   }
 
   private String getName(final String method) {
-    return method + ' ' + invocation.getTarget().getUri();
+    return method + invocation.getTarget().getUri();
   }
 
   private <T> CompletionStage<T> submit(Callable<T> what, final String name) {
@@ -39,9 +40,8 @@ public class Spf4jCompletionStageRxInvoker
     ExecutionContext current = ExecutionContexts.current();
     long deadlineNanos = ExecutionContexts.computeDeadline(current, invocation.getTimeoutNanos(), TimeUnit.NANOSECONDS);
     Callable<T> pc = ExecutionContexts.propagatingCallable(what, current, name, deadlineNanos);
-//    return executor.submitRx(pc, nanoTime, deadlineNanos);
-    return new ContextPropagatingCompletionStage<T>(
-            executor.submitRx(pc, nanoTime, deadlineNanos), current, deadlineNanos)
+    return executor.submitRx(pc, nanoTime, deadlineNanos,
+            () -> new ContextPropagatingCompletableFuture<>(current, deadlineNanos))
             .handle((result, ex) -> {
               if (ex != null) {
                 Throwable rex = com.google.common.base.Throwables.getRootCause(ex);

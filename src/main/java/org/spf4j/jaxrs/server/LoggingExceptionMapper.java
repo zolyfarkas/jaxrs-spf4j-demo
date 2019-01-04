@@ -48,22 +48,17 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Throwable>,
   @Override
   public Response toResponse(final Throwable exception) {
     WebApplicationException wex = Throwables.first(exception, WebApplicationException.class);
-    int status;
-    if (wex != null) {
-      Response response = wex.getResponse();
-      if (response.hasEntity()) {
-         response.getEntity();
-         return response;
-      }
-      status = response.getStatus();
-    } else {
-      status = 500;
-    }
-    ExecutionContext ctx = ExecutionContexts.current();
     String message = exception.getMessage();
     if (message == null) {
       message = "";
     }
+    int status;
+    if (wex != null) {
+      status = wex.getResponse().getStatus();
+    } else {
+      status = 500;
+    }
+    ExecutionContext ctx = ExecutionContexts.current();
     if (ctx == null) { // Exception mapper can execute in a timeout thread, where context is not available,
         Logger.getLogger("handling.error")
                 .log(java.util.logging.Level.WARNING, "No request context available", exception);

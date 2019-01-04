@@ -17,6 +17,7 @@ import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.TimeSource;
 import org.spf4j.base.UncheckedTimeoutException;
 import org.spf4j.base.Wrapper;
+import org.spf4j.concurrent.ContextPropagatingCompletableFuture;
 import org.spf4j.failsafe.AsyncRetryExecutor;
 
 /**
@@ -53,7 +54,7 @@ public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
   }
 
   public String getName() {
-    return method + ' ' + target.getUri();
+    return method + target.getUri();
   }
 
   @Override
@@ -73,8 +74,13 @@ public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
       throw new RuntimeException(ex);
     } catch (TimeoutException ex) {
       throw new UncheckedTimeoutException(ex);
-    } catch (WebApplicationException ex) {
-      throw Utils.handleServiceError(ex, current);
+    } catch (RuntimeException ex) {
+      Throwable rex = com.google.common.base.Throwables.getRootCause(ex);
+      if (rex instanceof WebApplicationException) {
+        throw Utils.handleServiceError((WebApplicationException) rex, current);
+      } else {
+        throw ex;
+      }
     }
   }
 
@@ -84,7 +90,8 @@ public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
     ExecutionContext current = ExecutionContexts.current();
     long deadlineNanos = ExecutionContexts.computeDeadline(current, timeoutNanos, TimeUnit.NANOSECONDS);
     Callable<T> pc = ExecutionContexts.propagatingCallable(what, current, getName(), deadlineNanos);
-    return executor.submitRx(pc, nanoTime, deadlineNanos)
+    return executor.submitRx(pc, nanoTime, deadlineNanos,
+            () -> new ContextPropagatingCompletableFuture<>(current, deadlineNanos))
             .handle((result, ex) -> {
               if (ex != null) {
                 Throwable rex = com.google.common.base.Throwables.getRootCause(ex);
