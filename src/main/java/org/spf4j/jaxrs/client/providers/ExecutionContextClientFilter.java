@@ -7,6 +7,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Priority;
+import javax.inject.Inject;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.client.ClientRequestContext;
 import javax.ws.rs.client.ClientRequestFilter;
@@ -20,6 +21,7 @@ import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.TimeSource;
 import org.spf4j.base.Timing;
 import org.spf4j.base.UncheckedTimeoutException;
+import org.spf4j.http.DeadlineProtocol;
 import org.spf4j.http.Headers;
 import org.spf4j.log.LogAttribute;
 
@@ -36,8 +38,14 @@ import org.spf4j.log.LogAttribute;
 public class ExecutionContextClientFilter implements ClientRequestFilter,
         ClientResponseFilter {
 
-  private static final Logger log = Logger.getLogger("org.spf4j.jaxrs.client");
+  private final DeadlineProtocol protocol;
 
+  @Inject
+  public ExecutionContextClientFilter(final DeadlineProtocol protocol) {
+    this.protocol = protocol;
+  }
+
+  private static final Logger log = Logger.getLogger("org.spf4j.jaxrs.client");
 
   @Override
   public void filter(final ClientRequestContext requestContext) {

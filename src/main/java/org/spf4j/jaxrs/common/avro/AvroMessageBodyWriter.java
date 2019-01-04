@@ -71,7 +71,7 @@ public abstract class AvroMessageBodyWriter implements MessageBodyWriter<Object>
       encoder.flush();
     } catch (IOException | RuntimeException e) {
       Logger.getLogger(AvroMessageBodyWriter.class.getName())
-              .log(Level.SEVERE, "Serialization exception", e);
+              .log(Level.SEVERE, "Serialization failed", t);
       throw e;
     }
   }

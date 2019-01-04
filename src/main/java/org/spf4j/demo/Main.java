@@ -21,6 +21,7 @@ import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.spf4j.concurrent.LifoThreadPoolBuilder;
+import org.spf4j.http.DeadlineProtocol;
 import org.spf4j.servlet.ExecutionContextFilter;
 
 /**
@@ -38,8 +39,6 @@ public class Main {
    */
   public static HttpServer startServer() throws IOException, URISyntaxException {
     FixedWebappContext webappContext = new FixedWebappContext("grizzly web context", "");
-    FilterRegistration testFilterReg = webappContext.addFilter("server", ExecutionContextFilter.class);
-    testFilterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
     ServletRegistration servletRegistration = webappContext.addServlet("jersey", ServletContainer.class);
     servletRegistration.addMapping("/demo/*");
     servletRegistration.setInitParameter("javax.ws.rs.Application", "org.spf4j.demo.DemoApplication");

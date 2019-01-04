@@ -23,6 +23,7 @@ import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.SysExits;
 import org.spf4j.base.Throwables;
 import org.spf4j.base.TimeSource;
+import org.spf4j.http.DeadlineProtocol;
 import org.spf4j.http.Headers;
 import org.spf4j.log.Level;
 import org.spf4j.log.LogAttribute;
@@ -41,41 +42,30 @@ import org.spf4j.log.Slf4jLogRecord;
 @WebFilter(asyncSupported = true)
 public class ExecutionContextFilter implements Filter {
 
-  public static final String EXECUTION_CONTEXT_SERVLET_PROPERTY = "srvEc";
-
-  public static final String CFG_MAX_TIMEOUT_NANOS = "spf4j.jax-rs.maxTimeoutNanos";
-
-  public static final String CFG_DEFAULT_TIMEOUT_NANOS = "spf4j.jax-rs.defaultTimeoutNanos";
-
-  public static final String CFG_DEADLINE_HEADER_NAME = "spf4j.jax-rs.deadlineHeaderName";
-
-  public static final String CFG_TIMEOUT_HEADER_NAME = "spf4j.jax-rs.timeoutHeaderName";
 
   public static final String CFG_ID_HEADER_NAME = "spf4j.jax-rs.idHeaderName";
 
-  private long maxTimeoutNanos;
-
-  private long defaultTimeoutNanos;
-
-  private String deadlineHeaderName;
-
-  private String timeoutHeaderName;
+  private DeadlineProtocol deadlineProtocol;
 
   private String idHeaderName;
 
   private Logger log;
 
+  public ExecutionContextFilter() {
+    this(new DeadlineProtocol());
+  }
+
+  public ExecutionContextFilter(final DeadlineProtocol deadlineProtocol) {
+    this.deadlineProtocol = deadlineProtocol;
+  }
+
+  public DeadlineProtocol getDeadlineProtocol() {
+    return deadlineProtocol;
+  }
+
   @Override
   public void init(final FilterConfig filterConfig) throws ServletException {
     log = Logger.getLogger("org.spf4j.servlet." + filterConfig.getFilterName());
-    maxTimeoutNanos = Filters.getLongParameter(filterConfig, CFG_MAX_TIMEOUT_NANOS, TimeUnit.MINUTES.toNanos(10));
-    defaultTimeoutNanos = Filters.getLongParameter(filterConfig, CFG_DEFAULT_TIMEOUT_NANOS, TimeUnit.MINUTES.toNanos(1));
-    if (defaultTimeoutNanos > maxTimeoutNanos) {
-      throw new ServletException("Invalid server configuration,"
-              + " default timeout must be smaller than max timeout " + defaultTimeoutNanos + " < " + maxTimeoutNanos);
-    }
-    deadlineHeaderName = Filters.getStringParameter(filterConfig, CFG_DEADLINE_HEADER_NAME, Headers.REQ_DEADLINE);
-    timeoutHeaderName = Filters.getStringParameter(filterConfig, CFG_TIMEOUT_HEADER_NAME, Headers.REQ_TIMEOUT);
     idHeaderName = Filters.getStringParameter(filterConfig, CFG_ID_HEADER_NAME, Headers.REQ_ID);
   }
 
@@ -86,23 +76,11 @@ public class ExecutionContextFilter implements Filter {
     CountingHttpServletRequest httpReq = new CountingHttpServletRequest((HttpServletRequest) request);
     CountingHttpServletResponse httpResp = new CountingHttpServletResponse((HttpServletResponse) response);
     long startTimeNanos = TimeSource.nanoTime();
-    String deadlineStr = httpReq.getHeader(deadlineHeaderName);
-    long deadlineNanos;
-    if (deadlineStr == null) {
-      String timeoutStr = httpReq.getHeader(timeoutHeaderName);
-      if (timeoutStr == null) {
-        deadlineNanos = startTimeNanos + defaultTimeoutNanos;
-      } else {
-        deadlineNanos = startTimeNanos + ProtocolTimeUnit.parseTimeoutNanos(timeoutStr);
-      }
-    } else {
-      deadlineNanos = ProtocolTimeUnit.parseDeadlineNanos(deadlineStr);
-    }
+    long deadlineNanos = deadlineProtocol.deserialize(httpReq::getHeader, startTimeNanos);
     ExecutionContext ctx = ExecutionContexts.start(httpReq.getMethod() + httpReq.getPathInfo(),
             httpReq.getHeader(idHeaderName), null, startTimeNanos, deadlineNanos);
     ctx.put(ContextTags.HTTP_REQ, httpReq);
     ctx.put(ContextTags.HTTP_RESP, httpResp);
-    request.setAttribute(EXECUTION_CONTEXT_SERVLET_PROPERTY, ctx);
 
     try {
       chain.doFilter(httpReq, httpResp);

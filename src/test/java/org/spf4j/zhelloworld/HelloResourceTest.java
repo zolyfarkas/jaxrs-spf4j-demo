@@ -89,8 +89,10 @@ public class HelloResourceTest {
   }
 
   @Test
-  @ExpectLog(level = Level.ERROR)
   public void testFlakyHelloWorld() throws InterruptedException, ExecutionException, TimeoutException {
+    LogAssert expect = TestLoggers.sys().expect("", Level.ERROR,
+            false, LogMatchers.hasMessageWithPattern(".*"),
+            Matchers.any((Class) Iterable.class));
     Spf4jInvocationBuilder request = client.withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
             TimeUnit.MILLISECONDS.toNanos(200), 2))
             .target(Main.BASE_URI).path("demo/helloResource/flakyHelloWorld").request();
@@ -98,6 +100,8 @@ public class HelloResourceTest {
             .buildGet().submit(String.class);
     Assert.assertThat(responseMsg.get(3000, TimeUnit.SECONDS), Matchers.startsWith("Hello World"));
     LOG.info("Finished Flaky test");
+    Thread.sleep(3000);
+    expect.assertObservation();
   }
 
 
@@ -158,12 +162,12 @@ public class HelloResourceTest {
   @Test
   public void testFlakyHelloWorldSync() throws InterruptedException, ExecutionException, TimeoutException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
-            false, LogMatchers.hasMessageWithPattern("Done GET /helloResource.*"),
+            false, LogMatchers.hasMessageWithPattern("Done GET/helloResource.*"),
             Matchers.any((Class) Iterable.class));
     Spf4jInvocationBuilder request = client.withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
         TimeUnit.MILLISECONDS.toNanos(200), 2))
         .target(Main.BASE_URI).path("demo/helloResource/flakyHelloWorldSync").request()
-            .withTimeout(2, TimeUnit.SECONDS);
+            .withTimeout(5, TimeUnit.SECONDS);
     String responseMsg = request.get(String.class);
     Assert.assertThat(responseMsg, Matchers.startsWith("Hello World"));
     LOG.info("Finished Flaky test");
@@ -174,7 +178,7 @@ public class HelloResourceTest {
   @Test(timeout = 10000)
   public void testATimeoout() throws InterruptedException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.WARN,
-            true, LogMatchers.hasMessageWithPattern("Done GET /helloResource/aTimeout"),
+            true, LogMatchers.hasMessageWithPattern("Done GET/helloResource/aTimeout"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
       target.path("demo/helloResource/aTimeout")
@@ -185,16 +189,15 @@ public class HelloResourceTest {
     } catch (InternalServerErrorException | UncheckedTimeoutException ex) {
       LOG.debug("Expected Error Response", ex);
     } finally {
-      Thread.sleep(3000); // wait for the server to try to write to diconnected client.
       expect.assertObservation(10, TimeUnit.SECONDS);
     }
   }
 
 
   @Test(timeout = 10000)
-  public void testAError() {
+  public void testAError() throws InterruptedException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
-            true, LogMatchers.hasMessageWithPattern("Done GET /helloResource/aError"),
+            true, LogMatchers.hasMessageWithPattern("Done GET/helloResource/aError"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
       target.path("demo/helloResource/aError")
@@ -206,6 +209,7 @@ public class HelloResourceTest {
       LOG.debug("Expected Error Response", ex);
       Assert.assertEquals(RemoteException.class, com.google.common.base.Throwables.getRootCause(ex).getClass());
     } finally {
+      Thread.sleep(2000);
       expect.assertObservation(10, TimeUnit.SECONDS);
     }
   }
@@ -213,7 +217,7 @@ public class HelloResourceTest {
   @Test(timeout = 10000)
   public void testAError2() throws InterruptedException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
-            true, LogMatchers.hasMessageWithPattern("Done GET /helloResource/aError"),
+            true, LogMatchers.hasMessageWithPattern("Done GET/helloResource/aError"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
       target.path("demo/helloResource/aError")

@@ -75,39 +75,32 @@ public final class Utils {
   }
 
   @CheckReturnValue
-  public static RuntimeException handleServiceError(final WebApplicationException ex,
+  public static  void handleServiceError(final WebApplicationException ex,
           final ExecutionContext current) throws WebApplicationException {
     Response response = ex.getResponse();
     if (response.getHeaders().getFirst(Headers.CONTENT_SCHEMA) == null) {
-      return new RuntimeException(ex);
+      return;
     }
     ServiceError se;
     try {
       se = response.readEntity(ServiceError.class);
     } catch (ProcessingException e) {
       // not a Propagable service error.
-      e.addSuppressed(ex);
-      return e;
+      ex.addSuppressed(e);
+      return;
     }
-    RuntimeException result;
     DebugDetail detail = se.getDetail();
     if (detail != null) {
       org.spf4j.base.avro.Throwable throwable = detail.getThrowable();
       if (throwable != null) {
-        result = new RuntimeException(Converters.convert(detail.getOrigin(), throwable));
-        result.addSuppressed(ex);
-      } else {
-        result = new RuntimeException(ex);
+        Throwables.setRootCause(ex, Converters.convert(detail.getOrigin(), throwable));
       }
       if (current != null) {
         for (LogRecord log : detail.getLogs()) {
           current.addLog(new AvroLogRecordImpl(log));
         }
       }
-    } else {
-      result = new RuntimeException(ex);
     }
-    return result;
   }
 
 

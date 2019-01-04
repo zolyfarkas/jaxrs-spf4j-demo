@@ -46,7 +46,12 @@ public class Spf4jCompletionStageRxInvoker
               if (ex != null) {
                 Throwable rex = com.google.common.base.Throwables.getRootCause(ex);
                 if (rex instanceof WebApplicationException) {
-                  throw Utils.handleServiceError((WebApplicationException) rex, current);
+                  Utils.handleServiceError((WebApplicationException) rex, current);
+                }
+                if (ex instanceof RuntimeException) {
+                  throw (RuntimeException) ex;
+                } else if (ex instanceof Error){
+                  throw (Error) ex;
                 } else {
                   throw new RuntimeException(ex);
                 }

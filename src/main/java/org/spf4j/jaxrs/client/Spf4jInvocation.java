@@ -77,10 +77,9 @@ public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
     } catch (RuntimeException ex) {
       Throwable rex = com.google.common.base.Throwables.getRootCause(ex);
       if (rex instanceof WebApplicationException) {
-        throw Utils.handleServiceError((WebApplicationException) rex, current);
-      } else {
-        throw ex;
+         Utils.handleServiceError((WebApplicationException) rex, current);
       }
+      throw ex;
     }
   }
 
@@ -96,7 +95,12 @@ public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
               if (ex != null) {
                 Throwable rex = com.google.common.base.Throwables.getRootCause(ex);
                 if (rex instanceof WebApplicationException) {
-                  throw Utils.handleServiceError((WebApplicationException) rex, current);
+                  Utils.handleServiceError((WebApplicationException) rex, current);
+                }
+                if (ex instanceof RuntimeException) {
+                  throw (RuntimeException) ex;
+                } else if (ex instanceof Error){
+                  throw (Error) ex;
                 } else {
                   throw new RuntimeException(ex);
                 }

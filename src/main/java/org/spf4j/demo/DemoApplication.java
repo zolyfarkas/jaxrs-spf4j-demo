@@ -3,9 +3,14 @@ package org.spf4j.demo;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.EnumSet;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
+import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
+import javax.servlet.DispatcherType;
+import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 import javax.ws.rs.client.Client;
@@ -17,12 +22,14 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.spf4j.avro.SchemaClient;
+import org.spf4j.http.DeadlineProtocol;
 import org.spf4j.jaxrs.client.providers.ClientCustomExecutorServiceProvider;
 import org.spf4j.jaxrs.client.providers.ClientCustomScheduledExecutionServiceProvider;
 import org.spf4j.jaxrs.client.providers.ExecutionContextClientFilter;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.common.avro.AvroFeature;
 import org.spf4j.jaxrs.server.Spf4jInterceptionService;
+import org.spf4j.servlet.ExecutionContextFilter;
 
 /**
  *
@@ -47,14 +54,15 @@ public class DemoApplication extends ResourceConfig {
     } catch (URISyntaxException ex) {
       throw new RuntimeException(ex);
     }
+    DeadlineProtocol dp = new DeadlineProtocol();
+    FilterRegistration testFilterReg = srvContext.addFilter("server", new ExecutionContextFilter(dp));
+    testFilterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
     AvroFeature avroFeature = new AvroFeature(schemaClient);
     restClient = new Spf4JClient(ClientBuilder
             .newBuilder()
             .connectTimeout(2, TimeUnit.SECONDS)
-//            .executorService(DefaultContextAwareExecutor.instance())
-//            .scheduledExecutorService(DefaultContextAwareScheduledExecutor.instance())
             .readTimeout(60, TimeUnit.SECONDS)
-            .register(ExecutionContextClientFilter.class)
+            .register(new ExecutionContextClientFilter(dp))
             .register(ClientCustomExecutorServiceProvider.class)
             .register(ClientCustomScheduledExecutionServiceProvider.class)
             .register(avroFeature)
@@ -63,8 +71,16 @@ public class DemoApplication extends ResourceConfig {
     appBinder = new AppBinder();
     register(appBinder);
     register(avroFeature);
+    if (instance != null) {
+      throw new IllegalStateException("Application already initialized " + instance);
+    }
     instance = this;
     this.srvContext = srvContext;
+  }
+
+  @PreDestroy
+  public void cleanup () {
+    instance = null;
   }
 
   public void start() {
