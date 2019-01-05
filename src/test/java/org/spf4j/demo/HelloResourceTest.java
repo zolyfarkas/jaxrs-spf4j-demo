@@ -1,7 +1,5 @@
-package org.spf4j.zhelloworld;
+package org.spf4j.demo;
 
-import org.spf4j.demo.DemoApplication;
-import org.spf4j.demo.Main;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
@@ -36,7 +34,6 @@ import org.spf4j.log.Level;
 import org.spf4j.test.log.LogAssert;
 import org.spf4j.test.log.TestLogRecord;
 import org.spf4j.test.log.TestLoggers;
-import org.spf4j.test.log.annotations.ExpectLog;
 import org.spf4j.test.matchers.LogMatchers;
 
 public class HelloResourceTest {
@@ -51,15 +48,7 @@ public class HelloResourceTest {
   public static void setUp() throws Exception {
     // start the server
     server = Main.startServer();
-    // create the client
     client = DemoApplication.getInstance().getRestClient();
-
-
-    // uncomment the following line if you want to enable
-    // support for JSON in the client (you also have to uncomment
-    // dependency on jersey-media-json module in pom.xml and Main.startServer())
-    // --
-    // c.configuration().enable(new org.glassfish.jersey.media.json.JsonJaxbFeature());
     target = client.target(Main.BASE_URI);
   }
 

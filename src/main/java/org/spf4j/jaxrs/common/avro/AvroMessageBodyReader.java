@@ -16,7 +16,6 @@ import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.Decoder;
 import org.apache.avro.reflect.ReflectData;
 import org.apache.avro.reflect.ReflectDatumReader;
-import org.apache.avro.specific.SpecificDatumReader;
 import org.spf4j.http.Headers;
 import org.spf4j.io.MemorizingBufferedInputStream;
 
@@ -51,7 +50,7 @@ public abstract class AvroMessageBodyReader implements MessageBodyReader<Object>
           throws IOException, WebApplicationException {
     String schemaStr = httpHeaders.getFirst(Headers.CONTENT_SCHEMA);
     Schema writerSchema = new Schema.Parser(new AvroNamesRefResolver(client)).parse(schemaStr);
-    Schema readerSchema = ReflectData.get().getSchema(genericType);
+    Schema readerSchema = ReflectData.get().getSchema(genericType != null ? genericType : type);
     DatumReader reader = new ReflectDatumReader(writerSchema, readerSchema);
     InputStream entityStream = wrapInputStream(pentityStream);
     try {

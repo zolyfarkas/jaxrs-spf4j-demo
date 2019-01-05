@@ -51,7 +51,7 @@ public abstract class AvroMessageBodyWriter implements MessageBodyWriter<Object>
           Type genericType, Annotation[] annotations,
           MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
           throws IOException, WebApplicationException {
-    Schema schema = ReflectData.get().getSchema(type);
+    Schema schema = ReflectData.get().getSchema(genericType != null ? genericType : type);
     String id = schema.getProp("mvnId");
     String strSchema;
     if (id  == null || id.contains("SNAPSHOT")) {
@@ -65,14 +65,12 @@ public abstract class AvroMessageBodyWriter implements MessageBodyWriter<Object>
     }
     httpHeaders.add(Headers.CONTENT_SCHEMA, strSchema);
     try {
-      DatumWriter writer = new ExtendedReflectDatumWriter(t.getClass());
+      DatumWriter writer = new ExtendedReflectDatumWriter(schema);
       Encoder encoder = getEncoder(schema, entityStream);
       writer.write(t, encoder);
       encoder.flush();
     } catch (IOException | RuntimeException e) {
-      Logger.getLogger(AvroMessageBodyWriter.class.getName())
-              .log(Level.SEVERE, "Serialization failed", t);
-      throw e;
+      throw new RuntimeException("Serialization failed for " + t, e);
     }
   }
 
