@@ -78,7 +78,7 @@ public class ExecutionContextFilter implements Filter {
     CountingHttpServletResponse httpResp = new CountingHttpServletResponse((HttpServletResponse) response);
     long startTimeNanos = TimeSource.nanoTime();
     long deadlineNanos = deadlineProtocol.deserialize(httpReq::getHeader, startTimeNanos);
-    ExecutionContext ctx = ExecutionContexts.start(httpReq.getMethod() + httpReq.getPathInfo(),
+    ExecutionContext ctx = ExecutionContexts.start(httpReq.getMethod() + '/' + httpReq.getPathInfo(),
             httpReq.getHeader(idHeaderName), null, startTimeNanos, deadlineNanos);
     ctx.put(ContextTags.HTTP_REQ, httpReq);
     ctx.put(ContextTags.HTTP_RESP, httpResp);

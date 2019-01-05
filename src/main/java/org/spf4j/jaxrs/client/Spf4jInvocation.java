@@ -54,7 +54,7 @@ public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
   }
 
   public String getName() {
-    return method + target.getUri();
+    return method + '/' + target.getUri();
   }
 
   @Override
