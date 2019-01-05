@@ -19,8 +19,6 @@ import org.spf4j.base.avro.Converters;
 import org.spf4j.base.avro.DebugDetail;
 import org.spf4j.base.avro.ServiceError;
 import org.spf4j.log.Level;
-import org.spf4j.log.LogAttribute;
-import org.spf4j.log.LogUtils;
 import org.spf4j.log.Slf4jLogRecord;
 import org.spf4j.servlet.ContextTags;
 
@@ -78,17 +76,14 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Throwable>,
     }
     ctx.addToRoot(ContextTags.LOG_ATTRIBUTES, exception);
     List<Slf4jLogRecord> ctxLogs = new ArrayList<>();
-    ctx.streamLogs((log) -> {
-      if (!log.isLogged()) {
-        ctxLogs.add(log);
-      }
-    });
-    Collections.sort(ctxLogs, Slf4jLogRecord::compareByTimestamp);
-    Logger logger = Logger.getLogger("debug.on.error");
-    for (Slf4jLogRecord log : ctxLogs) {
-      LogUtils.logUpgrade(logger, org.spf4j.log.Level.INFO, "Detail on Error", LogAttribute.log(log));
-      log.setIsLogged();
+    ExecutionContext curr = ctx;
+    while (curr != null) {
+      curr.streamLogs((log) -> {
+          ctxLogs.add(log);
+      });
+      curr = curr.getParent();
     }
+    Collections.sort(ctxLogs, Slf4jLogRecord::compareByTimestamp);
     ServiceError se = ServiceError.newBuilder()
             .setCode(status)
             .setDetail(new DebugDetail(host + '/' + ctx.getName(),

@@ -122,7 +122,6 @@ public class ExecutionContextFilter implements Filter {
       if (Throwables.isNonRecoverable(t)) {
         org.spf4j.base.Runtime.goDownWithError(t, SysExits.EX_SOFTWARE);
       }
-      logContextLogs(ctx);
       ctx.add(ContextTags.LOG_ATTRIBUTES, t);
       logRequestEnd(org.spf4j.log.Level.ERROR, ctx, httpReq.getBytesRead(), httpResp.getBytesWritten(),
               httpResp.getStatus());
@@ -166,10 +165,13 @@ public class ExecutionContextFilter implements Filter {
         args[i++] = obj;
       }
     }
+    if (level.getIntValue() >= Level.WARN.getIntValue()) {
+       logContextLogs(logger, ctx);
+    }
     logger.log(level.getJulLevel(), "Done {0}", args);
   }
 
-  private void logContextLogs(final ExecutionContext ctx) {
+  private static void logContextLogs(final Logger logger, final ExecutionContext ctx) {
     List<Slf4jLogRecord> ctxLogs = new ArrayList<>();
     ctx.streamLogs((log) -> {
       if (!log.isLogged()) {
@@ -178,7 +180,7 @@ public class ExecutionContextFilter implements Filter {
     });
     Collections.sort(ctxLogs, Slf4jLogRecord::compareByTimestamp);
     for (Slf4jLogRecord log : ctxLogs) {
-      LogUtils.logUpgrade(this.log, org.spf4j.log.Level.INFO, "Detail on Error", LogAttribute.log(log));
+      LogUtils.logUpgrade(logger, org.spf4j.log.Level.INFO, "Detail on Error", LogAttribute.log(log));
     }
   }
 

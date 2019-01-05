@@ -194,7 +194,7 @@ public class HelloResourceTest {
   }
 
 
-  @Test(timeout = 10000)
+  @Test(timeout = 1000000)
   public void testAError() throws InterruptedException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
             true, LogMatchers.hasMessageWithPattern("Done GET/helloResource/aError"),
@@ -202,7 +202,7 @@ public class HelloResourceTest {
     try  {
       target.path("demo/helloResource/aError")
              .request()
-              .withTimeout(500, TimeUnit.MILLISECONDS)
+              .withTimeout(500000, TimeUnit.MILLISECONDS)
               .get(String.class);
       Assert.fail();
     } catch (InternalServerErrorException | UncheckedTimeoutException ex) {
