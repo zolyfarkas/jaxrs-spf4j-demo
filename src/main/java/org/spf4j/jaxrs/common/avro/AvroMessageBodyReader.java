@@ -34,7 +34,7 @@ public abstract class AvroMessageBodyReader implements MessageBodyReader<Object>
 
   @Override
   public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return true;
+    return type != void.class &&  type != Void.class;
   }
 
   public abstract Decoder getDecoder(final Schema writerSchema, final InputStream is)
