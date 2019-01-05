@@ -52,7 +52,7 @@ public class ExampleResourceTest {
   @Test
   public void testGetDemoRecordInfo() {
     List<DemoRecordInfo> records =
-            target.request(MediaType.APPLICATION_OCTET_STREAM_TYPE).get(new GenericType<List<DemoRecordInfo>>() {});
+            target.request(MediaType.APPLICATION_JSON).get(new GenericType<List<DemoRecordInfo>>() {});
     LOG.debug("Received", records);
   }
 
