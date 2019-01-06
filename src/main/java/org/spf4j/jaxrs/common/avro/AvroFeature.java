@@ -34,6 +34,7 @@ public class AvroFeature implements Feature {
     context.register(new BinaryAvroMessageBodyWriter(client));
     context.register(new SchemaMessageBodyReader());
     context.register(new SchemaMessageBodyWriter());
+    context.register(new AvroParameterConverterProvider(client));
     return true;
   }
 
