@@ -6,8 +6,7 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.HashMap;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -19,8 +18,8 @@ import org.apache.avro.SchemaResolver;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
 import org.apache.avro.reflect.ExtendedReflectDatumWriter;
-import org.apache.avro.reflect.ReflectData;
 import org.codehaus.jackson.JsonGenerator;
+import org.spf4j.avro.ExtendedReflectData;
 import org.spf4j.base.Json;
 import org.spf4j.http.Headers;
 
@@ -51,7 +50,10 @@ public abstract class AvroMessageBodyWriter implements MessageBodyWriter<Object>
           Type genericType, Annotation[] annotations,
           MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
           throws IOException, WebApplicationException {
-    Schema schema = ReflectData.get().getSchema(genericType != null ? genericType : type);
+    Schema schema = ExtendedReflectData.get().getSchema(genericType != null ? genericType : type);
+    if (schema == null) {
+      schema = ExtendedReflectData.get().createSchema(genericType != null ? genericType : type, t, new HashMap<>());
+    }
     String id = schema.getProp("mvnId");
     String strSchema;
     if (id  == null || id.contains("SNAPSHOT")) {

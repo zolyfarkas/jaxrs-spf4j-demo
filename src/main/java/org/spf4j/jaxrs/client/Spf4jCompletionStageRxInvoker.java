@@ -1,5 +1,6 @@
 package org.spf4j.jaxrs.client;
 
+import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +33,8 @@ public class Spf4jCompletionStageRxInvoker
   }
 
   private String getName(final String method) {
-    return method + invocation.getTarget().getUri();
+    URI uri = invocation.getTarget().getUri();
+    return method + '/' + uri.getHost() + ':' + uri.getPort() + uri.getPath();
   }
 
   private <T> CompletionStage<T> submit(Callable<T> what, final String name) {

@@ -1,7 +1,9 @@
 
 package org.spf4j.jaxrs.client;
 
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.HttpMethod;
@@ -13,6 +15,7 @@ import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import org.spf4j.failsafe.AsyncRetryExecutor;
@@ -144,13 +147,26 @@ public class Spf4jInvocationBuilder implements Invocation.Builder {
 
   @Override
   public Invocation.Builder header(String name, Object value) {
-    ib.header(name, value);
+    ib.header(name, Spf4JClient.convert(
+              Spf4JClient.getParamConverters(this.getTarget().getConfiguration()),value));
     return this;
   }
 
   @Override
   public Invocation.Builder headers(MultivaluedMap<String, Object> headers) {
-    ib.headers(headers);
+    MultivaluedHashMap map = null;
+    for (Map.Entry<String, List<Object>> entry : headers.entrySet()) {
+      List<Object> value = entry.getValue();
+      List<Object> cValue = Spf4JClient.convert(
+              Spf4JClient.getParamConverters(this.getTarget().getConfiguration()), value);
+      if (value != cValue) {
+        if (map == null) {
+          map = new MultivaluedHashMap<>(headers);
+        }
+        map.put(entry.getKey(), cValue);
+      }
+    }
+    ib.headers(map == null ? headers : map);
     return this;
   }
 

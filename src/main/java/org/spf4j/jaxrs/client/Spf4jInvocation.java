@@ -2,6 +2,7 @@ package org.spf4j.jaxrs.client;
 
 import org.spf4j.jaxrs.Utils;
 import java.lang.reflect.Type;
+import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -54,7 +55,8 @@ public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
   }
 
   public String getName() {
-    return method + '/' + target.getUri();
+    URI uri = target.getUri();
+    return method + '/' + uri.getHost() + ':' + uri.getPort() + uri.getPath();
   }
 
   @Override

@@ -33,6 +33,10 @@ public class Spf4jWebTarget implements WebTarget {
     this.fromTemplate = fromTemplate;
   }
 
+  public Spf4JClient getClient() {
+    return client;
+  }
+
   public Spf4jWebTarget getFromTemplate() {
     return fromTemplate;
   }
@@ -98,13 +102,18 @@ public class Spf4jWebTarget implements WebTarget {
 
   @Override
   public Spf4jWebTarget matrixParam(String name, Object... values) {
-    return new Spf4jWebTarget(client, tg.matrixParam(name, values), executor, this.fromTemplate);
+    return new Spf4jWebTarget(client, tg.matrixParam(name,
+            Spf4JClient.convert(Spf4JClient.getParamConverters(getConfiguration()), values)),
+            executor, this.fromTemplate);
   }
 
   @Override
   public Spf4jWebTarget queryParam(String name, Object... values) {
-    return new Spf4jWebTarget(client, tg.queryParam(name, values), executor, this.fromTemplate);
+    return new Spf4jWebTarget(client, tg.queryParam(name,
+            Spf4JClient.convert(Spf4JClient.getParamConverters(getConfiguration()),values)),
+            executor, this.fromTemplate);
   }
+
 
   @Override
   public Spf4jInvocationBuilder request() {

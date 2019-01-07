@@ -3,22 +3,35 @@ package org.spf4j.jaxrs.client;
 
 import org.spf4j.jaxrs.Utils;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
+import javax.annotation.Nullable;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.ext.ParamConverter;
+import javax.ws.rs.ext.ParamConverterProvider;
 import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientExecutor;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
+import org.spf4j.base.Arrays;
 import org.spf4j.failsafe.AsyncRetryExecutor;
 import org.spf4j.failsafe.HedgePolicy;
 import org.spf4j.failsafe.RetryPolicy;
@@ -26,6 +39,11 @@ import org.spf4j.failsafe.concurrent.DefaultFailSafeExecutor;
 import org.spf4j.failsafe.concurrent.FailSafeExecutor;
 
 /**
+ * A improved JAX-RS client, that will do the following in addition to the stock Jersey client:
+ * 1) retried + hedged execution.
+ * 2) timeout propagation.
+ * 3) Execution context propagation.
+ * 4) JAX-RS Parameter converters in the client!
  *
  * @author Zoltan Farkas
  */
@@ -93,6 +111,87 @@ public class Spf4JClient implements Client {
     this.fsExec = fsExec;
     this.executor = retryPolicy.async(hedgePolicy, fsExec);
   }
+
+  public static List<ParamConverterProvider> getParamConverters(Configuration config) {
+    ClientExecutor clientExecutor = ((ClientConfig) config).getClientExecutor();
+    try {
+    Method m = clientExecutor.getClass().getDeclaredMethod("getConfig");
+    m.setAccessible(true);
+    config = (Configuration) m.invoke(clientExecutor);
+    } catch (IllegalAccessException
+            | NoSuchMethodException | InvocationTargetException | RuntimeException e) {
+      throw new IllegalStateException(e);
+    }
+
+    List<ParamConverterProvider> paramConverters = null;
+    Set<Object> instances = config.getInstances();
+    for (Object prov : instances) {
+      if (prov instanceof ParamConverterProvider) {
+        paramConverters = new ArrayList<>(2);
+        paramConverters.add((ParamConverterProvider) prov);
+      }
+    }
+    return paramConverters == null ? Collections.EMPTY_LIST : paramConverters;
+  }
+
+
+  @Nullable
+  public static ParamConverter getConverter(final Class type, List<ParamConverterProvider> paramConverters) {
+    for (ParamConverterProvider pcp : paramConverters) {
+      ParamConverter converter = pcp.getConverter(type, type, Arrays.EMPTY_ANNOT_ARRAY);
+      if (converter != null) {
+        return converter;
+      }
+    }
+    return null;
+  }
+
+  public static Object[] convert(List<ParamConverterProvider> paramConverters, final Object... params) {
+    Object [] result = null;
+    for (int i = 0; i < params.length; i++) {
+      Object oo = params[i];
+      if (oo != null) {
+        ParamConverter converter = getConverter(oo.getClass(), paramConverters);
+        if (converter != null) {
+          if (result == null) {
+            result = params.clone();
+          }
+          result[i] = URLEncoder.encode(converter.toString(oo), StandardCharsets.UTF_8);
+        }
+      }
+    }
+    return result == null ? params : result;
+  }
+
+  public static List<Object> convert(List<ParamConverterProvider> paramConverters, final List<Object> params) {
+    List<Object> result = null;
+    for (int i = 0, l = params.size(); i < l; i++) {
+      Object oo = params.get(i);
+      if (oo != null) {
+        ParamConverter converter = getConverter(oo.getClass(), paramConverters);
+        if (converter != null) {
+          if (result == null) {
+            result = new ArrayList<>(params);
+          }
+          result.set(i, URLEncoder.encode(converter.toString(oo), StandardCharsets.UTF_8));
+        }
+      }
+    }
+    return result == null ? params : result;
+  }
+
+   public static Object convert(List<ParamConverterProvider> paramConverters, final Object param) {
+     if (param == null) {
+       return null;
+     }
+    ParamConverter converter = getConverter(param.getClass(), paramConverters);
+    if (converter != null) {
+      return URLEncoder.encode(converter.toString(param), StandardCharsets.UTF_8);
+    } else {
+      return param;
+    }
+
+   }
 
 
   public Spf4JClient withHedgePolicy(final HedgePolicy hp) {

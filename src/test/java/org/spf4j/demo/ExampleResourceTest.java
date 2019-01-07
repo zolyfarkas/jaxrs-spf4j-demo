@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package org.spf4j.demo;
 
 import java.time.Instant;
@@ -12,6 +8,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import org.apache.avro.reflect.AvroMeta;
+import org.apache.avro.reflect.AvroSchema;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
 import org.junit.AfterClass;
@@ -24,6 +22,7 @@ import org.spf4j.demo.avro.DemoRecordInfo;
 import org.spf4j.demo.avro.MetaData;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
+import org.apache.avro.reflect.LogicalType;
 
 /**
  *
@@ -59,19 +58,31 @@ public class ExampleResourceTest {
   @Test
   public void testPostRecordInfo() {
     List<DemoRecordInfo> records =
-            Arrays.asList(
-       DemoRecordInfo.newBuilder()
-           .setDemoRecord(DemoRecord.newBuilder().setId("1")
-           .setName("test").setDescription("testDescr").build())
-           .setMetaData(MetaData.newBuilder()
-                   .setAsOf(Instant.now()).setLastAccessed(Instant.now())
-                   .setLastModified(Instant.now())
-                   .setLastAccessedBy("you").setLastModifiedBy("you").build()
-           ).build());
+            testRecords();
     target.request()
             .post(Entity.entity(
                     new GenericEntity<>(records, new GenericType<List<DemoRecordInfo>>() {}.getType()),
                     MediaType.APPLICATION_JSON));
+  }
+
+  public static List<DemoRecordInfo> testRecords() {
+    return Arrays.asList(
+            DemoRecordInfo.newBuilder()
+                    .setDemoRecord(DemoRecord.newBuilder().setId("1")
+                            .setName("test").setDescription("testDescr").build())
+                    .setMetaData(MetaData.newBuilder()
+                            .setAsOf(Instant.now()).setLastAccessed(Instant.now())
+                            .setLastModified(Instant.now())
+                            .setLastAccessedBy("you").setLastModifiedBy("you").build()
+                    ).build(),
+             DemoRecordInfo.newBuilder()
+                    .setDemoRecord(DemoRecord.newBuilder().setId("2")
+                            .setName("test2").setDescription("testDescr2").build())
+                    .setMetaData(MetaData.newBuilder()
+                            .setAsOf(Instant.now()).setLastAccessed(Instant.now())
+                            .setLastModified(Instant.now())
+                            .setLastAccessedBy("you").setLastModifiedBy("you").build()
+                    ).build());
   }
 
   @Test
@@ -85,15 +96,7 @@ public class ExampleResourceTest {
   public void testRestClientPost() {
     ExampleResource service = WebResourceFactory.newResource(ExampleResource.class, target);
     List<DemoRecordInfo> records =
-            Arrays.asList(
-       DemoRecordInfo.newBuilder()
-           .setDemoRecord(DemoRecord.newBuilder().setId("1")
-           .setName("test").setDescription("testDescr").build())
-           .setMetaData(MetaData.newBuilder()
-                   .setAsOf(Instant.now()).setLastAccessed(Instant.now())
-                   .setLastModified(Instant.now())
-                   .setLastAccessedBy("you").setLastModifiedBy("you").build()
-           ).build());
+            testRecords();
     service.saveRecords(records);
   }
 
@@ -103,6 +106,46 @@ public class ExampleResourceTest {
     List<DemoRecordInfo> records = service.getRecords();
     LOG.debug("Received", records);
     service.saveRecords(records);
+  }
+
+
+  public static final class DemoProjection {
+    @AvroMeta(key = "path", value = "$.demoRecord.id")
+    private String id;
+
+    @AvroMeta(key = "path", value = "$.metaData.lastAccessed")
+    @AvroSchema("string")
+    @LogicalType("instant")
+    private Instant lastAccessed;
+
+    public String getId() {
+      return id;
+    }
+
+    public void setId(String id) {
+      this.id = id;
+    }
+
+    public Instant getLastAccessed() {
+      return lastAccessed;
+    }
+
+    public void setLastAccessed(Instant lastAccessed) {
+      this.lastAccessed = lastAccessed;
+    }
+
+    @Override
+    public String toString() {
+      return "DemoProjection{" + "id=" + id + ", lastAccessed=" + lastAccessed + '}';
+    }
+
+  }
+
+  @Test
+  public void testTypesProjection() {
+    ExampleResourceExt service = WebResourceFactory.newResource(ExampleResourceExt.class, target);
+    List<DemoProjection> myInterest = service.getRecordsProjection(DemoProjection.class);
+    LOG.debug("My  projection!", myInterest);
   }
 
 }

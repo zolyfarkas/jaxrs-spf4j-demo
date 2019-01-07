@@ -11,6 +11,7 @@ import javax.ws.rs.ext.Provider;
 import org.apache.avro.AvroNamesRefResolver;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaResolver;
+import org.apache.avro.reflect.ReflectData;
 import org.codehaus.jackson.JsonGenerator;
 import org.spf4j.base.Json;
 
@@ -27,7 +28,11 @@ public class AvroParameterConverterProvider implements ParamConverterProvider {
     this.schemaConv =new ParamConverter<Schema>() {
         @Override
         public Schema fromString(String value) {
+          try {
           return new Schema.Parser(new AvroNamesRefResolver(client)).parse(value);
+          } catch (RuntimeException ex) {
+            throw new IllegalArgumentException("Invalid schema " + value, ex);
+          }
         }
 
         @Override
@@ -49,6 +54,19 @@ public class AvroParameterConverterProvider implements ParamConverterProvider {
   public <T> ParamConverter<T> getConverter(Class<T> rawType, Type genericType, Annotation[] annotations) {
     if (rawType == Schema.class) {
       return (ParamConverter<T>) schemaConv;
+    } else if (rawType == Class.class)  {
+      return (ParamConverter<T>) new ParamConverter<Type>() {
+        @Override
+        public Type fromString(String value) {
+          throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String toString(Type value) {
+          Schema schema = ReflectData.get().getSchema(value);
+          return schemaConv.toString(schema);
+        }
+      };
     }
     return null;
   }
