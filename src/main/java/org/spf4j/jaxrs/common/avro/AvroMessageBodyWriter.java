@@ -17,9 +17,9 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaResolver;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
+import org.apache.avro.reflect.ExtendedReflectData;
 import org.apache.avro.reflect.ExtendedReflectDatumWriter;
 import org.codehaus.jackson.JsonGenerator;
-import org.spf4j.avro.ExtendedReflectData;
 import org.spf4j.base.Json;
 import org.spf4j.http.Headers;
 
