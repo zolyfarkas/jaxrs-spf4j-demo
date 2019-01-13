@@ -81,8 +81,6 @@ public class ExecutionContextFilter implements Filter {
     String name = httpReq.getMethod() + '/' + httpReq.getRequestURL();
     ExecutionContext ctx = ExecutionContexts.start(name,
             httpReq.getHeader(idHeaderName), null, startTimeNanos, deadlineNanos);
-    ctx.put(ContextTags.HTTP_REQ, httpReq);
-    ctx.put(ContextTags.HTTP_RESP, httpResp);
 
     try {
       chain.doFilter(httpReq, httpResp);

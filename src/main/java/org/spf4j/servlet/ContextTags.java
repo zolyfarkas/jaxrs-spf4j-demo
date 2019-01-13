@@ -2,8 +2,6 @@
 package org.spf4j.servlet;
 
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.spf4j.base.ExecutionContext.Tag;
 import org.spf4j.log.Level;
 
@@ -24,20 +22,6 @@ public class ContextTags {
     @Override
     public String toString() {
       return "LL";
-    }
-  };
-
-  public static final Tag<CountingHttpServletRequest> HTTP_REQ = new Tag<CountingHttpServletRequest>(){
-    @Override
-    public String toString() {
-      return "I";
-    }
-  };
-
-  public static final Tag<CountingHttpServletResponse> HTTP_RESP = new Tag<CountingHttpServletResponse>(){
-    @Override
-    public String toString() {
-      return "O";
     }
   };
 
