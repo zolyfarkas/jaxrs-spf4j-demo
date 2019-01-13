@@ -167,7 +167,7 @@ public class HelloResourceTest {
   @Test(timeout = 10000)
   public void testATimeoout() throws InterruptedException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.WARN,
-            true, LogMatchers.hasMessageWithPattern("Done GET/helloResource/aTimeout"),
+            true, LogMatchers.hasMessageWithPattern("Done GET.*"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
       target.path("demo/helloResource/aTimeout")

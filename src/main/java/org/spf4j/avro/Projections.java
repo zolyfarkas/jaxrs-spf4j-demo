@@ -23,6 +23,9 @@ public class Projections {
   private static final Configuration CONF = Configuration.defaultConfiguration().jsonProvider(new AvroPathProvider());
 
   public static Object project(Schema toSchema, Schema fromSchema, Object object) {
+    if (toSchema == fromSchema) {
+      return object;
+    }
     String path = toSchema.getProp("path");
     if (path != null) {
       return JsonPath.parse(object, CONF).read(path);
@@ -61,8 +64,8 @@ public class Projections {
         if (object == null) {
           return null;
         }
-        // matching here is a but flaky... union with multipl erecord types will not work...
-        // to be resolved later.
+        // matching here is a but flaky... union with multiple erecord types will not work...
+        // to be resolved later, this is a demo :-).
         Schema objReflSchema = ReflectData.get().getSchema(object.getClass());
         for (Schema matching : toSchema.getTypes()) {
           if (matching.getType() == objReflSchema.getType()) {

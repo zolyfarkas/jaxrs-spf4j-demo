@@ -14,7 +14,7 @@ import org.apache.avro.io.EncoderFactory;
  * @author Zoltan Farkas
  */
 @Provider
-@Produces({"application/octet-stream;fmt=avro"})
+@Produces({"application/octet-stream;fmt=avro", "application/avro"})
 public class BinaryAvroMessageBodyWriter extends  AvroMessageBodyWriter {
 
   @Inject

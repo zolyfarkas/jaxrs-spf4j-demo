@@ -14,7 +14,7 @@ import org.apache.avro.io.DecoderFactory;
  * @author Zoltan Farkas
  */
 @Provider
-@Consumes({"application/octet-stream"})
+@Consumes({"application/octet-stream;fmt=avro", "application/avro"})
 public class BinaryAvroMessageBodyReader extends AvroMessageBodyReader {
 
 

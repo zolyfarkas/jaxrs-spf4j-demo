@@ -16,7 +16,7 @@ import org.spf4j.io.MemorizingBufferedInputStream;
  * @author Zoltan Farkas
  */
 @Provider
-@Consumes({"application/json", "text/plain"})
+@Consumes({"application/json;fmt=avro-x", "application/avro-x+json", "text/plain;fmt=avro-x"})
 public class JsonAvroMessageBodyReader extends AvroMessageBodyReader {
 
 
