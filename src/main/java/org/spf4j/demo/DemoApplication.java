@@ -4,7 +4,6 @@ package org.spf4j.demo;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import javax.annotation.PreDestroy;

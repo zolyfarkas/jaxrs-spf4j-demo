@@ -85,11 +85,15 @@ public class HttpWarning {
     return new HttpWarning(code, agent, text, zdt);
   }
 
+  public HttpWarning(final int code, final String agent, final String text) {
+    this(code, agent, text, null);
+  }
+
   public HttpWarning(final int code, final String agent, final String text, @Nullable final  ZonedDateTime date) {
     this.code = code;
     this.agent = agent;
     this.text = text;
-    this.date = date.withNano(0);
+    this.date = date == null ? null : date.withNano(0);
   }
 
   @Override

@@ -1,5 +1,6 @@
 package org.spf4j.servlet;
 
+import org.spf4j.http.ContextTags;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +27,7 @@ import org.spf4j.base.TimeSource;
 import org.spf4j.http.DeadlineProtocol;
 import org.spf4j.http.DefaultDeadlineProtocol;
 import org.spf4j.http.Headers;
+import org.spf4j.http.HttpWarning;
 import org.spf4j.log.Level;
 import org.spf4j.log.LogAttribute;
 import org.spf4j.log.LogUtils;
@@ -81,7 +83,8 @@ public class ExecutionContextFilter implements Filter {
     String name = httpReq.getMethod() + '/' + httpReq.getRequestURL();
     ExecutionContext ctx = ExecutionContexts.start(name,
             httpReq.getHeader(idHeaderName), null, startTimeNanos, deadlineNanos);
-
+    ctx.put(ContextTags.HTTP_REQ, httpReq);
+    ctx.put(ContextTags.HTTP_RESP, httpResp);
     try {
       chain.doFilter(httpReq, httpResp);
       if (request.isAsyncStarted()) {
@@ -91,8 +94,7 @@ public class ExecutionContextFilter implements Filter {
         asyncContext.addListener(new AsyncListener() {
           @Override
           public void onComplete(final AsyncEvent event) throws IOException {
-              logRequestEnd(org.spf4j.log.Level.INFO, ctx, httpReq.getBytesRead(), httpResp.getBytesWritten(),
-                      httpResp.getStatus());
+              logRequestEnd(org.spf4j.log.Level.INFO, ctx, httpReq, httpResp);
               ctx.close();
           }
 
@@ -113,8 +115,7 @@ public class ExecutionContextFilter implements Filter {
           }
         }, request, response);
       } else {
-        logRequestEnd(org.spf4j.log.Level.INFO, ctx, httpReq.getBytesRead(), httpResp.getBytesWritten(),
-                httpResp.getStatus());
+        logRequestEnd(org.spf4j.log.Level.INFO, ctx, httpReq, httpResp);
         ctx.close();
       }
     } catch (Throwable t) {
@@ -122,19 +123,17 @@ public class ExecutionContextFilter implements Filter {
         org.spf4j.base.Runtime.goDownWithError(t, SysExits.EX_SOFTWARE);
       }
       ctx.add(ContextTags.LOG_ATTRIBUTES, t);
-      logRequestEnd(org.spf4j.log.Level.ERROR, ctx, httpReq.getBytesRead(), httpResp.getBytesWritten(),
-              httpResp.getStatus());
+      logRequestEnd(org.spf4j.log.Level.ERROR, ctx, httpReq, httpResp);
     }
   }
 
   public void logRequestEnd(final Level plevel, final ExecutionContext ctx,
-          final long contentBytesRead, final long contentBytesWritten, final int httpStatus) {
-    logRequestEnd(log, plevel, ctx, contentBytesRead, contentBytesWritten, httpStatus);
+          final CountingHttpServletRequest req, final CountingHttpServletResponse resp) {
+    logRequestEnd(log, plevel, ctx, req, resp);
   }
 
   public static void logRequestEnd(final Logger logger, final Level plevel,
-          final ExecutionContext ctx, final long contentBytesRead, final long contentBytesWritten,
-          final int httpStatus) {
+          final ExecutionContext ctx, final CountingHttpServletRequest req, final CountingHttpServletResponse resp) {
     org.spf4j.log.Level level;
     org.spf4j.log.Level ctxOverride = ctx.get(ContextTags.LOG_LEVEL);
     if (ctxOverride != null && ctxOverride.ordinal() > plevel.ordinal()) {
@@ -144,22 +143,35 @@ public class ExecutionContextFilter implements Filter {
     }
     Object[] args;
     List<Object> logAttrs = ctx.get(ContextTags.LOG_ATTRIBUTES);
-    if (logAttrs == null || logAttrs.isEmpty()) {
+    List<HttpWarning> warnings = ctx.get(ContextTags.HTTP_WARNINGS);
+    if (warnings != null) {
+      if (logAttrs == null) {
+        logAttrs = new ArrayList<>(warnings);
+      } else {
+        logAttrs.addAll(warnings);
+      }
+      if (level.ordinal() < Level.WARN.ordinal()) {
+        level = level.WARN;
+      }
+    }
+    if (logAttrs == null) {
       args = new Object[]{ctx.getName(),
         LogAttribute.traceId(ctx.getId()),
-        LogAttribute.value("httpStatus", httpStatus),
+        LogAttribute.of("clientHost", req.getRemoteHost()),
+        LogAttribute.value("httpStatus", resp.getStatus()),
         LogAttribute.execTimeMicros(TimeSource.nanoTime() - ctx.getStartTimeNanos(), TimeUnit.NANOSECONDS),
-        LogAttribute.value("inBytes", contentBytesRead), LogAttribute.value("outBytes", contentBytesWritten)
+        LogAttribute.value("inBytes", req.getBytesRead()), LogAttribute.value("outBytes", resp.getBytesWritten())
       };
     } else {
-      args = new Object[6 + logAttrs.size()];
+      args = new Object[7 + logAttrs.size()];
       args[0] = ctx.getName();
       args[1] = LogAttribute.traceId(ctx.getId());
-      args[2] = LogAttribute.value("httpStatus", httpStatus);
-      args[3] = LogAttribute.execTimeMicros(TimeSource.nanoTime() - ctx.getStartTimeNanos(), TimeUnit.NANOSECONDS);
-      args[4] = LogAttribute.value("inBytes", contentBytesRead);
-      args[5] = LogAttribute.value("outBytes", contentBytesWritten);
-      int i = 6;
+      args[2] = LogAttribute.of("clientHost", req.getRemoteHost());
+      args[3] = LogAttribute.value("httpStatus", resp.getStatus());
+      args[4] = LogAttribute.execTimeMicros(TimeSource.nanoTime() - ctx.getStartTimeNanos(), TimeUnit.NANOSECONDS);
+      args[5] = LogAttribute.value("inBytes", req.getBytesRead());
+      args[6] = LogAttribute.value("outBytes", resp.getBytesWritten());
+      int i = 7;
       for (Object obj : logAttrs) {
         args[i++] = obj;
       }

@@ -1,6 +1,7 @@
 package org.spf4j.jaxrs.client.providers;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -59,7 +60,15 @@ public class ExecutionContextClientFilter implements ClientRequestFilter,
 
   @Override
   public void filter(ClientRequestContext requestContext, ClientResponseContext responseContext) throws IOException {
-    if (log.isLoggable(Level.FINE)) {
+    List<String> warnings = responseContext.getHeaders().get(Headers.WARNING);
+    if (warnings != null && !warnings.isEmpty()) {
+      ExecutionContext reqCtx = ExecutionContexts.current();
+      log.log(Level.WARNING, "Done {0}", new Object[] {reqCtx.getName(),
+        LogAttribute.traceId(reqCtx.getId()),
+        LogAttribute.of("warnings", warnings),
+        LogAttribute.value("httpStatus", responseContext.getStatus()),
+        LogAttribute.execTimeMicros(TimeSource.nanoTime() - reqCtx.getStartTimeNanos(), TimeUnit.NANOSECONDS)});
+    } else if (log.isLoggable(Level.FINE)) {
       ExecutionContext reqCtx = ExecutionContexts.current();
       log.log(Level.FINE, "Done {0}", new Object[] {reqCtx.getName(),
         LogAttribute.traceId(reqCtx.getId()),

@@ -23,7 +23,7 @@ import org.spf4j.base.avro.ServiceError;
 import org.spf4j.base.avro.StackSampleElement;
 import org.spf4j.log.Level;
 import org.spf4j.log.Slf4jLogRecord;
-import org.spf4j.servlet.ContextTags;
+import org.spf4j.http.ContextTags;
 import org.spf4j.ssdump2.Converter;
 
 /**

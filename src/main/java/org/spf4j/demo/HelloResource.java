@@ -53,6 +53,7 @@ public class HelloResource {
   @GET
   @Path("ahello")
   @Produces(MediaType.TEXT_PLAIN)
+  @Deprecated
   public void asyncHello(@Suspended final AsyncResponse ar) {
     DefaultContextAwareExecutor.instance().submit(() -> {
       ar.resume("A Delayed hello");
