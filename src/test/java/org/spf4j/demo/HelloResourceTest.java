@@ -31,6 +31,7 @@ import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jInvocationBuilder;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
 import org.spf4j.log.Level;
+import org.spf4j.stackmonitor.Sampler;
 import org.spf4j.test.log.LogAssert;
 import org.spf4j.test.log.TestLogRecord;
 import org.spf4j.test.log.TestLoggers;
@@ -43,11 +44,13 @@ public class HelloResourceTest {
   private static HttpServer server;
   private static Spf4jWebTarget target;
   private static Spf4JClient client;
+  private static Sampler profiler;
 
   @BeforeClass
   public static void setUp() throws Exception {
     // start the server
-    server = Main.startServer();
+    profiler = Main.startProfiler();
+    server = Main.startHttpServer();
     client = DemoApplication.getInstance().getRestClient();
     target = client.target(Main.BASE_URI);
   }
@@ -55,6 +58,7 @@ public class HelloResourceTest {
   @AfterClass
   public static void tearDown() throws Exception {
     server.shutdownNow();
+    profiler.dispose();
   }
 
 
@@ -178,6 +182,7 @@ public class HelloResourceTest {
     } catch (InternalServerErrorException | UncheckedTimeoutException ex) {
       LOG.debug("Expected Error Response", ex);
     } finally {
+      Thread.sleep(2000);
       expect.assertObservation(10, TimeUnit.SECONDS);
     }
   }

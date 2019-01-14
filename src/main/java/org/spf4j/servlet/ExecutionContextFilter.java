@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
+import org.spf4j.base.StackSamples;
 import org.spf4j.base.SysExits;
 import org.spf4j.base.Throwables;
 import org.spf4j.base.TimeSource;
@@ -54,12 +55,24 @@ public class ExecutionContextFilter implements Filter {
 
   private Logger log;
 
+  private float warnThreshold;
+
+  private float errorThreshold;
+
   public ExecutionContextFilter() {
     this(new DefaultDeadlineProtocol());
   }
 
   public ExecutionContextFilter(final DeadlineProtocol deadlineProtocol) {
+    this(deadlineProtocol, 0.3f, 0.9f);
+  }
+
+
+  public ExecutionContextFilter(final DeadlineProtocol deadlineProtocol,
+          final float warnThreshold, final float errorThreshold) {
     this.deadlineProtocol = deadlineProtocol;
+    this.warnThreshold = warnThreshold;
+    this.errorThreshold = errorThreshold;
   }
 
   public DeadlineProtocol getDeadlineProtocol() {
@@ -100,7 +113,7 @@ public class ExecutionContextFilter implements Filter {
 
           @Override
           public void onTimeout(final AsyncEvent event) {
-            ctx.put(ContextTags.LOG_LEVEL, Level.WARN);
+            ctx.put(ContextTags.LOG_LEVEL, Level.ERROR);
             ctx.add(ContextTags.LOG_ATTRIBUTES, LogAttribute.of("warning", "Request timed out"));
           }
 
@@ -127,12 +140,8 @@ public class ExecutionContextFilter implements Filter {
     }
   }
 
-  public void logRequestEnd(final Level plevel, final ExecutionContext ctx,
-          final CountingHttpServletRequest req, final CountingHttpServletResponse resp) {
-    logRequestEnd(log, plevel, ctx, req, resp);
-  }
 
-  public static void logRequestEnd(final Logger logger, final Level plevel,
+  public void logRequestEnd(final Level plevel,
           final ExecutionContext ctx, final CountingHttpServletRequest req, final CountingHttpServletResponse resp) {
     org.spf4j.log.Level level;
     org.spf4j.log.Level ctxOverride = ctx.get(ContextTags.LOG_LEVEL);
@@ -143,6 +152,31 @@ public class ExecutionContextFilter implements Filter {
     }
     Object[] args;
     List<Object> logAttrs = ctx.get(ContextTags.LOG_ATTRIBUTES);
+    long startTimeNanos = ctx.getStartTimeNanos();
+    long execTimeNanos = TimeSource.nanoTime() - startTimeNanos;
+    long maxTime = ctx.getDeadlineNanos() - startTimeNanos;
+    long etn = (long) (maxTime * errorThreshold);
+    if (execTimeNanos > etn) {
+      if (logAttrs == null) {
+        logAttrs = new ArrayList<>(2);
+      }
+      logAttrs.add(LogAttribute.of("performanceError", "exec time > " + etn + " ns"));
+      if (level.ordinal() < Level.ERROR.ordinal()) {
+        level = level.ERROR;
+      }
+    } else {
+      long wtn = (long) (maxTime * warnThreshold);
+      if (execTimeNanos > wtn) {
+        if (logAttrs == null) {
+          logAttrs = new ArrayList<>(2);
+        }
+        logAttrs.add(LogAttribute.of("performanceWarning", "exec time > " + wtn + " ns"));
+        if (level.ordinal() < Level.WARN.ordinal()) {
+          level = level.WARN;
+        }
+      }
+    }
+    boolean clientWarning = false;
     List<HttpWarning> warnings = ctx.get(ContextTags.HTTP_WARNINGS);
     if (warnings != null) {
       if (logAttrs == null) {
@@ -152,6 +186,7 @@ public class ExecutionContextFilter implements Filter {
       }
       if (level.ordinal() < Level.WARN.ordinal()) {
         level = level.WARN;
+        clientWarning = true;
       }
     }
     if (logAttrs == null) {
@@ -159,7 +194,7 @@ public class ExecutionContextFilter implements Filter {
         LogAttribute.traceId(ctx.getId()),
         LogAttribute.of("clientHost", req.getRemoteHost()),
         LogAttribute.value("httpStatus", resp.getStatus()),
-        LogAttribute.execTimeMicros(TimeSource.nanoTime() - ctx.getStartTimeNanos(), TimeUnit.NANOSECONDS),
+        LogAttribute.execTimeMicros(execTimeNanos, TimeUnit.NANOSECONDS),
         LogAttribute.value("inBytes", req.getBytesRead()), LogAttribute.value("outBytes", resp.getBytesWritten())
       };
     } else {
@@ -168,7 +203,7 @@ public class ExecutionContextFilter implements Filter {
       args[1] = LogAttribute.traceId(ctx.getId());
       args[2] = LogAttribute.of("clientHost", req.getRemoteHost());
       args[3] = LogAttribute.value("httpStatus", resp.getStatus());
-      args[4] = LogAttribute.execTimeMicros(TimeSource.nanoTime() - ctx.getStartTimeNanos(), TimeUnit.NANOSECONDS);
+      args[4] = LogAttribute.execTimeMicros(execTimeNanos, TimeUnit.NANOSECONDS);
       args[5] = LogAttribute.value("inBytes", req.getBytesRead());
       args[6] = LogAttribute.value("outBytes", resp.getBytesWritten());
       int i = 7;
@@ -176,10 +211,14 @@ public class ExecutionContextFilter implements Filter {
         args[i++] = obj;
       }
     }
-    if (level.getIntValue() >= Level.WARN.getIntValue()) {
-       logContextLogs(logger, ctx);
+    if (!clientWarning && level.getIntValue() >= Level.WARN.getIntValue()) {
+       logContextLogs(log, ctx);
+       StackSamples stackSamples = ctx.getStackSamples();
+       if (stackSamples != null) {
+        log.log(java.util.logging.Level.INFO, "profileDetail", stackSamples);
+       }
     }
-    logger.log(level.getJulLevel(), "Done {0}", args);
+    log.log(level.getJulLevel(), "Done {0}", args);
   }
 
   private static void logContextLogs(final Logger logger, final ExecutionContext ctx) {

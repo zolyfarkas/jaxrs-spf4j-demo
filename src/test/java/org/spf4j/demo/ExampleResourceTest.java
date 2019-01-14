@@ -38,7 +38,7 @@ public class ExampleResourceTest {
   @BeforeClass
   public static void setUp() throws Exception {
     // start the server
-    server = Main.startServer();
+    server = Main.startHttpServer();
     client = DemoApplication.getInstance().getRestClient();
     target = client.target(Main.BASE_URI).path("example/records");
   }
