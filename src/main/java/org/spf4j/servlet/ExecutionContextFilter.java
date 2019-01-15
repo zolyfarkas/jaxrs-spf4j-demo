@@ -213,10 +213,6 @@ public class ExecutionContextFilter implements Filter {
     }
     if (!clientWarning && level.getIntValue() >= Level.WARN.getIntValue()) {
        logContextLogs(log, ctx);
-       StackSamples stackSamples = ctx.getStackSamples();
-       if (stackSamples != null) {
-        log.log(java.util.logging.Level.INFO, "profileDetail", stackSamples);
-       }
     }
     log.log(level.getJulLevel(), "Done {0}", args);
   }
@@ -229,8 +225,14 @@ public class ExecutionContextFilter implements Filter {
       }
     });
     Collections.sort(ctxLogs, Slf4jLogRecord::compareByTimestamp);
+    LogAttribute<CharSequence> traceId = LogAttribute.traceId(ctx.getId());
     for (Slf4jLogRecord log : ctxLogs) {
-      LogUtils.logUpgrade(logger, org.spf4j.log.Level.INFO, "Detail on Error", LogAttribute.log(log));
+      LogUtils.logUpgrade(logger, org.spf4j.log.Level.INFO, "Detail on Error",
+              traceId, LogAttribute.log(log));
+    }
+    StackSamples stackSamples = ctx.getStackSamples();
+    if (stackSamples != null) {
+      logger.log(java.util.logging.Level.INFO, "profileDetail", new Object [] {traceId, stackSamples});
     }
   }
 

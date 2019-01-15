@@ -84,7 +84,7 @@ public final class Utils {
     ServiceError se;
     try {
       se = response.readEntity(ServiceError.class);
-    } catch (ProcessingException e) {
+    } catch (RuntimeException e) {
       // not a Propagable service error.
       ex.addSuppressed(e);
       return;

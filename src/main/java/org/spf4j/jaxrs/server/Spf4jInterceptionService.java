@@ -164,6 +164,7 @@ public class Spf4jInterceptionService implements InterceptionService {
       for (HttpWarning warning: warnings) {
         current.add(ContextTags.HTTP_WARNINGS, warning);
         // TODO, encode warning string.
+        // https://docs.oracle.com/javaee/6/api/javax/mail/internet/MimeUtility.html
         resp.addHeader(Headers.WARNING, warning.toString());
       }
       return invocation.proceed();

@@ -27,6 +27,7 @@ import org.spf4j.jaxrs.client.providers.ClientCustomScheduledExecutionServicePro
 import org.spf4j.jaxrs.client.providers.ExecutionContextClientFilter;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.common.avro.AvroFeature;
+import org.spf4j.jaxrs.server.LoggingExceptionMapper;
 import org.spf4j.jaxrs.server.Spf4jInterceptionService;
 import org.spf4j.servlet.ExecutionContextFilter;
 

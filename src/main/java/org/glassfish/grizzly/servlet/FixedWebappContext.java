@@ -2,6 +2,7 @@
 package org.glassfish.grizzly.servlet;
 
 import javax.servlet.Servlet;
+import org.glassfish.jersey.servlet.ServletContainer;
 
 /**
  *
@@ -23,7 +24,7 @@ public final class FixedWebappContext extends WebappContext {
 
   @Override
   protected Servlet createServletInstance(ServletRegistration registration) throws Exception {
-    Servlet srvlet = super.createServletInstance(registration);
+    ServletContainer srvlet = (ServletContainer) super.createServletInstance(registration);
     registration.servlet = srvlet;
     return srvlet;
   }

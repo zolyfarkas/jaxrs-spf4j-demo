@@ -10,6 +10,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.client.Invocation;
 
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -82,6 +83,23 @@ public class HelloResourceTest {
   }
 
   @Test
+  public void testCustomError() {
+    LogAssert expect = TestLoggers.sys().expect("", Level.ERROR,
+            true, LogMatchers.hasMessageWithPattern(".*"),
+            Matchers.any((Class) Iterable.class));
+    Invocation.Builder request = target.path("demo/helloResource/errorCustom").request();
+    try {
+      request.get(String.class);
+      Assert.fail();
+    } catch (ServerErrorException ex) {
+      ServiceError sErr = ex.getResponse().readEntity(ServiceError.class);
+      LOG.debug("Expected error ", sErr);
+    }
+     expect.assertObservation(3, TimeUnit.SECONDS);
+  }
+
+
+  @Test
   public void testFlakyHelloWorld() throws InterruptedException, ExecutionException, TimeoutException {
     LogAssert expect = TestLoggers.sys().expect("", Level.ERROR,
             false, LogMatchers.hasMessageWithPattern(".*"),
@@ -93,8 +111,7 @@ public class HelloResourceTest {
             .buildGet().submit(String.class);
     Assert.assertThat(responseMsg.get(3000, TimeUnit.SECONDS), Matchers.startsWith("Hello World"));
     LOG.info("Finished Flaky test");
-    Thread.sleep(3000);
-    expect.assertObservation();
+    expect.assertObservation(3, TimeUnit.SECONDS);
   }
 
 
