@@ -113,6 +113,23 @@ public class HelloResource {
 
   @GET
   @Produces(MediaType.TEXT_PLAIN)
+  @Path("slowHello")
+  public String slowHello() throws InterruptedException, TimeoutException {
+    Thread.sleep(1000);
+    ExecutionContext ec = ExecutionContexts.current();
+    return "Hello world " + ec.getName() + ", timeleft" + ec.getMillisToDeadline();
+  }
+
+  @GET
+  @Produces(MediaType.TEXT_PLAIN)
+  @Path("slowBrokenHello")
+  public String slowBrokenHello() throws InterruptedException, TimeoutException {
+    Thread.sleep(1000);
+    throw new RuntimeException();
+  }
+
+  @GET
+  @Produces(MediaType.TEXT_PLAIN)
   @Path("flakyHelloWorld")
   public void flakyHelloWorld(@Suspended final AsyncResponse ar) throws InterruptedException, TimeoutException {
     beFlaky();

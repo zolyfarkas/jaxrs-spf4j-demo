@@ -36,6 +36,7 @@ import org.spf4j.stackmonitor.Sampler;
 import org.spf4j.test.log.LogAssert;
 import org.spf4j.test.log.TestLogRecord;
 import org.spf4j.test.log.TestLoggers;
+import org.spf4j.test.log.annotations.ExpectLog;
 import org.spf4j.test.matchers.LogMatchers;
 
 public class HelloResourceTest {
@@ -74,6 +75,38 @@ public class HelloResourceTest {
       Assert.assertThat(responseMsg, Matchers.startsWith("Hello world"));
     }
   }
+
+  /**
+   * Test to see that the message "Got it!" is sent in the response.
+   */
+  @Test
+  @ExpectLog(level = Level.WARN, messageRegexp = "Done GET.*")
+  @ExpectLog(level = Level.INFO, messageRegexp = "profileDetail")
+  public void testSlowHello() {
+    Spf4jInvocationBuilder request = target.path("demo/helloResource/slowHello")
+            .request().withTimeout(2, TimeUnit.SECONDS);
+    String responseMsg = request.get(String.class);
+    Assert.assertThat(responseMsg, Matchers.startsWith("Hello world"));
+  }
+
+
+  /**
+   * Test to see that the message "Got it!" is sent in the response.
+   */
+  @Test
+  @ExpectLog(level = Level.ERROR, messageRegexp = "Done GET.*")
+  @ExpectLog(level = Level.INFO, messageRegexp = "profileDetail")
+  public void testSlowBrokenHello() {
+    Spf4jInvocationBuilder request = target.path("demo/helloResource/slowBrokenHello")
+            .request().withTimeout(2, TimeUnit.SECONDS);
+    try {
+      request.get(String.class);
+      Assert.fail();
+    } catch (RuntimeException ex) {
+      LOG.debug("Excepted", ex);
+    } 
+  }
+
 
   @Test
   public void testAHello() {

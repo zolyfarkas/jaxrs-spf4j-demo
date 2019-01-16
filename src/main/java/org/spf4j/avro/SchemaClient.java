@@ -72,8 +72,6 @@ public final class SchemaClient implements SchemaResolver {
             new Spf4JClient(ClientBuilder
             .newBuilder()
             .connectTimeout(2, TimeUnit.SECONDS)
-//            .executorService(DefaultContextAwareExecutor.instance())
-//            .scheduledExecutorService(DefaultContextAwareScheduledExecutor.instance())
             .readTimeout(30, TimeUnit.SECONDS)
             .register(ExecutionContextClientFilter.class)
             .register(ClientCustomExecutorServiceProvider.class)
@@ -97,7 +95,7 @@ public final class SchemaClient implements SchemaResolver {
                       remoteMavenRepo.getPort(), remoteMavenRepo.getPath() + '/',
                       remoteMavenRepo.getQuery(), remoteMavenRepo.getFragment());
     } catch (URISyntaxException ex) {
-     throw new RuntimeException(ex);
+     throw new IllegalArgumentException("Invalid repo url: " +  remoteMavenRepo, ex);
     }
     this.localMavenRepo = localMavenRepo;
     this.client = client;
