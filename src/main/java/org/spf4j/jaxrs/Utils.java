@@ -6,13 +6,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import javax.annotation.CheckReturnValue;
+import javax.annotation.Nullable;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Response;
-import org.glassfish.hk2.utilities.reflection.Logger;
 import org.spf4j.base.ExecutionContext;
+import static org.spf4j.base.ExecutionContexts.start;
 import org.spf4j.base.Throwables;
+import org.spf4j.base.Wrapper;
 import org.spf4j.base.avro.Converters;
 import org.spf4j.base.avro.DebugDetail;
 import org.spf4j.base.avro.LogRecord;
@@ -75,7 +76,19 @@ public final class Utils {
     return DEFAULT_HTTP_RETRY_POLICY;
   }
 
-  @CheckReturnValue
+  public static <T> Callable<T> serviceExceptionHandlingCallable(
+          final ExecutionContext ctx,
+          final Callable<T> callable) {
+    return new ServiceExceptionHandler(callable, ctx);
+  }
+
+    public static <T> Callable<T> propagatingServiceExceptionHandlingCallable(
+          final ExecutionContext ctx,
+          final Callable<T> callable, @Nullable final String name, final long deadlineNanos) {
+    return new PropagatingServiceExceptionHandler(callable, ctx, name, deadlineNanos);
+  }
+  
+
   public static  void handleServiceError(final WebApplicationException ex,
           final ExecutionContext current) throws WebApplicationException {
     Response response = ex.getResponse();
@@ -123,5 +136,87 @@ public final class Utils {
       return val;
     }
   }
+
+  private static class ServiceExceptionHandler<T> implements Callable<T>, Wrapper<Callable<T>> {
+
+    private final Callable<T> callable;
+
+    private final ExecutionContext ctx;
+
+    public ServiceExceptionHandler(Callable<T> callable, final ExecutionContext ctx) {
+      this.callable = callable;
+      this.ctx = ctx;
+    }
+
+    @Override
+    public T call() throws Exception {
+      try {
+        return callable.call();
+      } catch (Exception ex) {
+        Throwable rex = com.google.common.base.Throwables.getRootCause(ex);
+        if (rex instanceof WebApplicationException) {
+          handleServiceError((WebApplicationException) rex, ctx);
+        }
+        throw ex;
+      }
+    }
+
+    @Override
+    public String toString() {
+      return callable.toString();
+    }
+
+    @Override
+    public Callable<T> getWrapped() {
+      return callable;
+    }
+
+  }
+
+  private static final class PropagatingServiceExceptionHandler<T> implements Callable<T>, Wrapper<Callable<T>> {
+
+    private final Callable<T> task;
+    private final ExecutionContext current;
+
+    private final String name;
+
+    private final long deadlineNanos;
+
+    PropagatingServiceExceptionHandler(final Callable<T> task, final ExecutionContext current,
+            @Nullable final String name, final long deadlineNanos) {
+      this.task = task;
+      this.current = current;
+      this.name = name;
+      this.deadlineNanos = deadlineNanos;
+    }
+
+    @Override
+    public T call() throws Exception {
+      try (ExecutionContext ctx = start(toString(), current, deadlineNanos)) {
+        return task.call();
+      } catch (Exception ex) {
+        Throwable rex = com.google.common.base.Throwables.getRootCause(ex);
+        if (rex instanceof WebApplicationException) {
+          handleServiceError((WebApplicationException) rex, current);
+        }
+        throw ex;
+      }
+    }
+
+    @Override
+    public String toString() {
+      return  name == null ? task.toString() : name;
+    }
+
+    @Override
+    public Callable<T> getWrapped() {
+      return task;
+    }
+
+  }
+
+
+
+
 
 }

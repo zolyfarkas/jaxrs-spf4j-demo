@@ -5,7 +5,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.HttpMethod;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.CompletionStageRxInvoker;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
@@ -41,26 +40,9 @@ public class Spf4jCompletionStageRxInvoker
     long nanoTime = TimeSource.nanoTime();
     ExecutionContext current = ExecutionContexts.current();
     long deadlineNanos = ExecutionContexts.computeDeadline(current, invocation.getTimeoutNanos(), TimeUnit.NANOSECONDS);
-    Callable<T> pc = ExecutionContexts.propagatingCallable(what, current, name, deadlineNanos);
+    Callable<T> pc = Utils.propagatingServiceExceptionHandlingCallable(current, what, name, deadlineNanos);
     return executor.submitRx(pc, nanoTime, deadlineNanos,
-            () -> new ContextPropagatingCompletableFuture<>(current, deadlineNanos))
-            .handle((result, ex) -> {
-              if (ex != null) {
-                Throwable rex = com.google.common.base.Throwables.getRootCause(ex);
-                if (rex instanceof WebApplicationException) {
-                  Utils.handleServiceError((WebApplicationException) rex, current);
-                }
-                if (ex instanceof RuntimeException) {
-                  throw (RuntimeException) ex;
-                } else if (ex instanceof Error){
-                  throw (Error) ex;
-                } else {
-                  throw new RuntimeException(ex);
-                }
-              } else {
-                return (T) result;
-              }
-            });
+            () -> new ContextPropagatingCompletableFuture<>(current, deadlineNanos));
   }
 
   @Override

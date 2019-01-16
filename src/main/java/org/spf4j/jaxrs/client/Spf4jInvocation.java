@@ -7,7 +7,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.core.GenericType;
@@ -70,18 +69,14 @@ public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
     ExecutionContext current = ExecutionContexts.current();
     long deadlineNanos = ExecutionContexts.computeDeadline(current, timeoutNanos, TimeUnit.NANOSECONDS);
     try (ExecutionContext ec = ExecutionContexts.start(getName(), current, nanoTime, deadlineNanos)) {
-      return executor.call(what, RuntimeException.class, nanoTime, deadlineNanos);
+      return executor.call(
+              Utils.serviceExceptionHandlingCallable(ec, what)
+              , RuntimeException.class, nanoTime, deadlineNanos);
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
       throw new RuntimeException(ex);
     } catch (TimeoutException ex) {
       throw new UncheckedTimeoutException(ex);
-    } catch (RuntimeException ex) {
-      Throwable rex = com.google.common.base.Throwables.getRootCause(ex);
-      if (rex instanceof WebApplicationException) {
-         Utils.handleServiceError((WebApplicationException) rex, current);
-      }
-      throw ex;
     }
   }
 
@@ -90,26 +85,9 @@ public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
     long nanoTime = TimeSource.nanoTime();
     ExecutionContext current = ExecutionContexts.current();
     long deadlineNanos = ExecutionContexts.computeDeadline(current, timeoutNanos, TimeUnit.NANOSECONDS);
-    Callable<T> pc = ExecutionContexts.propagatingCallable(what, current, getName(), deadlineNanos);
+    Callable<T> pc = Utils.propagatingServiceExceptionHandlingCallable(current, what, getName(), deadlineNanos);
     return executor.submitRx(pc, nanoTime, deadlineNanos,
-            () -> new ContextPropagatingCompletableFuture<>(current, deadlineNanos))
-            .handle((result, ex) -> {
-              if (ex != null) {
-                Throwable rex = com.google.common.base.Throwables.getRootCause(ex);
-                if (rex instanceof WebApplicationException) {
-                  Utils.handleServiceError((WebApplicationException) rex, current);
-                }
-                if (ex instanceof RuntimeException) {
-                  throw (RuntimeException) ex;
-                } else if (ex instanceof Error){
-                  throw (Error) ex;
-                } else {
-                  throw new RuntimeException(ex);
-                }
-              } else {
-                return (T) result;
-              }
-            });
+            () -> new ContextPropagatingCompletableFuture<>(current, deadlineNanos));
   }
 
   @Override

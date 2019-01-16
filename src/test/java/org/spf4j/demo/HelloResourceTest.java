@@ -103,8 +103,8 @@ public class HelloResourceTest {
       request.get(String.class);
       Assert.fail();
     } catch (RuntimeException ex) {
-      LOG.debug("Excepted", ex);
-    } 
+      LOG.debug("Expected", ex);
+    }
   }
 
 
