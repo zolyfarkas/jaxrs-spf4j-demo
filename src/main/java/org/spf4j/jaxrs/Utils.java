@@ -5,11 +5,12 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import javax.annotation.CheckReturnValue;
-import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Response;
+import org.glassfish.hk2.utilities.reflection.Logger;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.Throwables;
 import org.spf4j.base.avro.Converters;
@@ -89,6 +90,7 @@ public final class Utils {
       ex.addSuppressed(e);
       return;
     }
+    java.util.logging.Logger.getLogger("org.spf4j.jaxrs.client").log(Level.FINE, "ServiceError", se);
     DebugDetail detail = se.getDetail();
     if (detail != null) {
       org.spf4j.base.avro.Throwable throwable = detail.getThrowable();
