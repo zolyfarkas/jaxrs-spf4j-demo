@@ -3,13 +3,14 @@ package org.spf4j.jaxrs;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import javax.annotation.Nullable;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Response;
+import org.slf4j.LoggerFactory;
 import org.spf4j.base.ExecutionContext;
 import static org.spf4j.base.ExecutionContexts.start;
 import org.spf4j.base.Throwables;
@@ -18,15 +19,20 @@ import org.spf4j.base.avro.Converters;
 import org.spf4j.base.avro.DebugDetail;
 import org.spf4j.base.avro.LogRecord;
 import org.spf4j.base.avro.ServiceError;
+import org.spf4j.base.avro.StackSampleElement;
+import org.spf4j.base.avro.StackSamples;
 import org.spf4j.failsafe.RetryDecision;
 import org.spf4j.failsafe.RetryPolicy;
 import org.spf4j.http.Headers;
 import org.spf4j.log.AvroLogRecordImpl;
+import org.spf4j.log.ExecContextLogger;
 
 /**
  * @author Zoltan Farkas
  */
 public final class Utils {
+
+  private static final ExecContextLogger LOG = new ExecContextLogger(LoggerFactory.getLogger("org.spf4j.jaxrs.client"));
 
   public static final RetryPolicy DEFAULT_HTTP_RETRY_POLICY = RetryPolicy.newBuilder()
                   .withDefaultThrowableRetryPredicate()
@@ -87,7 +93,7 @@ public final class Utils {
           final Callable<T> callable, @Nullable final String name, final long deadlineNanos) {
     return new PropagatingServiceExceptionHandler(callable, ctx, name, deadlineNanos);
   }
-  
+
 
   public static  void handleServiceError(final WebApplicationException ex,
           final ExecutionContext current) throws WebApplicationException {
@@ -103,7 +109,7 @@ public final class Utils {
       ex.addSuppressed(e);
       return;
     }
-    java.util.logging.Logger.getLogger("org.spf4j.jaxrs.client").log(Level.FINE, "ServiceError", se);
+    LOG.debug("ServiceError: {}", se.getMessage());
     DebugDetail detail = se.getDetail();
     if (detail != null) {
       org.spf4j.base.avro.Throwable throwable = detail.getThrowable();
@@ -112,7 +118,11 @@ public final class Utils {
       }
       if (current != null) {
         for (LogRecord log : detail.getLogs()) {
-          current.addLog(new AvroLogRecordImpl(log));
+          LOG.log(current, new AvroLogRecordImpl(log));
+        }
+        List<StackSampleElement> stackSamples = detail.getStackSamples();
+        if (!stackSamples.isEmpty()) {
+          LOG.debug("profileDetail", new StackSamples(stackSamples));
         }
       }
     }

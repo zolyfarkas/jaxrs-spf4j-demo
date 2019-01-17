@@ -100,10 +100,11 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Throwable>,
       sses = new ArrayList<>(64);
       Converter.convert(Methods.ROOT, ss, -1, 0, (a, b) -> sses.add(a));
     }
+    String ctxId = ctx.getId().toString();
     ServiceError.Builder seBuilder = ServiceError.newBuilder()
             .setCode(status)
             .setDetail(new DebugDetail(host + '/' + ctx.getName(),
-                    Converters.convert("", ctx.getId().toString(), ctxLogs),
+                    Converters.convert("", ctxId, ctxLogs),
                     Converters.convert(exception), sses))
             .setType(exception.getClass().getName())
             .setMessage(message).setPayload(payload);

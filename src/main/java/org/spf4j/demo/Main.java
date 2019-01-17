@@ -12,7 +12,8 @@ import org.glassfish.grizzly.servlet.FixedWebappContext;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.servlet.ServletContainer;
-import org.spf4j.base.ExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spf4j.base.ExecutionContexts;
 import org.spf4j.concurrent.LifoThreadPoolBuilder;
 import org.spf4j.stackmonitor.ProfiledExecutionContextFactory;
@@ -31,6 +32,8 @@ public class Main {
     System.setProperty("spf4j.execContext.tlAttacherClass", ProfilingTLAttacher.class.getName());
     System.setProperty("spf4j.execContext.factoryClass", ProfiledExecutionContextFactory.class.getName());
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
   // Base URI the Grizzly HTTP server will listen on
   public static final String BASE_URI = "http://0.0.0.0:8080/";
@@ -131,6 +134,7 @@ public class Main {
     latch.await();
     server.shutdown(30, TimeUnit.SECONDS);
     server.shutdownNow();
+    LOG.debug("Stack samples dumped to {}", sampler.dumpToFile());
     sampler.dispose();
   }
 

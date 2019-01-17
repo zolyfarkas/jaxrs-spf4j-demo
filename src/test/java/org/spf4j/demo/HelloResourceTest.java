@@ -60,6 +60,7 @@ public class HelloResourceTest {
   @AfterClass
   public static void tearDown() throws Exception {
     server.shutdownNow();
+    LOG.debug("Stack samples dumped to {}", profiler.dumpToFile());
     profiler.dispose();
   }
 
