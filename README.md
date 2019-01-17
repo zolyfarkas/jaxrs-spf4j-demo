@@ -11,7 +11,7 @@ In our monolith we have some advantages:
 
 2) Profiling the monolith gives also a complete picture.
 
-3) Refactoring is a lot easier,
+3) Refactoring is a lot easier.
 
 
 ...
@@ -19,11 +19,11 @@ In our monolith we have some advantages:
 
 This example shows how you can overcome some of the challenges you will face in a distributed architecture:
 
-1) Distributed stack traces between REST services.
+1) Distributed stack traces between REST services. Know what is the root cause right away.
 
-2) DEBUG on ERROR. (Debug logs will be made available on service error)
+2) DEBUG on ERROR. Debug logs attached to the  service error response, of all the services involved!
 
-3) PROFILE detail on ERROR/WARN
+3) PROFILE detail on ERROR/WARN.
 
 4) Timeout Propagation.
 
