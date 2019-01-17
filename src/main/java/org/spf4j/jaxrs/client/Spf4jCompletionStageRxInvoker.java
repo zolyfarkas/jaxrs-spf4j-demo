@@ -40,7 +40,8 @@ public class Spf4jCompletionStageRxInvoker
     long nanoTime = TimeSource.nanoTime();
     ExecutionContext current = ExecutionContexts.current();
     long deadlineNanos = ExecutionContexts.computeDeadline(current, invocation.getTimeoutNanos(), TimeUnit.NANOSECONDS);
-    Callable<T> pc = Utils.propagatingServiceExceptionHandlingCallable(current, what, name, deadlineNanos);
+    Callable<T> pc = Utils.propagatingServiceExceptionHandlingCallable(current, what, name,
+            deadlineNanos, invocation.getHttpReqTimeoutNanos());
     return executor.submitRx(pc, nanoTime, deadlineNanos,
             () -> new ContextPropagatingCompletableFuture<>(current, deadlineNanos));
   }

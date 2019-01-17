@@ -29,9 +29,10 @@ public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
   private final AsyncRetryExecutor<Object, Callable<? extends Object>> executor;
   private final Spf4jWebTarget target;
   private final long timeoutNanos;
+  private final long httpReqTimeoutNanos;
   private final String method;
 
-  public Spf4jInvocation(final Invocation invocation, final long timeoutNanos,
+  public Spf4jInvocation(final Invocation invocation, final long timeoutNanos, final long httpReqTimeoutNanos,
           final AsyncRetryExecutor<Object, Callable<? extends Object>> policy,
           final Spf4jWebTarget target, final String method) {
     this.invocation = invocation;
@@ -39,6 +40,7 @@ public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
     this.timeoutNanos = timeoutNanos;
     this.target = target;
     this.method = method;
+    this.httpReqTimeoutNanos = httpReqTimeoutNanos;
   }
 
   public String getMethod() {
@@ -68,9 +70,10 @@ public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
     long nanoTime = TimeSource.nanoTime();
     ExecutionContext current = ExecutionContexts.current();
     long deadlineNanos = ExecutionContexts.computeDeadline(current, timeoutNanos, TimeUnit.NANOSECONDS);
-    try (ExecutionContext ec = ExecutionContexts.start(getName(), current, nanoTime, deadlineNanos)) {
+    try {
       return executor.call(
-              Utils.serviceExceptionHandlingCallable(ec, what)
+              Utils.propagatingServiceExceptionHandlingCallable(current, what, getName(),
+                      deadlineNanos, httpReqTimeoutNanos)
               , RuntimeException.class, nanoTime, deadlineNanos);
     } catch (InterruptedException ex) {
       Thread.currentThread().interrupt();
@@ -85,7 +88,8 @@ public class Spf4jInvocation implements Invocation, Wrapper<Invocation> {
     long nanoTime = TimeSource.nanoTime();
     ExecutionContext current = ExecutionContexts.current();
     long deadlineNanos = ExecutionContexts.computeDeadline(current, timeoutNanos, TimeUnit.NANOSECONDS);
-    Callable<T> pc = Utils.propagatingServiceExceptionHandlingCallable(current, what, getName(), deadlineNanos);
+    Callable<T> pc = Utils.propagatingServiceExceptionHandlingCallable(current, what, getName(),
+            deadlineNanos, httpReqTimeoutNanos);
     return executor.submitRx(pc, nanoTime, deadlineNanos,
             () -> new ContextPropagatingCompletableFuture<>(current, deadlineNanos));
   }
