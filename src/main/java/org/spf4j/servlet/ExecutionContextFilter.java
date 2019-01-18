@@ -228,7 +228,7 @@ public class ExecutionContextFilter implements Filter {
     LogAttribute<CharSequence> traceId = LogAttribute.traceId(ctx.getId());
     for (Slf4jLogRecord log : ctxLogs) {
       LogUtils.logUpgrade(logger, org.spf4j.log.Level.INFO, "Detail on Error",
-              traceId, LogAttribute.log(log));
+              traceId, log);
     }
     StackSamples stackSamples = ctx.getStackSamples();
     if (stackSamples != null) {

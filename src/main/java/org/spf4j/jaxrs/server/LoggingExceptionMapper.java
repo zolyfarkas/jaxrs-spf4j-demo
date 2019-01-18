@@ -1,5 +1,6 @@
 package org.spf4j.jaxrs.server;
 
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -59,7 +60,14 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Throwable>,
     if (wex != null) {
       Response response = wex.getResponse();
       status = response.getStatus();
-      payload = response.getEntity();
+      if (response.hasEntity()) {
+        payload = response.getEntity();
+        if (payload instanceof InputStream) {
+          payload = null;
+        }
+      } else {
+        payload = null;
+      }
     } else {
       status = 500;
       payload = null;
@@ -108,9 +116,7 @@ public final class LoggingExceptionMapper implements ExceptionMapper<Throwable>,
                     Converters.convert(exception), sses))
             .setType(exception.getClass().getName())
             .setMessage(message).setPayload(payload);
-    return Response.status(status).entity(seBuilder
-            .build())
-            .type(MediaType.APPLICATION_JSON_TYPE)
+    return Response.status(status).entity(seBuilder.build())
             .build();
   }
 

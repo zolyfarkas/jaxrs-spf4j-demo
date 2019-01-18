@@ -12,9 +12,7 @@ import javax.ws.rs.core.Configuration;
 import javax.ws.rs.core.Response;
 import org.slf4j.LoggerFactory;
 import org.spf4j.base.ExecutionContext;
-import org.spf4j.base.ExecutionContexts;
 import static org.spf4j.base.ExecutionContexts.start;
-import org.spf4j.base.Throwables;
 import org.spf4j.base.TimeSource;
 import org.spf4j.base.Wrapper;
 import org.spf4j.base.avro.Converters;
@@ -26,8 +24,8 @@ import org.spf4j.base.avro.StackSamples;
 import org.spf4j.failsafe.RetryDecision;
 import org.spf4j.failsafe.RetryPolicy;
 import org.spf4j.http.Headers;
-import org.spf4j.log.AvroLogRecordImpl;
 import org.spf4j.log.ExecContextLogger;
+import org.spf4j.log.Level;
 
 /**
  * @author Zoltan Farkas
@@ -93,10 +91,10 @@ public final class Utils {
 
 
   public static  void handleServiceError(final WebApplicationException ex,
-          final ExecutionContext current) throws WebApplicationException {
+          final ExecutionContext current) {
     Response response = ex.getResponse();
     if (response.getHeaders().getFirst(Headers.CONTENT_SCHEMA) == null) {
-      return;
+       return;
     }
     ServiceError se;
     try {
@@ -108,21 +106,30 @@ public final class Utils {
     }
     LOG.debug("ServiceError: {}", se.getMessage());
     DebugDetail detail = se.getDetail();
+    Throwable rootCause = null;
     if (detail != null) {
       org.spf4j.base.avro.Throwable throwable = detail.getThrowable();
       if (throwable != null) {
-        Throwables.setRootCause(ex, Converters.convert(detail.getOrigin(), throwable));
+        rootCause = Converters.convert(detail.getOrigin(), throwable);
       }
+      String origin = detail.getOrigin();
       if (current != null) {
         for (LogRecord log : detail.getLogs()) {
-          LOG.log(current, new AvroLogRecordImpl(log));
+          if (log.getOrigin().isEmpty()) {
+            log.setOrigin(origin);
+          }
+          LOG.log(current, Level.DEBUG, log);
         }
         List<StackSampleElement> stackSamples = detail.getStackSamples();
         if (!stackSamples.isEmpty()) {
-          LOG.debug("profileDetail", new StackSamples(stackSamples));
+          LOG.debug("remoteProfileDetail", new StackSamples(stackSamples));
         }
       }
     }
+    WebApplicationException nex = new WebApplicationException(rootCause,
+            Response.fromResponse(response).entity(se).build());
+    nex.setStackTrace(ex.getStackTrace());
+    throw nex;
   }
 
 

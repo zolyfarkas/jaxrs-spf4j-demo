@@ -160,7 +160,7 @@ public class HelloResourceTest {
       Assert.fail();
     } catch (RuntimeException ex) {
       //expected
-      LOG.debug("Excepted exception", ex);
+      LOG.debug("Expected exception", ex);
     }
     LOG.info("Finished buggy test");
   }
