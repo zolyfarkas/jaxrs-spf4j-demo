@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.ServerErrorException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Invocation;
 
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -304,8 +305,8 @@ public class HelloResourceTest {
     try {
       request.get(String.class);
       Assert.fail();
-    } catch (InternalServerErrorException ex) {
-      LOG.debug("Expected Error Response", ex.getResponse().readEntity(ServiceError.class), ex);
+    } catch (WebApplicationException ex) {
+      LOG.debug("Expected Error Response", ex.getResponse().getEntity(), ex);
     }
     expect.assertObservation();
   }
