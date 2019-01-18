@@ -20,7 +20,7 @@ import org.apache.avro.io.ExtendedJsonEncoder;
  * @author Zoltan Farkas
  */
 @Provider
-@Produces({"application/json;fmt=avro-x", "application/avro-x+json", "text/plain;fmt=avro-x"})
+@Produces({"application/json;fmt=avro-x", "application/avro-x+json", "text/plain;fmt=avro-x+json"})
 public class JsonAvroMessageBodyWriter extends  AvroMessageBodyWriter {
 
   @Inject
@@ -37,7 +37,7 @@ public class JsonAvroMessageBodyWriter extends  AvroMessageBodyWriter {
   public void writeTo(Object t, Class<?> type, Type genericType, Annotation[] annotations,
           MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
           throws IOException, WebApplicationException {
-    httpHeaders.add(HttpHeaders.CONTENT_TYPE, "application/avro-x+json");
+    httpHeaders.putSingle(HttpHeaders.CONTENT_TYPE, "application/avro-x+json");
     super.writeTo(t, type, genericType, annotations, mediaType, httpHeaders, entityStream);
   }
 

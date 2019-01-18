@@ -35,7 +35,7 @@ public class BinaryAvroMessageBodyWriter extends  AvroMessageBodyWriter {
 
   @Override
   public void writeTo(Object t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
-    httpHeaders.add(HttpHeaders.CONTENT_TYPE, "application/avro");
+    httpHeaders.putSingle(HttpHeaders.CONTENT_TYPE, "application/avro");
     super.writeTo(t, type, genericType, annotations, mediaType, httpHeaders, entityStream);
   }
 

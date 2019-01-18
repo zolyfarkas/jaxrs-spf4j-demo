@@ -126,8 +126,8 @@ public class HelloResourceTest {
     try {
       request.get(String.class);
       Assert.fail();
-    } catch (ServerErrorException ex) {
-      ServiceError sErr = ex.getResponse().readEntity(ServiceError.class);
+    } catch (WebApplicationException ex) {
+      ServiceError sErr = (ServiceError) ex.getResponse().getEntity();
       LOG.debug("Expected error ", sErr);
     }
      expect.assertObservation(3, TimeUnit.SECONDS);
@@ -240,10 +240,10 @@ public class HelloResourceTest {
   }
 
 
-  @Test(timeout = 1000000)
+  @Test(timeout = 10000)
   public void testAError() throws InterruptedException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
-            true, LogMatchers.hasMessageWithPattern("Done GET/helloResource/aError"),
+            true, LogMatchers.hasMessageWithPattern("Done GET.*aError"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
       target.path("demo/helloResource/aError")
@@ -251,7 +251,7 @@ public class HelloResourceTest {
               .withTimeout(500000, TimeUnit.MILLISECONDS)
               .get(String.class);
       Assert.fail();
-    } catch (InternalServerErrorException | UncheckedTimeoutException ex) {
+    } catch (WebApplicationException | UncheckedTimeoutException ex) {
       LOG.debug("Expected Error Response", ex);
       Assert.assertEquals(RemoteException.class, com.google.common.base.Throwables.getRootCause(ex).getClass());
     } finally {
@@ -263,7 +263,7 @@ public class HelloResourceTest {
   @Test(timeout = 10000)
   public void testAError2() throws InterruptedException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
-            true, LogMatchers.hasMessageWithPattern("Done GET/helloResource/aError"),
+            true, LogMatchers.hasMessageWithPattern("Done GET.*/helloResource/aError"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
       target.path("demo/helloResource/aError")
