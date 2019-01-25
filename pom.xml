@@ -12,7 +12,7 @@
   <properties>
     <jersey.version>2.27</jersey.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <avro.version>1.8.1.35p</avro.version>
+    <avro.version>1.8.1.36p-SNAPSHOT</avro.version>
     <bintray.subject>zolyfarkas</bintray.subject>
     <bintray.repo>core</bintray.repo>
     <bintray.package>${project.artifactId}</bintray.package>
@@ -177,6 +177,7 @@
           <reuseForks>false</reuseForks>
           <systemProperties>
             <spf4j.execContentFactoryWrapperClass>org.spf4j.stackmonitor.ProfiledExecutionContextFactory</spf4j.execContentFactoryWrapperClass>
+            <fred.apiKey>${fred.apiKey}</fred.apiKey>
           </systemProperties>
           <properties>
             <property>

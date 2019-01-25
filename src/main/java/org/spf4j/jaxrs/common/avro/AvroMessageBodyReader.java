@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -20,7 +21,6 @@ import org.spf4j.http.Headers;
 import org.spf4j.io.MemorizingBufferedInputStream;
 
 /**
- *
  * @author Zoltan Farkas
  */
 public abstract class AvroMessageBodyReader implements MessageBodyReader<Object> {
@@ -49,13 +49,19 @@ public abstract class AvroMessageBodyReader implements MessageBodyReader<Object>
           MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream pentityStream)
           throws IOException, WebApplicationException {
     String schemaStr = httpHeaders.getFirst(Headers.CONTENT_SCHEMA);
-    Schema writerSchema = new Schema.Parser(new AvroNamesRefResolver(client)).parse(schemaStr);
+    Schema writerSchema;
     Schema readerSchema;
     Schema schema = ExtendedReflectData.get().getSchema(genericType != null ? genericType : type);
     if (schema != null) {
       readerSchema = schema;
     } else {
-      readerSchema = writerSchema;
+      readerSchema = ExtendedReflectData.get()
+              .createSchema(genericType != null ? genericType : type, t, new HashMap<>());;
+    }
+    if (schemaStr != null) {
+      writerSchema = new Schema.Parser(new AvroNamesRefResolver(client)).parse(schemaStr);
+    } else {
+      writerSchema = readerSchema;
     }
     DatumReader reader = new ReflectDatumReader(writerSchema, readerSchema);
     InputStream entityStream = wrapInputStream(pentityStream);

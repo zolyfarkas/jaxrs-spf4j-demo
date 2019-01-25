@@ -49,14 +49,14 @@ public class DemoApplication extends ResourceConfig {
   private final ServletContext srvContext;
 
   public DemoApplication(@Context ServletContext srvContext) {
+    DefaultDeadlineProtocol dp = new DefaultDeadlineProtocol();
+    FilterRegistration testFilterReg = srvContext.addFilter("server", new ExecutionContextFilter(dp));
+    testFilterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
     try {
       schemaClient = new SchemaClient(new URI("https://dl.bintray.com/zolyfarkas/core"));
     } catch (URISyntaxException ex) {
       throw new RuntimeException(ex);
     }
-    DefaultDeadlineProtocol dp = new DefaultDeadlineProtocol();
-    FilterRegistration testFilterReg = srvContext.addFilter("server", new ExecutionContextFilter(dp));
-    testFilterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
     AvroFeature avroFeature = new AvroFeature(schemaClient);
     restClient = new Spf4JClient(ClientBuilder
             .newBuilder()
