@@ -2,6 +2,7 @@ package org.spf4j.jaxrs.common.avro;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InvalidObjectException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -55,8 +56,7 @@ public abstract class AvroMessageBodyReader implements MessageBodyReader<Object>
     if (schema != null) {
       readerSchema = schema;
     } else {
-      readerSchema = ExtendedReflectData.get()
-              .createSchema(genericType != null ? genericType : type, t, new HashMap<>());;
+      throw new InvalidObjectException("No schema available and cannot be infered for " + type + ", " + genericType);
     }
     if (schemaStr != null) {
       writerSchema = new Schema.Parser(new AvroNamesRefResolver(client)).parse(schemaStr);
