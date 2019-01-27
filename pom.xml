@@ -10,13 +10,12 @@
   <name>${project.artifactId}</name>
 
   <properties>
-    <jersey.version>2.27</jersey.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <avro.version>1.8.1.36p-SNAPSHOT</avro.version>
     <bintray.subject>zolyfarkas</bintray.subject>
     <bintray.repo>core</bintray.repo>
     <bintray.package>${project.artifactId}</bintray.package>
-    <spf4j.version>8.6.0-SNAPSHOT</spf4j.version>
+    <spf4j.version>8.6.1-SNAPSHOT</spf4j.version>
   </properties>
 
   <repositories>
@@ -40,13 +39,6 @@
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.glassfish.jersey</groupId>
-        <artifactId>jersey-bom</artifactId>
-        <version>${jersey.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
       <dependency>
         <groupId>org.apache.avro</groupId>
         <artifactId>avro</artifactId>
@@ -76,11 +68,6 @@
       <scope>test</scope>
       <version>${spf4j.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.spf4j</groupId>
-      <artifactId>spf4j-core</artifactId>
-      <version>${spf4j.version}</version>
-    </dependency>
         <dependency> <!-- missing in jdk 11 -->
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
@@ -90,12 +77,7 @@
       <groupId>org.spf4j.demo</groupId>
       <artifactId>jaxrs-spf4j-demo-schema</artifactId>
       <version>0.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>4.0.1</version>
-    </dependency>   
+    </dependency>  
     <dependency>
       <groupId>io.opentracing.contrib</groupId>
       <artifactId>opentracing-jaxrs2</artifactId>
@@ -124,22 +106,15 @@
       </dependency>
     -->
     <dependency>
-      <groupId>org.glassfish.jersey.containers</groupId>
-      <artifactId>jersey-container-grizzly2-servlet</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.glassfish.jersey.media</groupId>
-          <artifactId>jersey-media-jaxb</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>org.spf4j</groupId>
+      <artifactId>spf4j-jaxrs-server</artifactId>
+      <version>8.6.1-SNAPSHOT</version>
     </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.inject</groupId>
-      <artifactId>jersey-hk2</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>org.glassfish.jersey.ext</groupId>
       <artifactId>jersey-proxy-client</artifactId>
+      <version>2.27</version>
     </dependency>
     <!--
     <dependency>
@@ -153,16 +128,6 @@
         <artifactId>jersey-media-moxy</artifactId>
     </dependency>
     -->
-  <dependency>
-      <groupId>com.jayway.jsonpath</groupId>
-      <artifactId>json-path</artifactId>
-      <version>2.4.0</version>
-  </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-client</artifactId>
-      <version>2.27</version>
-    </dependency>
   </dependencies>
 
   <build>
