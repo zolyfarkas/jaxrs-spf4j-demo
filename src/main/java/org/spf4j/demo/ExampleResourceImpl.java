@@ -16,18 +16,25 @@ import org.spf4j.demo.avro.MetaData;
 import org.spf4j.log.ExecContextLogger;
 
 /**
- *
  * @author Zoltan Farkas
  */
 @Path("example/records")
 public class ExampleResourceImpl implements ExampleResource {
 
-  private static final Logger LOG = new ExecContextLogger(LoggerFactory.getLogger(ExampleResourceImpl.class));
+ private static final Logger LOG = new ExecContextLogger(LoggerFactory.getLogger(ExampleResourceImpl.class));
 
  public List<DemoRecordInfo>  getRecords() {
    return Arrays.asList(
        DemoRecordInfo.newBuilder()
            .setDemoRecord(DemoRecord.newBuilder().setId("1")
+           .setName("test").setDescription("testDescr").build())
+           .setMetaData(MetaData.newBuilder()
+                   .setAsOf(Instant.now()).setLastAccessed(Instant.now())
+                   .setLastModified(Instant.now())
+                   .setLastAccessedBy("you").setLastModifiedBy("you").build()
+           ).build(),
+           DemoRecordInfo.newBuilder()
+           .setDemoRecord(DemoRecord.newBuilder().setId("2")
            .setName("test").setDescription("testDescr").build())
            .setMetaData(MetaData.newBuilder()
                    .setAsOf(Instant.now()).setLastAccessed(Instant.now())

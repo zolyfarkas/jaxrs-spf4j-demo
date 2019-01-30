@@ -1,6 +1,10 @@
 
 package org.spf4j.demo;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +27,7 @@ import org.spf4j.demo.avro.MetaData;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
 import org.apache.avro.reflect.LogicalType;
+import org.spf4j.io.Streams;
 
 /**
  *
@@ -89,6 +94,21 @@ public class ExampleResourceTest {
   public void testRestClientGet() {
     ExampleResource service = WebResourceFactory.newResource(ExampleResource.class, target);
     List<DemoRecordInfo> records = service.getRecords();
+    LOG.debug("Received", records);
+  }
+
+  @Test
+  public void testRestClientGetCsv() throws IOException {
+    InputStream records = target.request("text/csv").get(InputStream.class);
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    Streams.copy(records, bos);
+    LOG.debug("Received", new String(bos.toByteArray(), StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void testGetDemoRecordCsv() {
+    List<DemoRecordInfo> records =
+            target.request("text/csv").get(new GenericType<List<DemoRecordInfo>>() {});
     LOG.debug("Received", records);
   }
 

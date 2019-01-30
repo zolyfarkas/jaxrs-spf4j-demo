@@ -11,11 +11,11 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <avro.version>1.8.1.36p-SNAPSHOT</avro.version>
+    <avro.version>1.8.1.39p-SNAPSHOT</avro.version>
     <bintray.subject>zolyfarkas</bintray.subject>
     <bintray.repo>core</bintray.repo>
     <bintray.package>${project.artifactId}</bintray.package>
-    <spf4j.version>8.6.1-SNAPSHOT</spf4j.version>
+    <spf4j.version>8.6.1</spf4j.version>
   </properties>
 
   <repositories>
