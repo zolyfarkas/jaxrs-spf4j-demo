@@ -1,17 +1,22 @@
 package org.spf4j.demo;
 
+import com.google.common.base.Joiner;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.core.GenericType;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.hamcrest.Matchers;
@@ -76,6 +81,17 @@ public class HelloResourceTest {
       Assert.assertThat(responseMsg, Matchers.startsWith("Hello world"));
     }
   }
+
+  @Test
+  public void testEchoCsvList() {
+      List<Integer> expected = Arrays.asList(1,2,3,4);
+      Invocation.Builder request = target.path("demo/helloResource/csvListParamEcho")
+              .queryParam("lp", expected.stream().map((x) -> x.toString()).collect(Collectors.joining(",")))
+              .request().accept("application/json");
+      List<Integer> result = request.get(new GenericType<List<Integer>>() {});
+      Assert.assertEquals(expected, result);
+  }
+
 
   /**
    * Test to see that the message "Got it!" is sent in the response.

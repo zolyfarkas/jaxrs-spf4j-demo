@@ -3,6 +3,7 @@ package org.spf4j.demo;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -24,6 +25,7 @@ import org.spf4j.jaxrs.client.providers.ClientCustomExecutorServiceProvider;
 import org.spf4j.jaxrs.client.providers.ClientCustomScheduledExecutionServiceProvider;
 import org.spf4j.jaxrs.client.providers.ExecutionContextClientFilter;
 import org.spf4j.jaxrs.client.Spf4JClient;
+import org.spf4j.jaxrs.common.CsvParameterConverterProvider;
 import org.spf4j.jaxrs.common.avro.AvroFeature;
 import org.spf4j.servlet.ExecutionContextFilter;
 
@@ -58,11 +60,13 @@ public class DemoApplication extends ResourceConfig {
             .register(new ExecutionContextClientFilter(dp))
             .register(ClientCustomExecutorServiceProvider.class)
             .register(ClientCustomScheduledExecutionServiceProvider.class)
+            .register(new CsvParameterConverterProvider(Collections.EMPTY_LIST))
             .register(avroFeature)
             .property(ClientProperties.USE_ENCODING, "gzip")
             .build());
     register(new Spf4jBinder(schemaClient, restClient));
     register(avroFeature);
+    register(CsvParameterConverterProvider.class);
     if (instance != null) {
       throw new IllegalStateException("Application already initialized " + instance);
     }

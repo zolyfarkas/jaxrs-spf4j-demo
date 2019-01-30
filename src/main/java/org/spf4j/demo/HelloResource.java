@@ -1,6 +1,7 @@
 package org.spf4j.demo;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeoutException;
@@ -8,6 +9,7 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.container.AsyncResponse;
@@ -19,6 +21,7 @@ import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.Timing;
 import org.spf4j.concurrent.DefaultContextAwareExecutor;
+import org.spf4j.jaxrs.CsvParam;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
 import org.spf4j.log.ExecContextLogger;
@@ -198,6 +201,14 @@ public class HelloResource {
     } else if (randomNr < 6) {
       Thread.sleep(1000);
     }
+  }
+
+  @GET
+  @Produces("application/json")
+  @Path("csvListParamEcho")
+  public List<Integer> echoList(@CsvParam @QueryParam("lp") List<Integer> param)
+          throws InterruptedException, TimeoutException {
+    return param;
   }
 
 }
