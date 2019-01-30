@@ -1,6 +1,5 @@
 package org.spf4j.demo;
 
-import com.google.common.base.Joiner;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
