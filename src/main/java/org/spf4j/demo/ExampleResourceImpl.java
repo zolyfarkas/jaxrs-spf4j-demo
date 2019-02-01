@@ -1,5 +1,6 @@
 package org.spf4j.demo;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.spf4j.avro.Projections;
 import org.spf4j.demo.avro.DemoRecord;
 import org.spf4j.demo.avro.DemoRecordInfo;
 import org.spf4j.demo.avro.MetaData;
+import org.spf4j.jaxrs.common.avro.stream.CloseableIterable;
 import org.spf4j.log.ExecContextLogger;
 
 /**
@@ -51,9 +53,11 @@ public class ExampleResourceImpl implements ExampleResource {
   @POST
   @Consumes({"text/csv"})
   @Path("stream")
-  public void saveRecords(Iterable<DemoRecordInfo> records) {
-    for (DemoRecordInfo rec : records) {
-      LOG.debug("Streamed", rec);
+  public void saveRecords(CloseableIterable<DemoRecordInfo> precords) throws IOException {
+    try (CloseableIterable<DemoRecordInfo> records = precords) {
+      for (DemoRecordInfo rec : records) {
+        LOG.debug("Streamed", rec);
+      }
     }
   }
 
