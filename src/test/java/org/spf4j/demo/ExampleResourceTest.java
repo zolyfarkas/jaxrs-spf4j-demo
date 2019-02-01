@@ -8,10 +8,13 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.junit.Assert;
 import org.apache.avro.reflect.AvroMeta;
 import org.apache.avro.reflect.AvroSchema;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -68,6 +71,18 @@ public class ExampleResourceTest {
             .post(Entity.entity(
                     new GenericEntity<>(records, new GenericType<List<DemoRecordInfo>>() {}.getType()),
                     MediaType.APPLICATION_JSON));
+  }
+
+  @Test
+  public void testPostRecordInfoStream() {
+    List<DemoRecordInfo> records =
+            testRecords();
+    Response post = target.path("stream").request()
+            .withTimeout(1000, TimeUnit.SECONDS)
+            .post(Entity.entity(
+                    new GenericEntity<>(records, new GenericType<List<DemoRecordInfo>>() {}.getType()),
+                    "text/csv"));
+    Assert.assertEquals(204, post.getStatus());
   }
 
   public static List<DemoRecordInfo> testRecords() {
