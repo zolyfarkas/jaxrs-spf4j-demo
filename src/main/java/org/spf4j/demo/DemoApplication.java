@@ -27,6 +27,7 @@ import org.spf4j.jaxrs.client.providers.ExecutionContextClientFilter;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.common.CsvParameterConverterProvider;
 import org.spf4j.jaxrs.common.avro.AvroFeature;
+import org.spf4j.jaxrs.common.avro.DefaultSchemaProtocol;
 import org.spf4j.servlet.ExecutionContextFilter;
 
 /**
@@ -52,7 +53,7 @@ public class DemoApplication extends ResourceConfig {
     } catch (URISyntaxException ex) {
       throw new RuntimeException(ex);
     }
-    AvroFeature avroFeature = new AvroFeature(schemaClient);
+    AvroFeature avroFeature = new AvroFeature(new DefaultSchemaProtocol(schemaClient), schemaClient);
     restClient = new Spf4JClient(ClientBuilder
             .newBuilder()
             .connectTimeout(2, TimeUnit.SECONDS)
