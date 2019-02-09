@@ -1,9 +1,5 @@
 package org.spf4j.demo;
 
-import io.opentracing.Span;
-import io.opentracing.Tracer;
-import io.opentracing.propagation.Format;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -330,10 +326,4 @@ public class HelloResourceTest {
     LOG.debug("split ={}", "a   b c ".split("[ ]+"));
   }
 
-  public ByteBuffer injectBinary(Tracer tr, final Span span) {
-    ByteBuffer bb = ByteBuffer.allocate(1024);
-    tr.inject(span.context(), Format.Builtin.BINARY, bb);
-    bb.flip();
-    return bb;
-  }
 }

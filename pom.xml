@@ -19,21 +19,21 @@
   </properties>
 
   <repositories>
-      <repository>
-        <snapshots>
-          <enabled>false</enabled>
-        </snapshots>
-        <id>bintray-zolyfarkas-core</id>
-        <name>bintray</name>
-        <url>https://dl.bintray.com/zolyfarkas/core</url>
-      </repository>
-    </repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>bintray-zolyfarkas-core</id>
+      <name>bintray</name>
+      <url>https://dl.bintray.com/zolyfarkas/core</url>
+    </repository>
+  </repositories>
 
   <distributionManagement>
-        <repository>
-            <id>bintray-zolyfarkas-core</id>
-            <url>https://api.bintray.com/maven/${bintray.subject}/${bintray.repo}/${bintray.package}/;publish=1</url>
-        </repository>
+    <repository>
+      <id>bintray-zolyfarkas-core</id>
+      <url>https://api.bintray.com/maven/${bintray.subject}/${bintray.repo}/${bintray.package}/;publish=1</url>
+    </repository>
   </distributionManagement>
 
 
@@ -68,16 +68,17 @@
       <scope>test</scope>
       <version>${spf4j.version}</version>
     </dependency>
-        <dependency> <!-- missing in jdk 11 -->
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>1.1.1</version>
-        </dependency>
+    <dependency> <!-- missing in jdk 11 -->
+      <groupId>javax.activation</groupId>
+      <artifactId>activation</artifactId>
+      <version>1.1.1</version>
+    </dependency>
     <dependency>
       <groupId>org.spf4j.demo</groupId>
       <artifactId>jaxrs-spf4j-demo-schema</artifactId>
       <version>0.1-SNAPSHOT</version>
-    </dependency>  
+    </dependency>
+    <!--
     <dependency>
       <groupId>io.opentracing.contrib</groupId>
       <artifactId>opentracing-jaxrs2</artifactId>
@@ -99,7 +100,6 @@
       <artifactId>jaeger-client</artifactId>
       <version>0.32.0</version>
     </dependency>
-    <!--
       <dependency>
           <groupId>org.glassfish.jersey.containers</groupId>
           <artifactId>jersey-container-grizzly2-http</artifactId>
@@ -108,7 +108,7 @@
     <dependency>
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-jaxrs-server</artifactId>
-      <version>2.1.0-SNAPSHOT</version>
+      <version>2.1.1</version>
     </dependency>
 
     <dependency>
@@ -181,7 +181,62 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>org.spf4j.zhelloworld.Main</mainClass>
+          <mainClass>org.spf4j.demo.Main</mainClass>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <index>true</index>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+              <mainClass>org.spf4j.demo.Main</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/lib</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>com.spotify</groupId>
+        <artifactId>dockerfile-maven-plugin</artifactId>
+        <version>1.4.10</version>
+        <executions>
+          <execution>
+            <id>default</id>
+            <goals>
+              <goal>build</goal>
+              <goal>push</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <dockerfile>src/main/docker/Dockerfile</dockerfile>
+          <repository>zolyfarkas/${project.artifactId}</repository>
+          <tag>${project.version}</tag>
+          <buildArgs>
+            <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+          </buildArgs>
         </configuration>
       </plugin>
     </plugins>
