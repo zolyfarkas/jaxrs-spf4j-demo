@@ -16,6 +16,8 @@ import javax.servlet.ServletRegistration;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import org.apache.avro.AvroNamesRefResolver;
+import org.apache.avro.SchemaResolvers;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.spf4j.avro.SchemaClient;
@@ -53,6 +55,7 @@ public class DemoApplication extends ResourceConfig {
     } catch (URISyntaxException ex) {
       throw new RuntimeException(ex);
     }
+    SchemaResolvers.registerDefault(new AvroNamesRefResolver(schemaClient));
     AvroFeature avroFeature = new AvroFeature(new DefaultSchemaProtocol(schemaClient), schemaClient);
     restClient = new Spf4JClient(ClientBuilder
             .newBuilder()
@@ -65,7 +68,7 @@ public class DemoApplication extends ResourceConfig {
             .register(avroFeature)
             .property(ClientProperties.USE_ENCODING, "gzip")
             .build());
-    register(new Spf4jBinder(schemaClient, restClient));
+    register(new Spf4jBinder(schemaClient, restClient, (x) -> true));
     register(avroFeature);
     register(CsvParameterConverterProvider.class);
     if (instance != null) {

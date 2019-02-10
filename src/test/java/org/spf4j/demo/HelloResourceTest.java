@@ -230,7 +230,7 @@ public class HelloResourceTest {
   }
 
 
-  @Test(timeout = 10000)
+  @Test(timeout = 10000000)
   public void testATimeoout() throws InterruptedException {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.WARN,
             true, LogMatchers.hasMessageWithPattern("Done GET.*"),
