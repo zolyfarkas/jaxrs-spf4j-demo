@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spf4j.base.ExecutionContexts;
 import org.spf4j.concurrent.LifoThreadPoolBuilder;
+import org.spf4j.log.SLF4JBridgeHandler;
 import org.spf4j.stackmonitor.ProfiledExecutionContextFactory;
 import org.spf4j.stackmonitor.ProfilingTLAttacher;
 import org.spf4j.stackmonitor.Sampler;
@@ -28,6 +29,8 @@ import org.spf4j.stackmonitor.TracingExecutionContexSampler;
 public class Main {
 
   static {
+    SLF4JBridgeHandler.removeHandlersForRootLogger();
+    SLF4JBridgeHandler.install();
     // Enable Continuous profiling.
     System.setProperty("spf4j.execContext.tlAttacherClass", ProfilingTLAttacher.class.getName());
     System.setProperty("spf4j.execContext.factoryClass", ProfiledExecutionContextFactory.class.getName());
@@ -129,8 +132,7 @@ public class Main {
     Sampler sampler
             = startProfiler();
     final HttpServer server = startHttpServer();
-    System.out.println(String.format("Jersey app started with WADL available at "
-            + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
+    LOG.info("Server started and listening at {}", BASE_URI);
     latch.await();
     server.shutdown(30, TimeUnit.SECONDS);
     server.shutdownNow();

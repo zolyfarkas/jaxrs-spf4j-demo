@@ -111,7 +111,7 @@ public class HelloResource {
   public String hello() throws InterruptedException, TimeoutException {
     Thread.sleep(ThreadLocalRandom.current().nextInt(10));
     ExecutionContext ec = ExecutionContexts.current();
-    return "Hello world " + ec.getName() + ", timeleft" + ec.getMillisToDeadline();
+    return "Hello world " + ec.getName() + ", timeleft " + ec.getMillisToDeadline();
   }
 
   @GET
@@ -120,7 +120,7 @@ public class HelloResource {
   public String slowHello() throws InterruptedException, TimeoutException {
     Thread.sleep(1000);
     ExecutionContext ec = ExecutionContexts.current();
-    return "Hello world " + ec.getName() + ", timeleft" + ec.getMillisToDeadline();
+    return "Slow Hello world " + ec.getName() + ", timeleft " + ec.getMillisToDeadline();
   }
 
   @GET
