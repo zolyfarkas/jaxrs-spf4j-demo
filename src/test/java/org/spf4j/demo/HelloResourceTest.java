@@ -88,6 +88,20 @@ public class HelloResourceTest {
   }
 
 
+  @Test
+  public void test404() {
+      Invocation.Builder request = target.path("demo/helloResource/helloLalaland")
+              .request()
+              .accept("text/html", "application/xhtml+xml", "application/xml;q=0.9", "*/*;q=0.8");
+      try {
+        request.get(new GenericType<String>() {});
+        Assert.fail();
+      } catch (WebApplicationException ex) {
+        LOG.debug("expected exception encoded as {}", ex.getResponse().getMediaType(), ex);
+        Assert.assertThat(ex.getResponse().getMediaType().toString(), Matchers.containsString("json"));
+      }
+  }
+
   /**
    * Test to see that the message "Got it!" is sent in the response.
    */
