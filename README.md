@@ -42,5 +42,9 @@ This example shows how you can overcome some of the challenges you will face in 
 10) Deprecation support, clients will be notified when hitting deprecated endpoints via HTTP Warning headers.
 
 
+This demo is built and published to docker-hub, you can run this service by:
 
-
+```
+$ docker pull zolyfarkas/jaxrs-spf4j-demo:0.4
+$ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:0.4
+```
