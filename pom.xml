@@ -11,11 +11,11 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <avro.version>1.8.1.46p-SNAPSHOT</avro.version>
+    <avro.version>1.8.1.46p</avro.version>
     <bintray.subject>zolyfarkas</bintray.subject>
     <bintray.repo>core</bintray.repo>
     <bintray.package>${project.artifactId}</bintray.package>
-    <spf4j.version>8.6.1</spf4j.version>
+    <spf4j.version>8.6.2</spf4j.version>
   </properties>
 
   <repositories>
@@ -76,7 +76,7 @@
     <dependency>
       <groupId>org.spf4j.demo</groupId>
       <artifactId>jaxrs-spf4j-demo-schema</artifactId>
-      <version>0.1-SNAPSHOT</version>
+      <version>0.2</version>
     </dependency>
     <!--
     <dependency>
@@ -108,13 +108,13 @@
     <dependency>
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-jaxrs-server</artifactId>
-      <version>2.1.4-SNAPSHOT</version>
+      <version>2.1.4</version>
     </dependency>
 
     <dependency>
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-logback</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.2.0</version>
     </dependency>
 
     <dependency>
