@@ -112,7 +112,7 @@ public class HelloResourceTest {
     Spf4jInvocationBuilder request = target.path("demo/helloResource/slowHello")
             .request().withTimeout(2, TimeUnit.SECONDS);
     String responseMsg = request.get(String.class);
-    Assert.assertThat(responseMsg, Matchers.startsWith("Hello world"));
+    Assert.assertThat(responseMsg, Matchers.startsWith("Slow Hello world"));
   }
 
 
