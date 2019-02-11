@@ -48,3 +48,5 @@ This demo is built and published to docker-hub, you can run this service by:
 $ docker pull zolyfarkas/jaxrs-spf4j-demo:0.4
 $ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:0.4
 ```
+
+open in your browser: [http://127.0.0.1:8080/demo/helloResource/hello](http://127.0.0.1:8080/demo/helloResource/hello)
