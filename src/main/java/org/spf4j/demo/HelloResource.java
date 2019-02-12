@@ -4,8 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.inject.Inject;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -126,8 +128,9 @@ public class HelloResource {
   @GET
   @Produces(MediaType.TEXT_PLAIN)
   @Path("slowBrokenHello")
-  public String slowBrokenHello() throws InterruptedException, TimeoutException {
-    Thread.sleep(1000);
+  public String slowBrokenHello(@QueryParam("time") @DefaultValue("2") final int timeSeconds)
+          throws InterruptedException, TimeoutException {
+    Thread.sleep(TimeUnit.SECONDS.toMillis(timeSeconds));
     throw new RuntimeException();
   }
 
