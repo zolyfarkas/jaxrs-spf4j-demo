@@ -49,4 +49,9 @@ $ docker pull zolyfarkas/jaxrs-spf4j-demo:0.4
 $ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:0.4
 ```
 
-open in your browser: [http://127.0.0.1:8080/demo/helloResource/hello](http://127.0.0.1:8080/demo/helloResource/hello)
+open in your browser: 
+
+ [Hello](http://127.0.0.1:8080/demo/helloResource/hello)
+ [Json avro response](http://127.0.0.1:8080/demo/example/records?_Accept=application/json)
+ [Binary avro response](http://127.0.0.1:8080/demo/example/records)
+ [Error response](http://127.0.0.1:8080/demo/helloResource/aError)
