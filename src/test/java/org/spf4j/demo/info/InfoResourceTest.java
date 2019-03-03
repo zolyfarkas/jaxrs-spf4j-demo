@@ -1,6 +1,8 @@
 
 package org.spf4j.demo.info;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import javax.ws.rs.core.MediaType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,7 +30,8 @@ public class InfoResourceTest extends ServiceIntegrationBase {
   }
 
   @Test
-  public void testClusterInfo() {
+  public void testClusterInfo() throws MalformedURLException {
+    new URL("file://manifest/Implementation-Url");
     ClusterInfo ai = getTarget().path("info/cluster").request(MediaType.APPLICATION_JSON).get(ClusterInfo.class);
     LOG.debug("cluster info", ai);
     Assert.assertNotNull(ai);
