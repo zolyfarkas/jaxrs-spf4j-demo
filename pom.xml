@@ -10,11 +10,11 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <avro.version>1.8.1.46p</avro.version>
+    <avro.version>1.8.1.49p</avro.version>
     <bintray.subject>zolyfarkas</bintray.subject>
     <bintray.repo>core</bintray.repo>
     <bintray.package>${project.artifactId}</bintray.package>
-    <spf4j.version>8.6.3-SNAPSHOT</spf4j.version>
+    <spf4j.version>8.6.4-SNAPSHOT</spf4j.version>
   </properties>
 
   <repositories>
@@ -73,6 +73,16 @@
       <scope>test</scope>
       <version>${spf4j.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.spf4j</groupId>
+      <artifactId>spf4j-jaxrs-server</artifactId>
+      <version>2.1.5-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.spf4j</groupId>
+      <artifactId>spf4j-jaxrs-kube</artifactId>
+      <version>2.1.5-SNAPSHOT</version>
+    </dependency>
     <dependency> <!-- missing in jdk 11 -->
       <groupId>javax.activation</groupId>
       <artifactId>activation</artifactId>
@@ -82,38 +92,6 @@
       <groupId>org.spf4j.demo</groupId>
       <artifactId>jaxrs-spf4j-demo-schema</artifactId>
       <version>0.2</version>
-    </dependency>
-    <!--
-    <dependency>
-      <groupId>io.opentracing.contrib</groupId>
-      <artifactId>opentracing-jaxrs2</artifactId>
-      <version>0.3.0</version>
-    </dependency>
-    <dependency>
-      <groupId>io.opentracing</groupId>
-      <artifactId>opentracing-util</artifactId>
-      <version>0.31.0</version>
-    </dependency>
-    <dependency>
-      <groupId>io.opentracing</groupId>
-      <artifactId>opentracing-mock</artifactId>
-      <version>0.31.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.jaegertracing</groupId>
-      <artifactId>jaeger-client</artifactId>
-      <version>0.32.0</version>
-    </dependency>
-      <dependency>
-          <groupId>org.glassfish.jersey.containers</groupId>
-          <artifactId>jersey-container-grizzly2-http</artifactId>
-      </dependency>
-    -->
-    <dependency>
-      <groupId>org.spf4j</groupId>
-      <artifactId>spf4j-jaxrs-server</artifactId>
-      <version>2.1.5-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -127,18 +105,7 @@
       <artifactId>jersey-proxy-client</artifactId>
       <version>2.28</version>
     </dependency>
-    <!--
-    <dependency>
-        <groupId>org.glassfish.jersey.containers</groupId>
-        <artifactId>jersey-container-servlet</artifactId>
-    </dependency>
-    -->
-    <!-- uncomment this to get JSON support:
-     <dependency>
-        <groupId>org.glassfish.jersey.media</groupId>
-        <artifactId>jersey-media-moxy</artifactId>
-    </dependency>
-    -->
+
   </dependencies>
 
   <build>
@@ -197,7 +164,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.5.1</version>
+        <version>3.8.0</version>
         <inherited>true</inherited>
         <configuration>
           <source>1.8</source>
@@ -219,6 +186,29 @@
           <mainClass>org.spf4j.demo.Main</mainClass>
         </configuration>
       </plugin>
+      
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>buildnumber-maven-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <phase>initialize</phase>
+            <goals>
+              <goal>create</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <getRevisionOnlyOnce>true</getRevisionOnlyOnce>
+          <providerImplementations>
+            <git>git</git>
+          </providerImplementations>
+          <doCheck>false</doCheck>
+          <doUpdate>false</doUpdate>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -227,13 +217,27 @@
           <archive>
             <index>true</index>
             <manifest>
+              <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
               <mainClass>org.spf4j.demo.Main</mainClass>
             </manifest>
+            <manifestEntries>
+              <Implementation-Vendor>${project.groupId}</Implementation-Vendor>
+              <Implementation-Vendor-Id>${project.groupId}</Implementation-Vendor-Id>
+              <Implementation-Title>${project.artifactId}</Implementation-Title>
+              <Implementation-Version>${project.version}</Implementation-Version>
+              <Implementation-Description>${project.description}</Implementation-Description>
+              <Implementation-Url>${project.url}</Implementation-Url>
+              <Implementation-Org>${project.organization.name}</Implementation-Org>
+              <Implementation-Org-Url>${project.organization.url}</Implementation-Org-Url>
+              <Implementation-Build>${buildNumber}</Implementation-Build>
+              <Build-Time>${maven.build.timestamp}</Build-Time>
+            </manifestEntries>
           </archive>
         </configuration>
-      </plugin>
+      </plugin>      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>

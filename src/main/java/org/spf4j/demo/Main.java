@@ -2,12 +2,9 @@ package org.spf4j.demo;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import org.apache.avro.AvroNamesRefResolver;
-import org.apache.avro.SchemaResolvers;
 import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
 import org.glassfish.grizzly.servlet.FixedWebappContext;
@@ -40,15 +37,22 @@ public class Main {
 
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-  // Base URI the Grizzly HTTP server will listen on
-  public static final String BASE_URI = "http://0.0.0.0:8080/";
+
+  public static HttpServer startHttpServer() throws IOException, URISyntaxException {
+    String envPort = System.getenv("APP_SERVICE_PORT");
+    if (envPort == null) {
+      return startHttpServer(8080);
+    } else {
+      return startHttpServer(Integer.parseInt(envPort));
+    }
+  }
 
   /**
    * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
    *
    * @return Grizzly HTTP server.
    */
-  public static HttpServer startHttpServer() throws IOException, URISyntaxException {
+  public static HttpServer startHttpServer(final int port) throws IOException, URISyntaxException {
     FixedWebappContext webappContext = new FixedWebappContext("grizzly web context", "");
     ServletRegistration servletRegistration = webappContext.addServlet("jersey", ServletContainer.class);
     servletRegistration.addMapping("/demo/*");
@@ -57,17 +61,16 @@ public class Main {
     servletRegistration.setInitParameter(ServerProperties.PROVIDER_PACKAGES,
             "org.spf4j.jaxrs.server;org.spf4j.demo");
 //    servletRegistration.setInitParameter("jersey.config.server.tracing.type", "ALL");
-    servletRegistration.setInitParameter("baseUri", BASE_URI);
+    servletRegistration.setInitParameter("baseUri", "http://0.0.0.0:" + port + '/');
+    servletRegistration.setInitParameter("servlet.port", Integer.toString(port));
+    servletRegistration.setInitParameter("servlet.protocol", "http");
     servletRegistration.setInitParameter(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, "true");
     servletRegistration.setLoadOnStartup(0);
-    URI srvUri = new URI(BASE_URI);
     HttpServer server = new HttpServer();
 //  final ServerConfiguration config = server.getServerConfiguration();
 //  config.addHttpHandler(new StaticHttpHandler(docRoot), "/");
     final NetworkListener listener
-            = new NetworkListener("grizzly",
-                    srvUri.getHost(),
-                    srvUri.getPort());
+            = new NetworkListener("http", "0.0.0.0", port);
     TCPNIOTransport transport = listener.getTransport();
     transport.setKernelThreadPool(LifoThreadPoolBuilder.newBuilder()
             .withCoreSize(Integer.getInteger("spf4j.grizzly.kernel.coreSize", 2))
@@ -131,10 +134,9 @@ public class Main {
       }
 
     });
-    Sampler sampler
-            = startProfiler();
+    Sampler sampler = startProfiler();
     final HttpServer server = startHttpServer();
-    LOG.info("Server started and listening at {}", BASE_URI);
+    LOG.info("Server started and listening at {}", server.getListeners());
     latch.await();
     server.shutdown(30, TimeUnit.SECONDS);
     server.shutdownNow();

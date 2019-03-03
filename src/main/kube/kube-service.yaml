@@ -10,7 +10,8 @@ spec:
   clusterIP: 10.100.75.202
   externalTrafficPolicy: Cluster
   ports:
-  - nodePort: 31880
+  - name: http
+    nodePort: 31880
     port: 8080
     protocol: TCP
     targetPort: 8080

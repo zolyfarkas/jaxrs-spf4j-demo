@@ -17,18 +17,13 @@ import javax.ws.rs.core.Response;
 import org.junit.Assert;
 import org.apache.avro.reflect.AvroMeta;
 import org.apache.avro.reflect.AvroSchema;
-import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.client.proxy.WebResourceFactory;
-import org.junit.AfterClass;
 import org.junit.Test;
-import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spf4j.demo.avro.DemoRecord;
 import org.spf4j.demo.avro.DemoRecordInfo;
 import org.spf4j.demo.avro.MetaData;
-import org.spf4j.jaxrs.client.Spf4JClient;
-import org.spf4j.jaxrs.client.Spf4jWebTarget;
 import org.apache.avro.reflect.LogicalType;
 import org.spf4j.io.Streams;
 
@@ -36,30 +31,16 @@ import org.spf4j.io.Streams;
  *
  * @author Zoltan Farkas
  */
-public class ExampleResourceTest {
+public class ExampleResourceTest extends ServiceIntegrationBase {
+
   private static final Logger LOG = LoggerFactory.getLogger(ExampleResourceTest.class);
 
-  private static HttpServer server;
-  private static Spf4jWebTarget target;
-  private static Spf4JClient client;
-
-  @BeforeClass
-  public static void setUp() throws Exception {
-    // start the server
-    server = Main.startHttpServer();
-    client = DemoApplication.getInstance().getRestClient();
-    target = client.target(Main.BASE_URI).path("example/records");
-  }
-
-  @AfterClass
-  public static void tearDown() throws Exception {
-    server.shutdownNow();
-  }
 
   @Test
   public void testGetDemoRecordInfo() {
     List<DemoRecordInfo> records =
-            target.request(MediaType.APPLICATION_JSON).get(new GenericType<List<DemoRecordInfo>>() {});
+            getTarget().path("example/records")
+                    .request(MediaType.APPLICATION_JSON).get(new GenericType<List<DemoRecordInfo>>() {});
     LOG.debug("Received", records);
   }
 
@@ -67,7 +48,7 @@ public class ExampleResourceTest {
   public void testPostRecordInfo() {
     List<DemoRecordInfo> records =
             testRecords();
-    target.request()
+    getTarget().path("example/records").request()
             .post(Entity.entity(
                     new GenericEntity<>(records, new GenericType<List<DemoRecordInfo>>() {}.getType()),
                     MediaType.APPLICATION_JSON));
@@ -77,7 +58,7 @@ public class ExampleResourceTest {
   public void testPostRecordInfoStream() {
     List<DemoRecordInfo> records =
             testRecords();
-    Response post = target.path("stream").request()
+    Response post = getTarget().path("example/records/stream").request()
             .withTimeout(1000, TimeUnit.SECONDS)
             .post(Entity.entity(
                     new GenericEntity<>(records, new GenericType<List<DemoRecordInfo>>() {}.getType()),
@@ -107,14 +88,15 @@ public class ExampleResourceTest {
 
   @Test
   public void testRestClientGet() {
-    ExampleResource service = WebResourceFactory.newResource(ExampleResource.class, target);
+    ExampleResource service = WebResourceFactory.newResource(ExampleResource.class,
+            getTarget().path("example/records"));
     List<DemoRecordInfo> records = service.getRecords();
     LOG.debug("Received", records);
   }
 
   @Test
   public void testRestClientGetCsv() throws IOException {
-    InputStream records = target.request("text/csv").get(InputStream.class);
+    InputStream records = getTarget().path("example/records").request("text/csv").get(InputStream.class);
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     Streams.copy(records, bos);
     LOG.debug("Received", new String(bos.toByteArray(), StandardCharsets.UTF_8));
@@ -123,13 +105,13 @@ public class ExampleResourceTest {
   @Test
   public void testGetDemoRecordCsv() {
     List<DemoRecordInfo> records =
-            target.request("text/csv").get(new GenericType<List<DemoRecordInfo>>() {});
+            getTarget().path("example/records").request("text/csv").get(new GenericType<List<DemoRecordInfo>>() {});
     LOG.debug("Received", records);
   }
 
   @Test
   public void testRestClientPost() {
-    ExampleResource service = WebResourceFactory.newResource(ExampleResource.class, target);
+    ExampleResource service = WebResourceFactory.newResource(ExampleResource.class, getTarget().path("example/records"));
     List<DemoRecordInfo> records =
             testRecords();
     service.saveRecords(records);
@@ -137,7 +119,7 @@ public class ExampleResourceTest {
 
   @Test
   public void testRestClientRoundTrip() {
-    ExampleResource service = WebResourceFactory.newResource(ExampleResource.class, target);
+    ExampleResource service = WebResourceFactory.newResource(ExampleResource.class, getTarget().path("example/records"));
     List<DemoRecordInfo> records = service.getRecords();
     LOG.debug("Received", records);
     service.saveRecords(records);
@@ -178,7 +160,8 @@ public class ExampleResourceTest {
 
   @Test
   public void testTypesProjection() {
-    ExampleResourceExt service = WebResourceFactory.newResource(ExampleResourceExt.class, target);
+    ExampleResourceExt service = WebResourceFactory.newResource(ExampleResourceExt.class,
+            getTarget().path("example/records"));
     List<DemoProjection> myInterest = service.getRecordsProjection(DemoProjection.class);
     LOG.debug("My  projection!", myInterest);
   }

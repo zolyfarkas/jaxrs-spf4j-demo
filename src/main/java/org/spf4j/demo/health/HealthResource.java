@@ -24,9 +24,9 @@ import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.avro.HealthRecord;
 import org.spf4j.base.avro.HealthStatus;
 import org.spf4j.base.avro.PathEntry;
-import org.spf4j.jaxrs.Config;
 import org.spf4j.jaxrs.server.DebugDetailEntitlement;
 import org.spf4j.log.ExecContextLogger;
+import org.spf4j.jaxrs.ConfigProperty;
 
 /**
  * @author Zoltan Farkas
@@ -45,7 +45,7 @@ public final class HealthResource {
   @Inject
   public HealthResource(final Iterable<HealthCheck.Registration> healthChecks,
           final DebugDetailEntitlement ddEnt,
-          @Config("spf4j.jaxrs.serverHost") @DefaultValue("spf4j.jaxrs.serverHost") final String host) {
+          @ConfigProperty("spf4j.jaxrs.serverHost") @DefaultValue("spf4j.jaxrs.serverHost") final String host) {
     this.ddEnt = ddEnt;
     this.host = host;
     checks = new HashMap<>();

@@ -62,10 +62,12 @@ if adventurous you can try this in kubernetes:
 
   Install a kubernetes local cluster from (or use minikube): https://github.com/kubernetes-sigs/kubeadm-dind-cluster
 
+```
   kubectl create -f ./src/main/kube/kube-deployment.yaml
 
   kubectl create -f ./src/main/kube/kube-service.yaml
 
   kubectl port-forward  deployment/jaxrs-spf4j-demo 8080:8080
 
-  now you can hit the cluster.
+```
+  now you can access the clustervvia localhost:8080.

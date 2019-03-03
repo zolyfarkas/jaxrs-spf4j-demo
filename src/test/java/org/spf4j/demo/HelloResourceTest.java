@@ -13,12 +13,9 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.GenericType;
 
-import org.glassfish.grizzly.http.server.HttpServer;
 import org.hamcrest.Matchers;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,42 +25,17 @@ import org.spf4j.base.avro.ServiceError;
 import org.spf4j.concurrent.DefaultExecutor;
 import org.spf4j.failsafe.HedgePolicy;
 import org.spf4j.failsafe.TimeoutRelativeHedge;
-import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jInvocationBuilder;
-import org.spf4j.jaxrs.client.Spf4jWebTarget;
 import org.spf4j.log.Level;
-import org.spf4j.stackmonitor.Sampler;
 import org.spf4j.test.log.LogAssert;
 import org.spf4j.test.log.TestLogRecord;
 import org.spf4j.test.log.TestLoggers;
 import org.spf4j.test.log.annotations.ExpectLog;
 import org.spf4j.test.matchers.LogMatchers;
 
-public class HelloResourceTest {
+public class HelloResourceTest extends ServiceIntegrationBase {
 
   private static final Logger LOG = LoggerFactory.getLogger(HelloResourceTest.class);
-
-  private static HttpServer server;
-  private static Spf4jWebTarget target;
-  private static Spf4JClient client;
-  private static Sampler profiler;
-
-  @BeforeClass
-  public static void setUp() throws Exception {
-    // start the server
-    profiler = Main.startProfiler();
-    server = Main.startHttpServer();
-    client = DemoApplication.getInstance().getRestClient();
-    target = client.target(Main.BASE_URI);
-  }
-
-  @AfterClass
-  public static void tearDown() throws Exception {
-    server.shutdownNow();
-    LOG.debug("Stack samples dumped to {}", profiler.dumpToFile());
-    profiler.dispose();
-  }
-
 
   /**
    * Test to see that the message "Got it!" is sent in the response.
@@ -71,7 +43,7 @@ public class HelloResourceTest {
   @Test
   public void testHello() {
     for (int i = 0; i < 100; i++) {
-      Invocation.Builder request = target.path("demo/helloResource/hello").request();
+      Invocation.Builder request = getTarget().path("demo/helloResource/hello").request();
       String responseMsg = request.get(String.class);
       Assert.assertThat(responseMsg, Matchers.startsWith("Hello world"));
     }
@@ -80,7 +52,7 @@ public class HelloResourceTest {
   @Test
   public void testEchoCsvList() {
       List<Integer> expected = Arrays.asList(1,2,3,4);
-      Invocation.Builder request = target.path("demo/helloResource/csvListParamEcho")
+      Invocation.Builder request = getTarget().path("demo/helloResource/csvListParamEcho")
               .queryParam("lp", expected.stream().map((x) -> x.toString()).collect(Collectors.joining(",")))
               .request().accept("application/json");
       List<Integer> result = request.get(new GenericType<List<Integer>>() {});
@@ -90,7 +62,7 @@ public class HelloResourceTest {
 
   @Test
   public void test404() {
-      Invocation.Builder request = target.path("demo/helloResource/helloLalaland")
+      Invocation.Builder request = getTarget().path("demo/helloResource/helloLalaland")
               .request()
               .accept("text/html", "application/xhtml+xml", "application/xml;q=0.9", "*/*;q=0.8");
       try {
@@ -109,7 +81,7 @@ public class HelloResourceTest {
   @ExpectLog(level = Level.WARN, messageRegexp = "Done GET.*")
   @ExpectLog(level = Level.INFO, messageRegexp = "profileDetail")
   public void testSlowHello() {
-    Spf4jInvocationBuilder request = target.path("demo/helloResource/slowHello")
+    Spf4jInvocationBuilder request = getTarget().path("demo/helloResource/slowHello")
             .request().withTimeout(2, TimeUnit.SECONDS);
     String responseMsg = request.get(String.class);
     Assert.assertThat(responseMsg, Matchers.startsWith("Slow Hello world"));
@@ -123,8 +95,8 @@ public class HelloResourceTest {
   @ExpectLog(level = Level.ERROR, messageRegexp = "Done GET.*")
   @ExpectLog(level = Level.INFO, messageRegexp = "profileDetail")
   public void testSlowBrokenHello() {
-    Spf4jInvocationBuilder request = target.path("demo/helloResource/slowBrokenHello")
-            .request().withTimeout(2, TimeUnit.SECONDS);
+    Spf4jInvocationBuilder request = getTarget().path("demo/helloResource/slowBrokenHello")
+            .request().withTimeout(3, TimeUnit.SECONDS);
     try {
       request.get(String.class);
       Assert.fail();
@@ -136,7 +108,7 @@ public class HelloResourceTest {
 
   @Test
   public void testAHello() {
-    Invocation.Builder request = target.path("demo/helloResource/ahello").request();
+    Invocation.Builder request = getTarget().path("demo/helloResource/ahello").request();
     String responseMsg = request.get(String.class);
     Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
   }
@@ -146,7 +118,7 @@ public class HelloResourceTest {
     LogAssert expect = TestLoggers.sys().expect("", Level.ERROR,
             true, LogMatchers.hasMessageWithPattern(".*"),
             Matchers.any((Class) Iterable.class));
-    Invocation.Builder request = target.path("demo/helloResource/errorCustom").request();
+    Invocation.Builder request = getTarget().path("demo/helloResource/errorCustom").request();
     try {
       request.get(String.class);
       Assert.fail();
@@ -163,9 +135,10 @@ public class HelloResourceTest {
     LogAssert expect = TestLoggers.sys().expect("", Level.ERROR,
             false, LogMatchers.hasMessageWithPattern(".*"),
             Matchers.any((Class) Iterable.class));
-    Spf4jInvocationBuilder request = client.withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
+    Spf4jInvocationBuilder request = getClient()
+            .withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
             TimeUnit.MILLISECONDS.toNanos(200), 2))
-            .target(Main.BASE_URI).path("demo/helloResource/flakyHelloWorld").request();
+            .target(getLocalService()).path("demo/helloResource/flakyHelloWorld").request();
     Future<String> responseMsg = request.withTimeout(3000, TimeUnit.SECONDS)
             .buildGet().submit(String.class);
     Assert.assertThat(responseMsg.get(3000, TimeUnit.SECONDS), Matchers.startsWith("Hello World"));
@@ -176,8 +149,8 @@ public class HelloResourceTest {
 
   @Test
   public void testBuggyHelloWorld() throws InterruptedException, ExecutionException, TimeoutException {
-    Spf4jInvocationBuilder request = client.withHedgePolicy(HedgePolicy.NONE)
-        .target(Main.BASE_URI).path("demo/helloResource/buggyHelloWorld").request();
+    Spf4jInvocationBuilder request = getClient().withHedgePolicy(HedgePolicy.NONE)
+        .target(getLocalService()).path("demo/helloResource/buggyHelloWorld").request();
     try {
         request
             .withTimeout(3000, TimeUnit.SECONDS)
@@ -233,9 +206,10 @@ public class HelloResourceTest {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
             false, LogMatchers.hasMessageWithPattern("Done GET/helloResource.*"),
             Matchers.any((Class) Iterable.class));
-    Spf4jInvocationBuilder request = client.withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
+    Spf4jInvocationBuilder request = getClient().withHedgePolicy(
+            new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
         TimeUnit.MILLISECONDS.toNanos(200), 2))
-        .target(Main.BASE_URI).path("demo/helloResource/flakyHelloWorldSync").request()
+        .target(getLocalService()).path("demo/helloResource/flakyHelloWorldSync").request()
             .withTimeout(5, TimeUnit.SECONDS);
     String responseMsg = request.get(String.class);
     Assert.assertThat(responseMsg, Matchers.startsWith("Hello World"));
@@ -250,7 +224,7 @@ public class HelloResourceTest {
             true, LogMatchers.hasMessageWithPattern("Done GET.*"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
-      target.path("demo/helloResource/aTimeout")
+      getTarget().path("demo/helloResource/aTimeout")
              .request()
               .withTimeout(500, TimeUnit.MILLISECONDS)
               .get(String.class);
@@ -270,7 +244,7 @@ public class HelloResourceTest {
             true, LogMatchers.hasMessageWithPattern("Done GET.*aError"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
-      target.path("demo/helloResource/aError")
+      getTarget().path("demo/helloResource/aError")
              .request()
               .withTimeout(500000, TimeUnit.MILLISECONDS)
               .get(String.class);
@@ -290,7 +264,7 @@ public class HelloResourceTest {
             true, LogMatchers.hasMessageWithPattern("Done GET.*/helloResource/aError"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
-      target.path("demo/helloResource/aError")
+      getTarget().path("demo/helloResource/aError")
              .request()
               .withTimeout(500, TimeUnit.MILLISECONDS)
               .async().get(String.class).get();
@@ -306,7 +280,7 @@ public class HelloResourceTest {
 
   @Test
   public void testGetDeadline() throws InterruptedException {
-    Spf4jInvocationBuilder request = target.path("demo/helloResource/deadline")
+    Spf4jInvocationBuilder request = getTarget().path("demo/helloResource/deadline")
             .request();
     long deadline = System.currentTimeMillis() + 2000;
     Long responseMsg = request
@@ -325,7 +299,7 @@ public class HelloResourceTest {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
             true, Matchers.any(TestLogRecord.class),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
-    Invocation.Builder request = target.path("demo/helloResource/error").request();
+    Invocation.Builder request = getTarget().path("demo/helloResource/error").request();
     try {
       request.get(String.class);
       Assert.fail();

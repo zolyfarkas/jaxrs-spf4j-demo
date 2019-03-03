@@ -8,6 +8,7 @@ metadata:
     app: jaxrs-spf4j-demo
     version: 0.5-SNAPSHOT
   name: jaxrs-spf4j-demo
+  namespace: default
   selfLink: /apis/extensions/v1beta1/namespaces/default/deployments/jaxrs-spf4j-demo
 spec:
   progressDeadlineSeconds: 2147483647
@@ -32,7 +33,8 @@ spec:
     spec:
       containers:
       - image: zolyfarkas/jaxrs-spf4j-demo:0.5-SNAPSHOT
-        imagePullPolicy: IfNotPresent
+        # IfNotPresent | Always ...
+        imagePullPolicy: Always
         name: jaxrs-spf4j-demo
         resources:
           requests:
@@ -43,6 +45,11 @@ spec:
           procMount: Default
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
+        env:
+          - name: KUBE_NAME_SPACE
+            value: default
+          - name: KUBE_APP_NAME
+            value: jaxrs-spf4j-demo
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler

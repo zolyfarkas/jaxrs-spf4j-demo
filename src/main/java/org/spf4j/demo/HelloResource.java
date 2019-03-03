@@ -23,6 +23,7 @@ import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.Timing;
 import org.spf4j.concurrent.DefaultContextAwareExecutor;
+import org.spf4j.jaxrs.ConfigProperty;
 import org.spf4j.jaxrs.CsvParam;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
@@ -38,9 +39,12 @@ public class HelloResource {
 
   private final Spf4JClient cl;
 
+  private final int port;
+
   @Inject
-  public HelloResource(final Spf4JClient cl) {
+  public HelloResource(final Spf4JClient cl, @ConfigProperty("servlet.port") final int port) {
     this.cl = cl;
+    this.port = port;
   }
 
   @GET
@@ -139,7 +143,7 @@ public class HelloResource {
   @Path("flakyHelloWorld")
   public void flakyHelloWorld(@Suspended final AsyncResponse ar) throws InterruptedException, TimeoutException {
     beFlaky();
-    Spf4jWebTarget base = cl.target(Main.BASE_URI).path("demo/helloResource");
+    Spf4jWebTarget base = cl.target("http://localhost:" + port).path("demo/helloResource");
     base.path("flakyHello").request(MediaType.TEXT_PLAIN).rx().get(String.class)
             .thenCombine(base.path("flakyWorld").request(MediaType.TEXT_PLAIN).rx().get(String.class),
                     (h, w) -> h + ' ' + w
@@ -157,7 +161,7 @@ public class HelloResource {
   @Produces(MediaType.TEXT_PLAIN)
   @Path("buggyHelloWorld")
   public void buggyHelloWorld(@Suspended final AsyncResponse ar) throws InterruptedException, TimeoutException {
-    Spf4jWebTarget base = cl.target(Main.BASE_URI).path("demo/404");
+    Spf4jWebTarget base = cl.target("http://localhost:" + port).path("demo/404");
     CompletionStage<String> cf1 = base.path("flakyHello").request(MediaType.TEXT_PLAIN).rx().get(String.class);
     CompletionStage<String> cf2 = base.path("flakyWorld").request(MediaType.TEXT_PLAIN).rx().get(String.class);
     cf1.thenCombine(cf2, (h, w) -> h + ' ' + w
@@ -176,7 +180,7 @@ public class HelloResource {
   @Path("flakyHelloWorldSync")
   public String flakyHelloWorldSync() throws InterruptedException, TimeoutException {
     beFlaky();
-    Spf4jWebTarget base = cl.target(Main.BASE_URI).path("demo/helloResource");
+    Spf4jWebTarget base = cl.target("http://localhost:" + port).path("demo/helloResource");
     return base.path("flakyHello").request(MediaType.TEXT_PLAIN).get(String.class)
             + ' ' + base.path("flakyWorld").request(MediaType.TEXT_PLAIN).get(String.class);
   }
