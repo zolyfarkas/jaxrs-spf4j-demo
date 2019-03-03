@@ -69,6 +69,11 @@
   <dependencies>
     <dependency>
       <groupId>org.spf4j</groupId>
+      <artifactId>spf4j-logback</artifactId>
+      <version>1.2.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.spf4j</groupId>
       <artifactId>spf4j-slf4j-test</artifactId>
       <scope>test</scope>
       <version>${spf4j.version}</version>
@@ -92,12 +97,6 @@
       <groupId>org.spf4j.demo</groupId>
       <artifactId>jaxrs-spf4j-demo-schema</artifactId>
       <version>0.2</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.spf4j</groupId>
-      <artifactId>spf4j-logback</artifactId>
-      <version>1.2.1-SNAPSHOT</version>
     </dependency>
 
     <dependency>

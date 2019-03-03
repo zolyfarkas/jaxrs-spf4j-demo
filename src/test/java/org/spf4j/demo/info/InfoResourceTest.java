@@ -14,13 +14,11 @@ import org.spf4j.demo.ServiceIntegrationBase;
 import static org.spf4j.demo.ServiceIntegrationBase.getTarget;
 
 /**
- *
  * @author Zoltan Farkas
  */
 public class InfoResourceTest extends ServiceIntegrationBase {
 
   private static final Logger LOG = LoggerFactory.getLogger(InfoResourceTest.class);
-
 
   @Test
   public void testInfo() {
@@ -29,7 +27,7 @@ public class InfoResourceTest extends ServiceIntegrationBase {
     Assert.assertNotNull(ai);
   }
 
-  @Test
+  @Test(timeout = 10000)
   public void testClusterInfo() throws MalformedURLException {
     new URL("file://manifest/Implementation-Url");
     ClusterInfo ai = getTarget().path("info/cluster").request(MediaType.APPLICATION_JSON).get(ClusterInfo.class);

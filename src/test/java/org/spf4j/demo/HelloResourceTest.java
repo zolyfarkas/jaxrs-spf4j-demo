@@ -310,8 +310,16 @@ public class HelloResourceTest extends ServiceIntegrationBase {
   }
 
   @Test
-  public void testSplit() {
-    LOG.debug("split ={}", "a   b c ".split("[ ]+"));
+  public void testGetErrorIDE() {
+
+    Invocation.Builder request = getTarget().path("demo/helloResource/error").request();
+    try {
+      request.get(String.class);
+      Assert.fail();
+    } catch (WebApplicationException ex) {
+      LOG.debug("Expected Error Response", ex.getResponse().getEntity(), ex);
+    }
   }
+
 
 }

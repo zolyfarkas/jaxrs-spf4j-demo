@@ -24,7 +24,7 @@ import org.spf4j.jaxrs.client.Spf4JClient;
 @Path("info")
 @Produces(value = {"application/avro", "application/avro-x+json", "application/octet-stream",
     "application/json"})
-public final class InfoResource {
+public class InfoResource {
 
   private final Cluster cluster;
 

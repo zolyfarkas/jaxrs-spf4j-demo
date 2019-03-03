@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -155,7 +156,8 @@ public class DemoApplication extends ResourceConfig {
             caCert = null;
           }
           bind(new KubeCluster(new Client(
-                  Files.readString(Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/token")),
+                  Files.readString(
+                          Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/token"), StandardCharsets.UTF_8),
                   caCert),
                   kubeNameSpace, System.getenv("KUBE_APP_NAME")))
                   .to(Cluster.class);
