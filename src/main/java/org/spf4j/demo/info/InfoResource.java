@@ -10,12 +10,15 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spf4j.base.avro.ApplicationInfo;
 import org.spf4j.base.avro.NetworkService;
 import org.spf4j.base.avro.ProcessInfo;
 import org.spf4j.cluster.Cluster;
 import org.spf4j.cluster.ClusterInfo;
 import org.spf4j.jaxrs.client.Spf4JClient;
+import org.spf4j.log.ExecContextLogger;
 
 /**
  *
@@ -25,6 +28,8 @@ import org.spf4j.jaxrs.client.Spf4JClient;
 @Produces(value = {"application/avro", "application/avro-x+json", "application/octet-stream",
     "application/json"})
 public class InfoResource {
+
+  private static final Logger LOG = new ExecContextLogger(LoggerFactory.getLogger(InfoResource.class));
 
   private final Cluster cluster;
 
@@ -72,7 +77,9 @@ public class InfoResource {
       service = clusterInfo.getService("https");
     }
     for (InetAddress addr : peerAddresses) {
-      result.add(httpClient.target(service.getName() + "://" + addr.toString() + ':' + service.getPort() + "/info/node")
+      String url = service.getName() + "://" + addr.getHostAddress() + ':' + service.getPort() + "/info/node";
+      LOG.debug("calling {}", url);
+      result.add(httpClient.target(url)
               .request("application/avro").get(ProcessInfo.class));
     }
     return new org.spf4j.base.avro.ClusterInfo(getApplicationInfo(), result);

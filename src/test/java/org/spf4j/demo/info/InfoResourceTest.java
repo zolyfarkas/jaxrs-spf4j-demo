@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spf4j.base.avro.ApplicationInfo;
 import org.spf4j.base.avro.ClusterInfo;
+import org.spf4j.base.avro.ProcessInfo;
 import org.spf4j.demo.ServiceIntegrationBase;
 import static org.spf4j.demo.ServiceIntegrationBase.getTarget;
 
@@ -29,9 +30,15 @@ public class InfoResourceTest extends ServiceIntegrationBase {
 
   @Test(timeout = 10000)
   public void testClusterInfo() throws MalformedURLException {
-    new URL("file://manifest/Implementation-Url");
     ClusterInfo ai = getTarget().path("info/cluster").request(MediaType.APPLICATION_JSON).get(ClusterInfo.class);
     LOG.debug("cluster info", ai);
+    Assert.assertNotNull(ai);
+  }
+
+  @Test(timeout = 10000)
+  public void testProcessInfo() throws MalformedURLException {
+    ProcessInfo ai = getTarget().path("info/node").request("application/avro").get(ProcessInfo.class);
+    LOG.debug("process info", ai);
     Assert.assertNotNull(ai);
   }
 
