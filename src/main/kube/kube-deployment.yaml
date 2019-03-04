@@ -59,6 +59,8 @@ spec:
               fieldRef:
                 fieldPath: metadata.namespace
           - name: KUBE_APP_NAME
+            value: jaxrs-spf4j-demo
+          - name: KUBE_POD_NAME
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
