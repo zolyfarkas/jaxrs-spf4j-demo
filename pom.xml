@@ -69,14 +69,14 @@
   <dependencies>
     <dependency>
       <groupId>org.spf4j</groupId>
-      <artifactId>spf4j-logback</artifactId>
-      <version>1.2.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.spf4j</groupId>
       <artifactId>spf4j-slf4j-test</artifactId>
       <scope>test</scope>
       <version>${spf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.spf4j</groupId>
+      <artifactId>spf4j-logback</artifactId>
+      <version>1.2.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.spf4j</groupId>
@@ -87,11 +87,6 @@
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-jaxrs-kube</artifactId>
       <version>2.1.5-SNAPSHOT</version>
-    </dependency>
-    <dependency> <!-- missing in jdk 11 -->
-      <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
-      <version>1.1.1</version>
     </dependency>
     <dependency>
       <groupId>org.spf4j.demo</groupId>
