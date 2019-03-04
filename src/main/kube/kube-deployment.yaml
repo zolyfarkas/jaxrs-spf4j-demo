@@ -34,7 +34,7 @@ spec:
       volumes:
         - name: logs-storage
           hostPath:
-            path: /var/logs/apps/$(KUBE_APP_NAME)
+            path: /var/log/apps/jaxrs-spf4j-demo
             type: DirectoryOrCreate
       containers:
       - image: zolyfarkas/jaxrs-spf4j-demo:0.5-SNAPSHOT
