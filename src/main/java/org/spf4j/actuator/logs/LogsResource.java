@@ -96,11 +96,11 @@ public class LogsResource {
     Collections.sort(result, new Comparator<LogRecord>() {
       @Override
       public int compare(final LogRecord o1, final LogRecord o2) {
-        return o1.compareTo(o2);
+        return o1.getTs().compareTo(o2.getTs());
       }
     });
     int size = result.size();
-    return result.subList(size - limit, size);
+    return result.subList(Math.max(0, size - limit), size);
   }
 
 
