@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-
+   <shutdownHook/>
 	<appender name="default" class="org.spf4j.log.AvroDataFileAppender">
           <fileNameBase>${appName}</fileNameBase>
           <destinationPath>/var/log</destinationPath>

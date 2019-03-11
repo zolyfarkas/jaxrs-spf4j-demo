@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+     <shutdownHook/>
 
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
           <encoder class="org.spf4j.log.ReadableLogbackEncoder"/>
