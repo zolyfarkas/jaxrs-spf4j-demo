@@ -28,6 +28,7 @@ import org.spf4j.stackmonitor.TracingExecutionContexSampler;
 public class Main {
 
   static {
+    System.setProperty("appName", System.getenv("KUBE_APP_NAME"));
     SLF4JBridgeHandler.removeHandlersForRootLogger();
     SLF4JBridgeHandler.install();
     // Enable Continuous profiling.
@@ -126,7 +127,6 @@ public class Main {
    * @throws IOException
    */
   public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
-    System.setProperty("appName", System.getenv("KUBE_APP_NAME"));
     final CountDownLatch latch = new CountDownLatch(1);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
