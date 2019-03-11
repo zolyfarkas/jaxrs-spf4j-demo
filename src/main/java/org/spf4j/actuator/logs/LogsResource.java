@@ -1,6 +1,7 @@
 
 package org.spf4j.actuator.logs;
 
+import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -63,7 +64,10 @@ public class LogsResource {
     if (fa == null) {
       throw new NotFoundException("Resource not available: " + appenderName);
     }
-    return fa.getLogs(tailOffset, limit);
+    ClusterInfo clusterInfo = cluster.getClusterInfo();
+    String hostName = Sets.intersection(clusterInfo.getLocalAddresses(), clusterInfo.getAddresses())
+            .iterator().next().getHostName();
+    return fa.getLogs(hostName, tailOffset, limit);
   }
 
   @Path("cluster")

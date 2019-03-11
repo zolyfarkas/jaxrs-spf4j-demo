@@ -73,6 +73,11 @@
       <scope>test</scope>
       <version>${spf4j.version}</version>
     </dependency>
+    <dependency> <!-- jersey wants this, otherwise some ugly warn message in the logs -->
+      <groupId>javax.activation</groupId>
+      <artifactId>activation</artifactId>
+      <version>1.1.1</version>
+    </dependency>
     <dependency>
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-logback</artifactId>
