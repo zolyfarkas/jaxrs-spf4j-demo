@@ -25,8 +25,8 @@ import org.spf4j.log.ExecContextLogger;
  * @author Zoltan Farkas
  */
 @Path("info")
-@Produces(value = {"application/avro", "application/avro-x+json", "application/octet-stream",
-    "application/json"})
+@Produces(value = {"application/avro-x+json", "application/json",
+  "application/avro+json", "application/avro", "application/octet-stream"})
 public class InfoResource {
 
   private static final Logger LOG = new ExecContextLogger(LoggerFactory.getLogger(InfoResource.class));

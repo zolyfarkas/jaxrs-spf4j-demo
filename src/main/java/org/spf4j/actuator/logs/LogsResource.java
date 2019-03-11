@@ -32,8 +32,8 @@ import org.spf4j.log.LogbackUtils;
  * @author Zoltan Farkas
  */
 @Path("logs")
-@Produces(value = {"application/avro", "application/avro-x+json", "application/octet-stream",
-    "application/json"})
+@Produces(value = {"application/avro-x+json", "application/json",
+  "application/avro+json", "application/avro", "application/octet-stream"})
 public class LogsResource {
 
   private final Cluster cluster;

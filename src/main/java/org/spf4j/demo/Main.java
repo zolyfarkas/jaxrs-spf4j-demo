@@ -126,6 +126,7 @@ public class Main {
    * @throws IOException
    */
   public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
+    System.setProperty("appName", System.getenv("KUBE_APP_NAME"));
     final CountDownLatch latch = new CountDownLatch(1);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
