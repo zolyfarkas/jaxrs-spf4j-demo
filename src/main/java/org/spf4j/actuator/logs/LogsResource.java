@@ -18,7 +18,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.GenericType;
-import org.spf4j.base.avro.ApplicationInfo;
 import org.spf4j.base.avro.LogRecord;
 import org.spf4j.base.avro.NetworkService;
 import org.spf4j.cluster.Cluster;
@@ -47,31 +46,34 @@ public class LogsResource {
     this.httpClient = httpClient;
   }
 
+  @Path("local")
   @GET
-  public ApplicationInfo getApplicationInfo() {
-    return org.spf4j.base.Runtime.getApplicationInfo();
+  public List<LogRecord> getLocalLogs(@QueryParam("tailOffset") @DefaultValue("0") final long tailOffset,
+          @QueryParam("limit") @DefaultValue("1000") final int limit) throws IOException {
+    return getLocalLogs(tailOffset, limit, "default");
   }
 
-  @Path("local/{appenderName:.*}")
+  @Path("local/{appenderName}")
   @GET
   public List<LogRecord> getLocalLogs(@QueryParam("tailOffset") @DefaultValue("0") final long tailOffset,
           @QueryParam("limit") @DefaultValue("1000") final int limit,
           @PathParam("appenderName") final String appenderName) throws IOException {
     Map<String, AvroDataFileAppender> appenders = LogbackUtils.getConfiguredFileAppenders();
-    AvroDataFileAppender fa;
-    if (appenderName == null || appenderName.isEmpty()) {
-      fa = appenders.get("default");
-    } else {
-       fa = appenders.get(appenderName);
-    }
+    AvroDataFileAppender fa = appenders.get(appenderName);
     if (fa == null) {
       throw new NotFoundException("Resource not available: " + appenderName);
     }
     return fa.getLogs(tailOffset, limit);
   }
 
+  @Path("cluster")
+  @GET
+  public List<LogRecord> getClusterLogs(@QueryParam("limit") @DefaultValue("1000")final int limit) throws IOException {
+    return getClusterLogs(limit, "default");
+  }
 
-  @Path("cluster/{appenderName:.*}")
+
+  @Path("cluster/{appenderName}")
   @GET
   public List<LogRecord> getClusterLogs(@QueryParam("limit") @DefaultValue("1000")final int limit,
           @PathParam("appenderName") final String appender) throws IOException {
@@ -86,10 +88,8 @@ public class LogsResource {
     for (InetAddress addr : peerAddresses) {
       String url = service.getName() + "://" + addr.getHostAddress() + ':' + service.getPort() + "/logs/local";
       Spf4jWebTarget invTarget = httpClient.target(url)
+              .path(appender)
               .queryParam("limit", limit);
-      if (appender != null && !appender.isEmpty()) {
-        invTarget = invTarget.path(appender);
-      }
       result.addAll(invTarget
               .request("application/avro").get(new GenericType<List<LogRecord>>() {}));
     }

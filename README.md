@@ -70,4 +70,12 @@ if adventurous you can try this in kubernetes:
   kubectl port-forward  deployment/jaxrs-spf4j-demo 8080:8080
 
 ```
-  now you can access the clustervvia localhost:8080.
+  now you can access the cluster vvia localhost:8080.
+
+ and try out additionally some cluster endpoints:
+
+```
+  * [app cluster info](http://127.0.0.1:8080/info/cluster?_Accept=application/json)
+  * [app logs info](http://127.0.0.1:8080/logs/cluster?_Accept=application/json)
+
+```
