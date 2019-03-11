@@ -1,5 +1,5 @@
 
-package org.spf4j.demo.info;
+package org.spf4j.actuator.info;
 
 import java.net.MalformedURLException;
 import java.net.URL;
