@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-          <encoder class="org.spf4j.log.ReadableLogbackEncoder"/>
-              <!-- you want JSON, use this:
-		<encoder class="org.spf4j.log.AvroLogbackEncoder"/>
-              -->
+	<appender name="default" class="org.spf4j.log.AvroDataFileAppender">
+          <fileNameBase>${appName}</fileNameBase>
+          <destinationPath>/var/log</destinationPath>
 	</appender>
 
+        <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+          <appender-ref ref="default"/>
+          <queueSize>500</queueSize>
+          <maxFlushTime>1000</maxFlushTime>
+       </appender>
+
 	<logger name="org.spf4j" level="info" additivity="false">
-		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="ASYNC_FILE" />
 	</logger>
 
 	<root level="warn">
-          <appender-ref ref="CONSOLE" />
+          <appender-ref ref="ASYNC_FILE" />
 	</root>
 
 </configuration>

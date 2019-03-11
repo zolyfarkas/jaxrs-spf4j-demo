@@ -1,5 +1,5 @@
 
-package org.spf4j.demo.info;
+package org.spf4j.actuator.info;
 
 import com.google.common.collect.Sets;
 import java.net.InetAddress;
@@ -46,7 +46,7 @@ public class InfoResource {
     return org.spf4j.base.Runtime.getApplicationInfo();
   }
 
-  @Path("node")
+  @Path("local")
   @GET
   public ProcessInfo getProcessInfo() {
     ClusterInfo clusterInfo = cluster.getClusterInfo();
@@ -78,7 +78,7 @@ public class InfoResource {
       service = clusterInfo.getService("https");
     }
     for (InetAddress addr : peerAddresses) {
-      String url = service.getName() + "://" + addr.getHostAddress() + ':' + service.getPort() + "/info/node";
+      String url = service.getName() + "://" + addr.getHostAddress() + ':' + service.getPort() + "/info/local";
       LOG.debug("calling {}", url);
       result.add(httpClient.target(url)
               .request("application/avro").get(ProcessInfo.class));

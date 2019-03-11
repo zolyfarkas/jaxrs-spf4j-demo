@@ -22,7 +22,6 @@ import javax.servlet.ServletRegistration;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import org.apache.avro.AvroNamesRefResolver;
 import org.apache.avro.SchemaResolvers;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientProperties;
@@ -69,7 +68,7 @@ public class DemoApplication extends ResourceConfig {
     } catch (URISyntaxException ex) {
       throw new RuntimeException(ex);
     }
-    SchemaResolvers.registerDefault(new AvroNamesRefResolver(schemaClient));
+    SchemaResolvers.registerDefault(schemaClient);
     AvroFeature avroFeature = new AvroFeature(new DefaultSchemaProtocol(schemaClient), schemaClient);
     restClient = new Spf4JClient(ClientBuilder
             .newBuilder()

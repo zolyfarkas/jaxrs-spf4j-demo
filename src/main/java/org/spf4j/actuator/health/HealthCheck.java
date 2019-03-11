@@ -1,5 +1,5 @@
 
-package org.spf4j.demo.health;
+package org.spf4j.actuator.health;
 
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;

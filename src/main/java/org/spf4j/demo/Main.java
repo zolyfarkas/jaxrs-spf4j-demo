@@ -59,7 +59,7 @@ public class Main {
     servletRegistration.setInitParameter("javax.ws.rs.Application", "org.spf4j.demo.DemoApplication");
     servletRegistration.setInitParameter(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, "true");
     servletRegistration.setInitParameter(ServerProperties.PROVIDER_PACKAGES,
-            "org.spf4j.jaxrs.server;org.spf4j.demo");
+            "org.spf4j.jaxrs.server;org.spf4j.demo;org.spf4j.actuator");
 //    servletRegistration.setInitParameter("jersey.config.server.tracing.type", "ALL");
     servletRegistration.setInitParameter("baseUri", "http://0.0.0.0:" + port + '/');
     servletRegistration.setInitParameter("servlet.port", Integer.toString(port));

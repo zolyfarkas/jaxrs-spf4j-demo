@@ -1,4 +1,4 @@
-package org.spf4j.demo.health;
+package org.spf4j.actuator.health;
 
 import java.util.ArrayList;
 import java.util.HashMap;
