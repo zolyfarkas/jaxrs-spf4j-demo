@@ -37,7 +37,7 @@ public class InfoResourceTest extends ServiceIntegrationBase {
 
   @Test(timeout = 10000)
   public void testProcessInfo() throws MalformedURLException {
-    ProcessInfo ai = getTarget().path("info/node").request("application/avro").get(ProcessInfo.class);
+    ProcessInfo ai = getTarget().path("info/local").request("application/avro").get(ProcessInfo.class);
     LOG.debug("process info", ai);
     Assert.assertNotNull(ai);
   }
