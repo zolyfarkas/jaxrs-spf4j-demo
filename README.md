@@ -76,6 +76,8 @@ if adventurous you can try this in kubernetes:
 
 ```
   * [app cluster info](http://127.0.0.1:8080/info/cluster?_Accept=application/json)
-  * [app logs info](http://127.0.0.1:8080/logs/cluster?_Accept=application/json)
+  * [debug a request](http://127.0.0.1:8080/info/cluster?_Accept=application/json&_log-level=DEBUG)
+  * [see app logs](http://127.0.0.1:8080/logs/cluster)
+  * [see app logs as json](http://127.0.0.1:8080/logs/cluster?_Accept=application/json)
 
 ```

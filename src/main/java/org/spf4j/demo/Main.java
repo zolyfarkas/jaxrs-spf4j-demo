@@ -28,7 +28,10 @@ import org.spf4j.stackmonitor.TracingExecutionContexSampler;
 public class Main {
 
   static {
-    System.setProperty("appName", System.getenv("KUBE_APP_NAME"));
+    String appName = System.getenv("KUBE_APP_NAME");
+    if (appName != null) {
+      System.setProperty("appName", appName);
+    }
     SLF4JBridgeHandler.removeHandlersForRootLogger();
     SLF4JBridgeHandler.install();
     // Enable Continuous profiling.

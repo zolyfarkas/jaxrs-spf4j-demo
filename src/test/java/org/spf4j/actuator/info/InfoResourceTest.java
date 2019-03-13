@@ -2,7 +2,6 @@
 package org.spf4j.actuator.info;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import javax.ws.rs.core.MediaType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,7 +22,9 @@ public class InfoResourceTest extends ServiceIntegrationBase {
 
   @Test
   public void testInfo() {
-    ApplicationInfo ai = getTarget().path("info").request(MediaType.APPLICATION_JSON).get(ApplicationInfo.class);
+    ApplicationInfo ai = getTarget().path("info")
+            .queryParam("_Acccept", "application/avro")
+            .request(MediaType.APPLICATION_JSON).get(ApplicationInfo.class);
     LOG.debug("application info", ai);
     Assert.assertNotNull(ai);
   }
