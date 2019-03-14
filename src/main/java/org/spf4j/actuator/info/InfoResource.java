@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import org.glassfish.hk2.api.Immediate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spf4j.base.avro.ApplicationInfo;
@@ -27,6 +28,7 @@ import org.spf4j.log.ExecContextLogger;
 @Path("info")
 @Produces(value = {"application/avro-x+json", "application/json",
   "application/avro+json", "application/avro", "application/octet-stream"})
+@Immediate
 public class InfoResource {
 
   private static final Logger LOG = new ExecContextLogger(LoggerFactory.getLogger(InfoResource.class));
@@ -35,10 +37,15 @@ public class InfoResource {
 
   private final Spf4JClient httpClient;
 
+  private final String hostName;
+
   @Inject
   public InfoResource(final Cluster cluster, final Spf4JClient httpClient) {
     this.cluster = cluster;
     this.httpClient = httpClient;
+    ClusterInfo clusterInfo = cluster.getClusterInfo();
+    this.hostName = Sets.intersection(clusterInfo.getLocalAddresses(), clusterInfo.getAddresses())
+                    .iterator().next().getHostName();
   }
 
   @GET
@@ -56,8 +63,7 @@ public class InfoResource {
   private ProcessInfo getProcessInfo(final ClusterInfo clusterInfo) {
     return ProcessInfo.newBuilder()
             .setAppVersion(org.spf4j.base.Runtime.getAppVersionString())
-            .setHostName(Sets.intersection(clusterInfo.getLocalAddresses(), clusterInfo.getAddresses())
-                    .iterator().next().getHostName())
+            .setHostName(hostName)
             .setInstanceId(org.spf4j.base.Runtime.PROCESS_ID)
             .setName(org.spf4j.base.Runtime.PROCESS_NAME)
             .setJreVersion(org.spf4j.base.Runtime.JAVA_VERSION)

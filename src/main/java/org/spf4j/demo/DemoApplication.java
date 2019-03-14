@@ -23,9 +23,13 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import org.apache.avro.SchemaResolvers;
+import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.spi.Container;
+import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 import org.spf4j.avro.SchemaClient;
 import org.spf4j.base.avro.NetworkProtocol;
 import org.spf4j.base.avro.NetworkService;
@@ -59,7 +63,9 @@ public class DemoApplication extends ResourceConfig {
 
   private final ServletContext srvContext;
 
-  public DemoApplication(@Context ServletContext srvContext) {
+  @Inject
+  public DemoApplication(@Context ServletContext srvContext, ServiceLocator locator) {
+    ServiceLocatorUtilities.enableImmediateScope(locator);
     DefaultDeadlineProtocol dp = new DefaultDeadlineProtocol();
     FilterRegistration testFilterReg = srvContext.addFilter("server", new ExecutionContextFilter(dp));
     testFilterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");

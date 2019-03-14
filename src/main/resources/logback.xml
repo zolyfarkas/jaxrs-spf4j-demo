@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
    <shutdownHook/>
+
+  	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+          <encoder class="org.spf4j.log.ReadableLogbackEncoder"/>
+              <!-- you want JSON, use this:
+		<encoder class="org.spf4j.log.AvroLogbackEncoder"/>
+              -->
+	</appender>
+
 	<appender name="default" class="org.spf4j.log.AvroDataFileAppender">
           <fileNameBase>${appName}</fileNameBase>
           <destinationPath>/var/log</destinationPath>
@@ -18,6 +26,11 @@
 
 	<root level="warn">
           <appender-ref ref="ASYNC_FILE" />
+          <appender-ref ref="CONSOLE" >
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+              <level>ERROR</level>
+            </filter>
+          </appender-ref>
 	</root>
 
 </configuration>

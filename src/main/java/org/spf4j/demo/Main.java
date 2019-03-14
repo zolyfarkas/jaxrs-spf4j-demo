@@ -95,7 +95,7 @@ public class Main {
                 .setCode(status)
                 .setMessage(reasonPhrase + ';' +  description)
                 .setDetail(new DebugDetail("origin", Collections.EMPTY_LIST,
-                        Converters.convert(exception), Collections.EMPTY_LIST))
+                       exception != null ? Converters.convert(exception) : null, Collections.EMPTY_LIST))
                 .build();
         ByteArrayBuilder bab = new ByteArrayBuilder(256);
         XJsonAvroMessageBodyWriter writer = new XJsonAvroMessageBodyWriter(new DefaultSchemaProtocol(schemaClient));
@@ -103,7 +103,17 @@ public class Main {
           writer.writeTo(err, err.getClass(), err.getClass(),
                   Arrays.EMPTY_ANNOT_ARRAY, MediaType.APPLICATION_JSON_TYPE, new MultivaluedHashMap<>(2),
                   bab);
-        } catch (IOException ex) {
+        } catch (RuntimeException ex) {
+          if (exception != null) {
+            ex.addSuppressed(exception);
+          }
+          LOG.error("Exception while writing detail", ex);
+          throw ex;
+        }  catch (IOException ex) {
+          if (exception != null) {
+            ex.addSuppressed(exception);
+          }
+          LOG.error("Exception while writing detail", ex);
           throw new UncheckedIOException(ex);
         }
         return bab.toString(StandardCharsets.UTF_8);

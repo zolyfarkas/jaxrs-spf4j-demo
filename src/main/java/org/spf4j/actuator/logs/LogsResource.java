@@ -139,7 +139,7 @@ public class LogsResource {
     ClusterInfo clusterInfo = cluster.getClusterInfo();
     Set<InetAddress> peerAddresses = clusterInfo.getPeerAddresses();
     List<LogRecord> result = new ArrayList(limit * peerAddresses.size());
-    result.addAll(getLocalLogs(0, limit, appender));
+    result.addAll(getLocalLogs(0, limit, filter, appender));
     NetworkService service = clusterInfo.getService("http");
     if (service == null) {
       service = clusterInfo.getService("https");
@@ -149,6 +149,9 @@ public class LogsResource {
       Spf4jWebTarget invTarget = httpClient.target(url)
               .path(appender)
               .queryParam("limit", limit);
+      if (filter != null) {
+        invTarget = invTarget.queryParam("filter", filter);
+      }
       result.addAll(invTarget
               .request("application/avro").get(new GenericType<List<LogRecord>>() {}));
     }
