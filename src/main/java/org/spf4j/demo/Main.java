@@ -2,10 +2,17 @@ package org.spf4j.demo;
 
 import org.glassfish.grizzly.http.server.HttpServer;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
+import org.glassfish.grizzly.http.server.ErrorPageGenerator;
 import org.glassfish.grizzly.http.server.NetworkListener;
+import org.glassfish.grizzly.http.server.Request;
 import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
 import org.glassfish.grizzly.servlet.FixedWebappContext;
 import org.glassfish.grizzly.servlet.ServletRegistration;
@@ -13,8 +20,16 @@ import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spf4j.avro.SchemaClient;
+import org.spf4j.base.Arrays;
 import org.spf4j.base.ExecutionContexts;
+import org.spf4j.base.avro.Converters;
+import org.spf4j.base.avro.DebugDetail;
+import org.spf4j.base.avro.ServiceError;
 import org.spf4j.concurrent.LifoThreadPoolBuilder;
+import org.spf4j.io.ByteArrayBuilder;
+import org.spf4j.jaxrs.common.avro.DefaultSchemaProtocol;
+import org.spf4j.jaxrs.common.avro.XJsonAvroMessageBodyWriter;
 import org.spf4j.log.SLF4JBridgeHandler;
 import org.spf4j.stackmonitor.ProfiledExecutionContextFactory;
 import org.spf4j.stackmonitor.ProfilingTLAttacher;
@@ -71,6 +86,29 @@ public class Main {
     servletRegistration.setInitParameter(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, "true");
     servletRegistration.setLoadOnStartup(0);
     HttpServer server = new HttpServer();
+    server.getServerConfiguration()
+            .setDefaultErrorPageGenerator(new ErrorPageGenerator() {
+      @Override
+      public String generate(Request request, int status, String reasonPhrase, String description, Throwable exception) {
+        SchemaClient schemaClient = DemoApplication.getInstance().getSchemaClient();
+        ServiceError err = ServiceError.newBuilder()
+                .setCode(status)
+                .setMessage(reasonPhrase + ';' +  description)
+                .setDetail(new DebugDetail("origin", Collections.EMPTY_LIST,
+                        Converters.convert(exception), Collections.EMPTY_LIST))
+                .build();
+        ByteArrayBuilder bab = new ByteArrayBuilder(256);
+        XJsonAvroMessageBodyWriter writer = new XJsonAvroMessageBodyWriter(new DefaultSchemaProtocol(schemaClient));
+        try {
+          writer.writeTo(err, err.getClass(), err.getClass(),
+                  Arrays.EMPTY_ANNOT_ARRAY, MediaType.APPLICATION_JSON_TYPE, new MultivaluedHashMap<>(2),
+                  bab);
+        } catch (IOException ex) {
+          throw new UncheckedIOException(ex);
+        }
+        return bab.toString(StandardCharsets.UTF_8);
+      }
+    });
 //  final ServerConfiguration config = server.getServerConfiguration();
 //  config.addHttpHandler(new StaticHttpHandler(docRoot), "/");
     final NetworkListener listener

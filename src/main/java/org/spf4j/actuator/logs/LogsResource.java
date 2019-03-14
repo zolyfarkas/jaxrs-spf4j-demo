@@ -12,7 +12,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -32,6 +34,8 @@ import org.spf4j.jaxrs.client.Spf4jWebTarget;
 import org.spf4j.log.AvroDataFileAppender;
 import org.spf4j.log.LogPrinter;
 import org.spf4j.log.LogbackUtils;
+import org.spf4j.zel.vm.CompileException;
+import org.spf4j.zel.vm.Program;
 
 /**
  *
@@ -39,6 +43,13 @@ import org.spf4j.log.LogbackUtils;
  */
 @Path("logs")
 public class LogsResource {
+
+  private static final  Comparator<LogRecord> L_COMP = new Comparator<LogRecord>() {
+      @Override
+      public int compare(final LogRecord o1, final LogRecord o2) {
+        return o2.getTs().compareTo(o1.getTs());
+      }
+    };
 
   private final Cluster cluster;
 
@@ -55,8 +66,9 @@ public class LogsResource {
   @Produces(value = {"application/avro-x+json", "application/json",
   "application/avro+json", "application/avro", "application/octet-stream"})
   public List<LogRecord> getLocalLogs(@QueryParam("tailOffset") @DefaultValue("0") final long tailOffset,
-          @QueryParam("limit") @DefaultValue("1000") final int limit) throws IOException {
-    return getLocalLogs(tailOffset, limit, "default");
+          @QueryParam("limit") @DefaultValue("1000") final int limit,
+          @QueryParam("filter") @Nullable final String filter) throws IOException {
+    return getLocalLogs(tailOffset, limit, filter, "default");
   }
 
   @Path("local/{appenderName}")
@@ -65,6 +77,7 @@ public class LogsResource {
   "application/avro+json", "application/avro", "application/octet-stream"})
   public List<LogRecord> getLocalLogs(@QueryParam("tailOffset") @DefaultValue("0") final long tailOffset,
           @QueryParam("limit") @DefaultValue("1000") final int limit,
+          @QueryParam("filter") @Nullable final String filter,
           @PathParam("appenderName") final String appenderName) throws IOException {
     Map<String, AvroDataFileAppender> appenders = LogbackUtils.getConfiguredFileAppenders();
     AvroDataFileAppender fa = appenders.get(appenderName);
@@ -74,15 +87,27 @@ public class LogsResource {
     ClusterInfo clusterInfo = cluster.getClusterInfo();
     String hostName = Sets.intersection(clusterInfo.getLocalAddresses(), clusterInfo.getAddresses())
             .iterator().next().getHostName();
-    return fa.getLogs(hostName, tailOffset, limit);
+    List<LogRecord> result;
+    if (filter != null) {
+      try {
+        result = fa.getFilteredLogs(hostName, tailOffset, limit, Program.compilePredicate(filter, "log"));
+      } catch (CompileException ex) {
+        throw new ClientErrorException("Invalid filter " + filter + ", "+  ex.getMessage(), 400, ex);
+      }
+    } else {
+      result = fa.getLogs(hostName, tailOffset, limit);
+    }
+    Collections.reverse(result);
+    return result;
   }
 
   @Path("cluster")
   @GET
   @Produces(value = {"text/plain"})
-  public StreamingOutput getClusterLogsText(@QueryParam("limit") @DefaultValue("1000")final int limit)
+  public StreamingOutput getClusterLogsText(@QueryParam("limit") @DefaultValue("1000")final int limit,
+                    @QueryParam("filter") @Nullable final String filter)
           throws IOException {
-    List<LogRecord> clusterLogs = getClusterLogs(limit);
+    List<LogRecord> clusterLogs = getClusterLogs(limit, filter);
     return new StreamingOutput() {
       @Override
       public void write(final OutputStream output) throws IOException, WebApplicationException {
@@ -98,8 +123,9 @@ public class LogsResource {
   @GET
   @Produces(value = {"application/avro-x+json", "application/json",
   "application/avro+json", "application/avro", "application/octet-stream"})
-  public List<LogRecord> getClusterLogs(@QueryParam("limit") @DefaultValue("1000")final int limit) throws IOException {
-    return getClusterLogs(limit, "default");
+  public List<LogRecord> getClusterLogs(@QueryParam("limit") @DefaultValue("1000")final int limit,
+                    @QueryParam("filter") @Nullable final String filter) throws IOException {
+    return getClusterLogs(limit, filter, "default");
   }
 
 
@@ -108,6 +134,7 @@ public class LogsResource {
   @Produces(value = {"application/avro-x+json", "application/json",
   "application/avro+json", "application/avro", "application/octet-stream"})
   public List<LogRecord> getClusterLogs(@QueryParam("limit") @DefaultValue("1000")final int limit,
+          @QueryParam("filter") @Nullable final String filter,
           @PathParam("appenderName") final String appender) throws IOException {
     ClusterInfo clusterInfo = cluster.getClusterInfo();
     Set<InetAddress> peerAddresses = clusterInfo.getPeerAddresses();
@@ -125,12 +152,7 @@ public class LogsResource {
       result.addAll(invTarget
               .request("application/avro").get(new GenericType<List<LogRecord>>() {}));
     }
-    Collections.sort(result, new Comparator<LogRecord>() {
-      @Override
-      public int compare(final LogRecord o1, final LogRecord o2) {
-        return o1.getTs().compareTo(o2.getTs());
-      }
-    });
+    Collections.sort(result, L_COMP);
     int size = result.size();
     return result.subList(Math.max(0, size - limit), size);
   }
