@@ -10,6 +10,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
+import org.glassfish.grizzly.http.CompressionConfig;
 import org.glassfish.grizzly.http.server.ErrorPageGenerator;
 import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.http.server.Request;
@@ -123,6 +124,13 @@ public class Main {
 //  config.addHttpHandler(new StaticHttpHandler(docRoot), "/");
     final NetworkListener listener
             = new NetworkListener("http", "0.0.0.0", port);
+    CompressionConfig compressionConfig = listener.getCompressionConfig();
+    compressionConfig.setCompressionMode(CompressionConfig.CompressionMode.ON); // the mode
+    compressionConfig.setCompressionMinSize(4096); // the min amount of bytes to compress
+    compressionConfig.setCompressibleMimeTypes("text/plain",
+            "text/html", "text/csv", "application/json",
+            "application/octet-stream", "application/avro",
+            "application/avro+json", "application/avro-x+json"); // the mime types to compress
     TCPNIOTransport transport = listener.getTransport();
     transport.setKernelThreadPool(LifoThreadPoolBuilder.newBuilder()
             .withCoreSize(Integer.getInteger("spf4j.grizzly.kernel.coreSize", 2))

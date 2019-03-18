@@ -27,9 +27,10 @@ import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.filter.EncodingFilter;
+import org.glassfish.jersey.message.DeflateEncoder;
+import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.server.spi.Container;
-import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 import org.spf4j.avro.SchemaClient;
 import org.spf4j.base.avro.NetworkProtocol;
 import org.spf4j.base.avro.NetworkService;
@@ -84,6 +85,9 @@ public class DemoApplication extends ResourceConfig {
             .register(ClientCustomExecutorServiceProvider.class)
             .register(ClientCustomScheduledExecutionServiceProvider.class)
             .register(new CsvParameterConverterProvider(Collections.EMPTY_LIST))
+            .register(GZipEncoder.class)
+            .register(DeflateEncoder.class)
+            .register(EncodingFilter.class)
             .register(avroFeature)
             .property(ClientProperties.USE_ENCODING, "gzip")
             .build());

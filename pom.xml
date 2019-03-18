@@ -10,11 +10,11 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <avro.version>1.9.0.0p</avro.version>
+    <avro.version>1.9.0.1p</avro.version>
     <bintray.subject>zolyfarkas</bintray.subject>
     <bintray.repo>core</bintray.repo>
     <bintray.package>${project.artifactId}</bintray.package>
-    <spf4j.version>8.6.4-SNAPSHOT</spf4j.version>
+    <spf4j.version>8.6.4</spf4j.version>
   </properties>
 
   <repositories>
@@ -109,6 +109,15 @@
       <artifactId>jersey-proxy-client</artifactId>
       <version>2.28</version>
     </dependency>
+
+<!-- if we want wadls support, would also need to include JAXB  as a dependency in that case.
+    <dependency>
+      <groupId>org.glassfish.jersey.ext</groupId>
+      <artifactId>jersey-wadl-doclet</artifactId>
+      <version>2.28</version>
+    </dependency>
+        -->
+
 
   </dependencies>
 
