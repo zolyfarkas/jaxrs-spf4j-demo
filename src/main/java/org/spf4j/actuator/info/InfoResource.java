@@ -4,12 +4,16 @@ package org.spf4j.actuator.info;
 import com.google.common.collect.Sets;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 import org.glassfish.hk2.api.Immediate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,22 +78,34 @@ public class InfoResource {
 
   @Path("cluster")
   @GET
-  public org.spf4j.base.avro.ClusterInfo getClusterInfo() {
+  public void getClusterInfo(@Suspended final AsyncResponse ar) {
     ClusterInfo clusterInfo = cluster.getClusterInfo();
     Set<InetAddress> peerAddresses = clusterInfo.getPeerAddresses();
-    List<ProcessInfo> result = new ArrayList(peerAddresses.size() + 1);
+    List<ProcessInfo> result = Collections.synchronizedList(new ArrayList(peerAddresses.size() + 1));
     result.add(getProcessInfo(clusterInfo));
+    CompletableFuture<List<ProcessInfo>> cf = CompletableFuture.completedFuture(result);
+    NetworkService service = getNetworkService(clusterInfo);
+    for (InetAddress addr : peerAddresses) {
+      String url = service.getName() + "://" + addr.getHostAddress() + ':' + service.getPort() + "/info/local";
+      cf = cf.thenCombine(httpClient.target(url)
+              .request("application/avro").rx().get(ProcessInfo.class),
+              (res, info) -> {res.add(info); return res;});
+    }
+    cf.whenComplete((res, t) -> {
+      if (t != null) {
+        ar.resume(t);
+      } else {
+        ar.resume(new org.spf4j.base.avro.ClusterInfo(getApplicationInfo(), res));
+      }
+    });
+  }
+
+  public NetworkService getNetworkService(ClusterInfo clusterInfo) {
     NetworkService service = clusterInfo.getService("http");
     if (service == null) {
       service = clusterInfo.getService("https");
     }
-    for (InetAddress addr : peerAddresses) {
-      String url = service.getName() + "://" + addr.getHostAddress() + ':' + service.getPort() + "/info/local";
-      LOG.debug("calling {}", url);
-      result.add(httpClient.target(url)
-              .request("application/avro").get(ProcessInfo.class));
-    }
-    return new org.spf4j.base.avro.ClusterInfo(getApplicationInfo(), result);
+    return service;
   }
 
 

@@ -45,8 +45,13 @@ public class Main {
 
   static {
     String appName = System.getenv("KUBE_APP_NAME");
+    String podName = System.getenv("KUBE_POD_NAME");
     if (appName != null) {
       System.setProperty("appName", appName);
+    }
+    if (podName != null) {
+       System.setProperty("logFileBase", podName);
+       System.setProperty("podName", podName);
     }
     SLF4JBridgeHandler.removeHandlersForRootLogger();
     SLF4JBridgeHandler.install();
