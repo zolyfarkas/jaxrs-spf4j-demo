@@ -1,5 +1,6 @@
 package org.spf4j.actuator.logs;
 
+import org.spf4j.jaxrs.server.AsyncResponseWrapper;
 import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -34,6 +35,7 @@ import org.spf4j.base.avro.LogRecord;
 import org.spf4j.base.avro.NetworkService;
 import org.spf4j.cluster.Cluster;
 import org.spf4j.cluster.ClusterInfo;
+import org.spf4j.concurrent.ContextPropagatingCompletableFuture;
 import org.spf4j.concurrent.DefaultExecutor;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
@@ -174,7 +176,7 @@ public class LogsResource {
     ClusterInfo clusterInfo = cluster.getClusterInfo();
     Set<InetAddress> peerAddresses = clusterInfo.getPeerAddresses();
     CompletableFuture<PriorityQueue<LogRecord>> cf
-            = CompletableFuture.supplyAsync(() -> {
+            = ContextPropagatingCompletableFuture.supplyAsync(() -> {
               PriorityQueue<LogRecord> result = new PriorityQueue(limit, N_COMP);
               Collection<LogRecord> ll;
               try {

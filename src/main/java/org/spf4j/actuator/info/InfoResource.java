@@ -15,15 +15,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import org.glassfish.hk2.api.Immediate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spf4j.base.avro.ApplicationInfo;
 import org.spf4j.base.avro.NetworkService;
 import org.spf4j.base.avro.ProcessInfo;
 import org.spf4j.cluster.Cluster;
 import org.spf4j.cluster.ClusterInfo;
+import org.spf4j.concurrent.ContextPropagatingCompletableFuture;
 import org.spf4j.jaxrs.client.Spf4JClient;
-import org.spf4j.log.ExecContextLogger;
 
 /**
  *
@@ -34,8 +32,6 @@ import org.spf4j.log.ExecContextLogger;
   "application/avro+json", "application/avro", "application/octet-stream"})
 @Immediate
 public class InfoResource {
-
-  private static final Logger LOG = new ExecContextLogger(LoggerFactory.getLogger(InfoResource.class));
 
   private final Cluster cluster;
 
@@ -83,7 +79,7 @@ public class InfoResource {
     Set<InetAddress> peerAddresses = clusterInfo.getPeerAddresses();
     List<ProcessInfo> result = Collections.synchronizedList(new ArrayList(peerAddresses.size() + 1));
     result.add(getProcessInfo(clusterInfo));
-    CompletableFuture<List<ProcessInfo>> cf = CompletableFuture.completedFuture(result);
+    CompletableFuture<List<ProcessInfo>> cf = ContextPropagatingCompletableFuture.completedFuture(result);
     NetworkService service = getNetworkService(clusterInfo);
     for (InetAddress addr : peerAddresses) {
       String url = service.getName() + "://" + addr.getHostAddress() + ':' + service.getPort() + "/info/local";

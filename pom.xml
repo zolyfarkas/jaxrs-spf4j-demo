@@ -14,7 +14,7 @@
     <bintray.subject>zolyfarkas</bintray.subject>
     <bintray.repo>core</bintray.repo>
     <bintray.package>${project.artifactId}</bintray.package>
-    <spf4j.version>8.6.4</spf4j.version>
+    <spf4j.version>8.6.5-SNAPSHOT</spf4j.version>
   </properties>
 
   <repositories>
