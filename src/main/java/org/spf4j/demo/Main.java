@@ -29,8 +29,8 @@ import org.spf4j.base.avro.DebugDetail;
 import org.spf4j.base.avro.ServiceError;
 import org.spf4j.concurrent.LifoThreadPoolBuilder;
 import org.spf4j.io.ByteArrayBuilder;
-import org.spf4j.jaxrs.common.avro.DefaultSchemaProtocol;
-import org.spf4j.jaxrs.common.avro.XJsonAvroMessageBodyWriter;
+import org.spf4j.jaxrs.common.providers.avro.DefaultSchemaProtocol;
+import org.spf4j.jaxrs.common.providers.avro.XJsonAvroMessageBodyWriter;
 import org.spf4j.log.SLF4JBridgeHandler;
 import org.spf4j.stackmonitor.ProfiledExecutionContextFactory;
 import org.spf4j.stackmonitor.ProfilingTLAttacher;
@@ -84,7 +84,7 @@ public class Main {
     servletRegistration.setInitParameter("javax.ws.rs.Application", "org.spf4j.demo.DemoApplication");
     servletRegistration.setInitParameter(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, "true");
     servletRegistration.setInitParameter(ServerProperties.PROVIDER_PACKAGES,
-            "org.spf4j.jaxrs.server;org.spf4j.demo;org.spf4j.actuator");
+            "org.spf4j.jaxrs.server.providers;org.spf4j.demo;org.spf4j.actuator");
 //    servletRegistration.setInitParameter("jersey.config.server.tracing.type", "ALL");
     servletRegistration.setInitParameter("baseUri", "http://0.0.0.0:" + port + '/');
     servletRegistration.setInitParameter("servlet.port", Integer.toString(port));

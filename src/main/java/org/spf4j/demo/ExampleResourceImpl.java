@@ -15,7 +15,7 @@ import org.spf4j.avro.Projections;
 import org.spf4j.demo.avro.DemoRecord;
 import org.spf4j.demo.avro.DemoRecordInfo;
 import org.spf4j.demo.avro.MetaData;
-import org.spf4j.jaxrs.common.avro.stream.CloseableIterable;
+import org.spf4j.jaxrs.common.providers.avro.stream.CloseableIterable;
 import org.spf4j.log.ExecContextLogger;
 
 /**
