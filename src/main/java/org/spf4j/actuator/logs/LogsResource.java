@@ -33,6 +33,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.StreamingOutput;
 import org.spf4j.base.avro.LogRecord;
 import org.spf4j.base.avro.NetworkService;
+import org.spf4j.base.avro.Order;
 import org.spf4j.cluster.Cluster;
 import org.spf4j.cluster.ClusterInfo;
 import org.spf4j.concurrent.ContextPropagatingCompletableFuture;
@@ -80,10 +81,12 @@ public class LogsResource {
   @GET
   @Produces(value = {"application/avro-x+json", "application/json",
     "application/avro+json", "application/avro", "application/octet-stream"})
-  public List<LogRecord> getLocalLogs(@QueryParam("tailOffset") @DefaultValue("0") final long tailOffset,
+  public List<LogRecord> getLocalLogs(
+          @QueryParam("tailOffset") @DefaultValue("0") final long tailOffset,
           @QueryParam("limit") @DefaultValue("1000") final int limit,
-          @QueryParam("filter") @Nullable final String filter) throws IOException {
-    return getLocalLogs(tailOffset, limit, filter, "default");
+          @QueryParam("filter") @Nullable final String filter,
+          @QueryParam("order") @DefaultValue("DESC") final Order resOrder) throws IOException {
+    return getLocalLogs(tailOffset, limit, filter, resOrder, "default");
   }
 
   @Path("local/{appenderName}")
@@ -93,6 +96,7 @@ public class LogsResource {
   public List<LogRecord> getLocalLogs(@QueryParam("tailOffset") @DefaultValue("0") final long tailOffset,
           @QueryParam("limit") @DefaultValue("1000") final int limit,
           @QueryParam("filter") @Nullable final String filter,
+          @QueryParam("order") @DefaultValue("DESC") final Order resOrder,
           @PathParam("appenderName") final String appenderName) throws IOException {
     Map<String, AvroDataFileAppender> appenders = LogbackUtils.getConfiguredFileAppenders();
     AvroDataFileAppender fa = appenders.get(appenderName);
@@ -112,7 +116,9 @@ public class LogsResource {
     } else {
       result = fa.getLogs(hostName, tailOffset, limit);
     }
-    Collections.reverse(result);
+    if (resOrder == Order.DESC) {
+      Collections.reverse(result);
+    }
     return result;
   }
 
@@ -120,9 +126,11 @@ public class LogsResource {
   @GET
   @Produces(value = {"text/plain"})
   public void getClusterLogsText(@QueryParam("limit") @DefaultValue("1000") final int limit,
-          @QueryParam("filter") @Nullable final String filter, @Suspended final AsyncResponse ar)
+          @QueryParam("filter") @Nullable final String filter,
+          @QueryParam("order") @DefaultValue("DESC") final Order resOrder,
+          @Suspended final AsyncResponse ar)
           throws IOException {
-    getClusterLogs(limit, filter, new AsyncResponseWrapper(ar) {
+    getClusterLogs(limit, filter, resOrder, new AsyncResponseWrapper(ar) {
       @Override
       public boolean resume(Object response) {
         return super.resume(new StreamingOutput() {
@@ -144,9 +152,11 @@ public class LogsResource {
   @Produces(value = {"application/avro-x+json", "application/json",
     "application/avro+json", "application/avro", "application/octet-stream"})
   public void getClusterLogs(@QueryParam("limit") @DefaultValue("1000") final int limit,
-          @QueryParam("filter") @Nullable final String filter, @Suspended final AsyncResponse ar)
+          @QueryParam("filter") @Nullable final String filter,
+          @QueryParam("order") @DefaultValue("DESC") final Order resOrder,
+          @Suspended final AsyncResponse ar)
           throws IOException {
-    getClusterLogs(limit, filter, "default", ar);
+    getClusterLogs(limit, filter, resOrder, "default", ar);
   }
 
   /**
@@ -172,6 +182,7 @@ public class LogsResource {
     "application/avro+json", "application/avro", "application/octet-stream"})
   public void getClusterLogs(@QueryParam("limit") @DefaultValue("1000") final int limit,
           @QueryParam("filter") @Nullable final String filter,
+           @QueryParam("order") @DefaultValue("DESC") final Order resOrder,
           @PathParam("appenderName") final String appender, @Suspended final AsyncResponse ar) throws IOException {
     ClusterInfo clusterInfo = cluster.getClusterInfo();
     Set<InetAddress> peerAddresses = clusterInfo.getPeerAddresses();
@@ -180,7 +191,7 @@ public class LogsResource {
               PriorityQueue<LogRecord> result = new PriorityQueue(limit, N_COMP);
               Collection<LogRecord> ll;
               try {
-                ll = getLocalLogs(0, limit, filter, appender);
+                ll = getLocalLogs(0, limit, filter, resOrder, appender);
               } catch (IOException ex) {
                 throw new UncheckedIOException(ex);
               }
@@ -212,7 +223,7 @@ public class LogsResource {
       } else {
         ArrayList<LogRecord> result = new ArrayList(limit);
         result.addAll(records);
-        Collections.sort(result, L_COMP);
+        Collections.sort(result, (resOrder == Order.DESC) ? L_COMP : N_COMP);
         ar.resume(result);
       }
     });
