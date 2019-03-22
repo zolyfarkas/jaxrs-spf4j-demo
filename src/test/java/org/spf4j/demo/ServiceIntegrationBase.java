@@ -28,9 +28,9 @@ public class ServiceIntegrationBase {
   public static void setUp() throws Exception {
     // start the server
     profiler = Main.startProfiler();
-    server = Main.startHttpServer();
+    server = Main.startHttpServer("127.0.0.1", 8080);
     client = DemoApplication.getInstance().getRestClient();
-    localService = "http://localhost:" + server.getListener("http").getPort();
+    localService = "http://127.0.0.1:" + server.getListener("http").getPort();
     target = client.target(localService);
   }
 

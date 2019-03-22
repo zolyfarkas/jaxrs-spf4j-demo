@@ -1,9 +1,12 @@
 package org.spf4j.demo;
 
+import avro.shaded.com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,7 +14,6 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -21,7 +23,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 import org.apache.avro.SchemaResolvers;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
@@ -31,6 +32,8 @@ import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.spf4j.actuator.health.ClusterAllNodesCheck;
+import org.spf4j.actuator.health.ClusterAllNodesRegistration;
 import org.spf4j.actuator.health.HealthCheck;
 import org.spf4j.avro.SchemaClient;
 import org.spf4j.base.avro.NetworkProtocol;
@@ -110,8 +113,9 @@ public class DemoApplication extends ResourceConfig {
           public HealthCheck getCheck() {
             return HealthCheck.NOP;
           }
-        }).to
-            (HealthCheck.Registration.class);
+        }).to(HealthCheck.Registration.class);
+        bindAsContract(ClusterAllNodesCheck.class);
+        bind(ClusterAllNodesRegistration.class).to(HealthCheck.Registration.class);
       }
     });
     if (instance != null) {
@@ -127,21 +131,24 @@ public class DemoApplication extends ResourceConfig {
   }
 
   public void start() {
-    ServletRegistration servletRegistration = srvContext.getServletRegistration("jersey");
-    String uri = servletRegistration.getInitParameter("baseUri");
-    for (String mapping : servletRegistration.getMappings()) {
-      if (mapping.endsWith("/*")) {
-        String path = mapping.substring(0, mapping.length() - 2);
-        Response resp = restClient.target(uri).path(path).path("health/ping").request()
-                .withTimeout(1, TimeUnit.SECONDS)
-                .get();
-        if (resp.getStatus() != 204) {
-          throw new IllegalStateException("Application " + this + " failed to initialize, response  = " + resp);
-        }
-        Logger.getLogger(DemoApplication.class.getName())
-                .info("Application initialized");
-      }
-    }
+
+// this used to start the ping on startup,
+// but feature is not needed due to kebernetes readiness probe.
+//    ServletRegistration servletRegistration = srvContext.getServletRegistration("jersey");
+//    String uri = servletRegistration.getInitParameter("baseUri");
+//    for (String mapping : servletRegistration.getMappings()) {
+//      if (mapping.endsWith("/*")) {
+//        String path = mapping.substring(0, mapping.length() - 2);
+//        Response resp = restClient.target(uri).path(path).path("health/ping").request()
+//                .withTimeout(1, TimeUnit.SECONDS)
+//                .get();
+//        if (resp.getStatus() != 204) {
+//          throw new IllegalStateException("Application " + this + " failed to initialize, response  = " + resp);
+//        }
+//        Logger.getLogger(DemoApplication.class.getName())
+//                .info("Application initialized");
+//      }
+//    }
   }
 
   public static DemoApplication getInstance() {
@@ -170,9 +177,16 @@ public class DemoApplication extends ResourceConfig {
     protected void configure() {
       String kubeNameSpace = System.getenv("KUBE_NAME_SPACE");
       if (kubeNameSpace == null) {
-        bind(new SingleNodeCluster(Collections.singleton(new NetworkService("http",
-                port, NetworkProtocol.TCP))))
-                .to(Cluster.class);
+        ServletRegistration servletRegistration = srvContext.getServletRegistration("jersey");
+        String bindAddr = servletRegistration.getInitParameter("servlet.bindAddr");
+        try {
+          bind(new SingleNodeCluster(ImmutableSet.copyOf(InetAddress.getAllByName(bindAddr)),
+                  Collections.singleton(new NetworkService("http",
+                          port, NetworkProtocol.TCP))))
+                  .to(Cluster.class);
+        } catch (UnknownHostException ex) {
+          throw new RuntimeException(ex);
+        }
       } else {
         Path certPath = Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt");
         byte[] caCert;

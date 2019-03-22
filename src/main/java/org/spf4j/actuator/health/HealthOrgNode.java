@@ -155,7 +155,7 @@ public class HealthOrgNode {
         }
         infos.add(healthRecord);
       }
-      return new HealthRecord(name, aggStatus, null, infos);
+      return new HealthRecord(origin, name, aggStatus, null, infos);
     }
   }
 

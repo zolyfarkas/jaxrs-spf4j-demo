@@ -3,6 +3,8 @@ package org.spf4j.actuator.info;
 
 import com.google.common.collect.Sets;
 import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -74,16 +76,17 @@ public class InfoResource {
 
   @Path("cluster")
   @GET
-  public void getClusterInfo(@Suspended final AsyncResponse ar) {
+  public void getClusterInfo(@Suspended final AsyncResponse ar) throws URISyntaxException {
     ClusterInfo clusterInfo = cluster.getClusterInfo();
     Set<InetAddress> peerAddresses = clusterInfo.getPeerAddresses();
     List<ProcessInfo> result = Collections.synchronizedList(new ArrayList(peerAddresses.size() + 1));
     result.add(getProcessInfo(clusterInfo));
     CompletableFuture<List<ProcessInfo>> cf = ContextPropagatingCompletableFuture.completedFuture(result);
-    NetworkService service = getNetworkService(clusterInfo);
+    NetworkService service = clusterInfo.getHttpService();
     for (InetAddress addr : peerAddresses) {
-      String url = service.getName() + "://" + addr.getHostAddress() + ':' + service.getPort() + "/info/local";
-      cf = cf.thenCombine(httpClient.target(url)
+      URI uri = new URI(service.getName(), null,
+                  addr.getHostAddress(), service.getPort(), "/info/local", null, null);
+      cf = cf.thenCombine(httpClient.target(uri)
               .request("application/avro").rx().get(ProcessInfo.class),
               (res, info) -> {res.add(info); return res;});
     }
@@ -94,14 +97,6 @@ public class InfoResource {
         ar.resume(new org.spf4j.base.avro.ClusterInfo(getApplicationInfo(), res));
       }
     });
-  }
-
-  public NetworkService getNetworkService(ClusterInfo clusterInfo) {
-    NetworkService service = clusterInfo.getService("http");
-    if (service == null) {
-      service = clusterInfo.getService("https");
-    }
-    return service;
   }
 
 

@@ -42,5 +42,21 @@ public class HealthResourceTest extends ServiceIntegrationBase {
     Assert.assertNotNull(ai);
   }
 
+  @Test
+  public void testHealthCheckCluster() {
+    HealthRecord ai = getTarget().path("health/check/cluster")
+            .request("application/avro").get(HealthRecord.class);
+    LOG.debug("health checks info", ai);
+    Assert.assertNotNull(ai);
+  }
+
+
+  @Test
+  public void testHealthCheckCluster2() {
+    HealthRecord ai = getTarget().path("health/check/cluster")
+            .request("application/json").get(HealthRecord.class);
+    LOG.debug("health checks info", ai);
+    Assert.assertNotNull(ai);
+  }
 
 }

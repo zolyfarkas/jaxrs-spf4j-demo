@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -129,7 +131,7 @@ public class LogsResource {
           @QueryParam("filter") @Nullable final String filter,
           @QueryParam("order") @DefaultValue("DESC") final Order resOrder,
           @Suspended final AsyncResponse ar)
-          throws IOException {
+          throws IOException, URISyntaxException {
     getClusterLogs(limit, filter, resOrder, new AsyncResponseWrapper(ar) {
       @Override
       public boolean resume(Object response) {
@@ -155,7 +157,7 @@ public class LogsResource {
           @QueryParam("filter") @Nullable final String filter,
           @QueryParam("order") @DefaultValue("DESC") final Order resOrder,
           @Suspended final AsyncResponse ar)
-          throws IOException {
+          throws IOException, URISyntaxException {
     getClusterLogs(limit, filter, resOrder, "default", ar);
   }
 
@@ -183,7 +185,7 @@ public class LogsResource {
   public void getClusterLogs(@QueryParam("limit") @DefaultValue("1000") final int limit,
           @QueryParam("filter") @Nullable final String filter,
            @QueryParam("order") @DefaultValue("DESC") final Order resOrder,
-          @PathParam("appenderName") final String appender, @Suspended final AsyncResponse ar) throws IOException {
+          @PathParam("appenderName") final String appender, @Suspended final AsyncResponse ar) throws IOException, URISyntaxException {
     ClusterInfo clusterInfo = cluster.getClusterInfo();
     Set<InetAddress> peerAddresses = clusterInfo.getPeerAddresses();
     CompletableFuture<PriorityQueue<LogRecord>> cf
@@ -199,10 +201,11 @@ public class LogsResource {
               return result;
             }, DefaultExecutor.INSTANCE);
 
-    NetworkService service = getNetworkService(clusterInfo);
+    NetworkService service = clusterInfo.getHttpService();
     for (InetAddress addr : peerAddresses) {
-      String url = service.getName() + "://" + addr.getHostAddress() + ':' + service.getPort() + "/logs/local";
-      Spf4jWebTarget invTarget = httpClient.target(url)
+      URI uri = new URI(service.getName(), null,
+                  addr.getHostAddress(), service.getPort(), "/logs/local", null, null);
+      Spf4jWebTarget invTarget = httpClient.target(uri)
               .path(appender)
               .queryParam("limit", limit);
       if (filter != null) {
@@ -241,12 +244,5 @@ public class LogsResource {
     }
   }
 
-  private static NetworkService getNetworkService(ClusterInfo clusterInfo) {
-    NetworkService service = clusterInfo.getService("http");
-    if (service == null) {
-      service = clusterInfo.getService("https");
-    }
-    return service;
-  }
 
 }

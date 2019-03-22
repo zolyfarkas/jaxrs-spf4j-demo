@@ -22,6 +22,7 @@ public interface HealthCheck {
       HealthCheck getCheck();
     }
 
+
     /**
      * Will run the health check.
      * If health check is supposed to fail
@@ -48,6 +49,7 @@ public interface HealthCheck {
              respBuilder.setDetail(ec.getDebugDetail(origin, ex));
            }
          }
+         respBuilder.setOrigin(origin);
          return respBuilder.build();
        }
     }

@@ -8,6 +8,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -26,6 +27,8 @@ import org.spf4j.jaxrs.ConfigProperty;
  * @author Zoltan Farkas
  */
 @Path("health")
+@Produces(value = {"application/avro-x+json", "application/json",
+  "application/avro+json", "application/avro", "application/octet-stream"})
 public final class HealthResource {
 
   private static final Logger LOG = new ExecContextLogger(LoggerFactory.getLogger(HealthResource.class));

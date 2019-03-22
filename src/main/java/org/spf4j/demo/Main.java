@@ -72,12 +72,18 @@ public class Main {
     }
   }
 
+  public static HttpServer startHttpServer(final int port)
+          throws IOException, URISyntaxException {
+          return startHttpServer("0.0.0.0", port);
+  }
+
   /**
    * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
    *
    * @return Grizzly HTTP server.
    */
-  public static HttpServer startHttpServer(final int port) throws IOException, URISyntaxException {
+  public static HttpServer startHttpServer(final String bindAddr, final int port)
+          throws IOException, URISyntaxException {
     FixedWebappContext webappContext = new FixedWebappContext("grizzly web context", "");
     ServletRegistration servletRegistration = webappContext.addServlet("jersey", ServletContainer.class);
     servletRegistration.addMapping("/demo/*");
@@ -86,7 +92,7 @@ public class Main {
     servletRegistration.setInitParameter(ServerProperties.PROVIDER_PACKAGES,
             "org.spf4j.jaxrs.server.providers;org.spf4j.demo;org.spf4j.actuator");
 //    servletRegistration.setInitParameter("jersey.config.server.tracing.type", "ALL");
-    servletRegistration.setInitParameter("baseUri", "http://0.0.0.0:" + port + '/');
+    servletRegistration.setInitParameter("servlet.bindAddr", bindAddr);
     servletRegistration.setInitParameter("servlet.port", Integer.toString(port));
     servletRegistration.setInitParameter("servlet.protocol", "http");
     servletRegistration.setInitParameter(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, "true");
@@ -128,7 +134,7 @@ public class Main {
 //  final ServerConfiguration config = server.getServerConfiguration();
 //  config.addHttpHandler(new StaticHttpHandler(docRoot), "/");
     final NetworkListener listener
-            = new NetworkListener("http", "0.0.0.0", port);
+            = new NetworkListener("http", bindAddr, port);
     CompressionConfig compressionConfig = listener.getCompressionConfig();
     compressionConfig.setCompressionMode(CompressionConfig.CompressionMode.ON); // the mode
     compressionConfig.setCompressionMinSize(4096); // the min amount of bytes to compress
