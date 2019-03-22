@@ -34,5 +34,13 @@ public class HealthResourceTest extends ServiceIntegrationBase {
     Assert.assertNotNull(ai);
   }
 
+  @Test
+  public void testHealthCheckLocal() {
+    HealthRecord ai = getTarget().path("health/check/local")
+            .request(MediaType.APPLICATION_JSON).get(HealthRecord.class);
+    LOG.debug("health checks info", ai);
+    Assert.assertNotNull(ai);
+  }
+
 
 }

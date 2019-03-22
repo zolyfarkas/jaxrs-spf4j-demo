@@ -10,7 +10,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import org.slf4j.Logger;
@@ -85,7 +84,7 @@ public final class HealthResource {
     if (hNode == null) {
         throw new NotFoundException("No health checks at " + path);
     }
-    return hNode.getHealthCheckInfo(path.isEmpty() ? "" : path.get(path.size() - 1), maxDepth);
+    return hNode.getHealthCheckInfo("", maxDepth);
   }
 
   @GET
@@ -99,7 +98,7 @@ public final class HealthResource {
 
   @GET
   @Path("check/{path:.*}")
-  public Response run(@PathParam("path") final List<PathSegment> path,
+  public Response run(@PathParam("path") final List<String> path,
           @QueryParam("debug") @DefaultValue("false") final boolean pisDebug,
           @QueryParam("debugOnError") @DefaultValue("true") final boolean pisDebugOnError,
           @Context SecurityContext secCtx) {
@@ -109,7 +108,9 @@ public final class HealthResource {
       isDebug = false;
       isDebugOnError = false;
     }
-    HealthRecord healthRecord = checks.getHealthRecord("", host, LOG, isDebug, isDebugOnError);
+    String[] pathArr = path.toArray(new String[path.size()]);
+    HealthOrgNode hNode = checks.getHealthNode(pathArr);
+    HealthRecord healthRecord = hNode.getHealthRecord("", host, LOG, isDebug, isDebugOnError);
     if (healthRecord.getStatus() == HealthStatus.HEALTHY) {
       return Response.ok(healthRecord).build();
     } else {
