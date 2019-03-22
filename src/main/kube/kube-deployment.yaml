@@ -68,13 +68,13 @@ spec:
              httpGet:
                path: /health/check/local
                port: 8080
-             initialDelaySeconds: 5
+             initialDelaySeconds: 10
              periodSeconds: 5
         readinessProbe:
              httpGet:
                path: /health/ping
                port: 8080
-             initialDelaySeconds: 1
+             initialDelaySeconds: 3
              periodSeconds: 1
       dnsPolicy: ClusterFirst
       restartPolicy: Always
