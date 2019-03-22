@@ -84,9 +84,11 @@ public class ClusterAllNodesCheck implements HealthCheck {
       List<HealthRecord> result;
       try {
         result = cf.get();
-        return new HealthRecord(origin, name, HealthStatus.HEALTHY, ec.getDebugDetail(origin, null), result);
+        return new HealthRecord(origin, name, HealthStatus.HEALTHY,
+                isDebug ? ec.getDebugDetail(origin, null) : null, result);
       } catch (InterruptedException | ExecutionException | RuntimeException ex) {
-        return new HealthRecord(origin, name, HealthStatus.HEALTHY, ec.getDebugDetail(origin, ex),
+        return new HealthRecord(origin, name, HealthStatus.HEALTHY,
+                isDebugOnError ? ec.getDebugDetail(origin, ex) : null,
                 Collections.EMPTY_LIST);
       }
     }
