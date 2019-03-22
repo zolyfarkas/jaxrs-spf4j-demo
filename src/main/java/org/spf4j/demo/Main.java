@@ -67,15 +67,15 @@ public class Main {
   public static HttpServer startHttpServer() throws IOException, URISyntaxException {
     String envPort = System.getenv("APP_SERVICE_PORT");
     if (envPort == null) {
-      return startHttpServer(System.getProperty("hostName", "0.0.0.0"), 8080);
+      return startHttpServer(System.getProperty("hostName", "127.0.0.1"), "0.0.0.0", 8080);
     } else {
-      return startHttpServer(System.getProperty("hostName", "0.0.0.0"), Integer.parseInt(envPort));
+      return startHttpServer(System.getProperty("hostName", "127.0.0.1"), "0.0.0.0", Integer.parseInt(envPort));
     }
   }
 
   public static HttpServer startHttpServer(final int port)
           throws IOException, URISyntaxException {
-          return startHttpServer("0.0.0.0", port);
+          return startHttpServer(System.getProperty("hostName", "127.0.0.1"), "0.0.0.0", port);
   }
 
   /**
@@ -83,7 +83,7 @@ public class Main {
    *
    * @return Grizzly HTTP server.
    */
-  public static HttpServer startHttpServer(final String bindAddr, final int port)
+  public static HttpServer startHttpServer(final String hostName, final String bindAddr, final int port)
           throws IOException, URISyntaxException {
     FixedWebappContext webappContext = new FixedWebappContext("grizzly web context", "");
     ServletRegistration servletRegistration = webappContext.addServlet("jersey", ServletContainer.class);
@@ -93,6 +93,7 @@ public class Main {
     servletRegistration.setInitParameter(ServerProperties.PROVIDER_PACKAGES,
             "org.spf4j.jaxrs.server.providers;org.spf4j.demo;org.spf4j.actuator");
 //    servletRegistration.setInitParameter("jersey.config.server.tracing.type", "ALL");
+    servletRegistration.setInitParameter("hostName", hostName);
     servletRegistration.setInitParameter("servlet.bindAddr", bindAddr);
     servletRegistration.setInitParameter("servlet.port", Integer.toString(port));
     servletRegistration.setInitParameter("servlet.protocol", "http");

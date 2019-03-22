@@ -75,7 +75,7 @@ spec:
                path: /health/ping
                port: 8080
              initialDelaySeconds: 3
-             periodSeconds: 1
+             periodSeconds: 5
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
