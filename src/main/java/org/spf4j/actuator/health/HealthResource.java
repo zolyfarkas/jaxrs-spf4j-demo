@@ -1,10 +1,7 @@
 package org.spf4j.actuator.health;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -13,17 +10,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spf4j.base.ExecutionContext;
-import org.spf4j.base.ExecutionContexts;
+import org.spf4j.actuator.health.HealthCheck.Type;
+import org.spf4j.base.avro.HealthCheckInfo;
 import org.spf4j.base.avro.HealthRecord;
 import org.spf4j.base.avro.HealthStatus;
-import org.spf4j.base.avro.PathEntry;
 import org.spf4j.jaxrs.server.DebugDetailEntitlement;
 import org.spf4j.log.ExecContextLogger;
 import org.spf4j.jaxrs.ConfigProperty;
@@ -36,7 +31,7 @@ public final class HealthResource {
 
   private static final Logger LOG = new ExecContextLogger(LoggerFactory.getLogger(HealthResource.class));
 
-  private final Map<String, Object> checks;
+  private final HealthOrgNode checks;
 
   private final String host;
 
@@ -48,21 +43,23 @@ public final class HealthResource {
           @ConfigProperty("spf4j.jaxrs.serverHost") @DefaultValue("spf4j.jaxrs.serverHost") final String host) {
     this.ddEnt = ddEnt;
     this.host = host;
-    checks = new HashMap<>();
+    checks =  HealthOrgNode.newHealthChecks();
     for (HealthCheck.Registration registration : healthChecks) {
       String[] path = registration.getPath();
-      Map<String, Object> toPut = checks;
-      int lIdx = path.length - 1;
-      for (int i = 0; i < lIdx; i++) {
-        String seg = path[i];
-        Map<String, Object> otp = toPut;
-        toPut = (Map<String, Object>) toPut.get(seg);
-        if (toPut == null) {
-          toPut = new HashMap<>();
-          otp.put(seg, toPut);
-        }
+      HealthCheck check = registration.getCheck();
+      switch (check.getType()) {
+        case local:
+          path = org.spf4j.base.Arrays.preppend(path, Type.local.toString());
+          break;
+        case cluster:
+          path = org.spf4j.base.Arrays.preppend(path, Type.cluster.toString());
+          break;
+        case custom:
+          break;
+        default:
+          throw new UnsupportedOperationException("Unsupported health check type " + check.getType());
       }
-      toPut.put(path[lIdx], registration.getCheck());
+      checks.addHealthCheck(check, path);
     }
   }
 
@@ -72,42 +69,37 @@ public final class HealthResource {
     // DO nothing, this is a ping endpoint.
   }
 
-
   @GET
-  @Path("info/{path:.*}")
-  public Response checks(@PathParam("path") final List<PathSegment> path) {
-    Object aChecks = checks;
-    for (PathSegment seg : path) {
-      if (aChecks instanceof Map) {
-        aChecks = ((Map<String, Object>) aChecks).get(seg.getPath());
-      } else {
-        throw new NotFoundException("No health checks at " + path);
-      }
-    }
-    if (aChecks instanceof HealthCheck) {
-      return Response.ok(((HealthCheck) aChecks).info()).build();
-    } else if (aChecks instanceof Map) {
-      Map<String, Object> map = (Map<String, Object>) aChecks;
-      List<PathEntry> entries = new ArrayList<>();
-      for (Map.Entry<String, Object> entry : map.entrySet()) {
-        Object value = entry.getValue();
-        if (value instanceof HealthCheck) {
-          entries.add(new PathEntry(entry.getKey(), false));
-        } else {
-          entries.add(new PathEntry(entry.getKey(), true));
-        }
-      }
-      return Response.ok(new GenericEntity<List<PathEntry>>(entries){}).build();
-    } else {
-      throw new IllegalStateException("Illegal entry " + aChecks);
-    }
+  @Path("info")
+  public HealthCheckInfo list(@QueryParam("maxDepth") @DefaultValue("10") final int maxDepth) {
+    return list(Collections.EMPTY_LIST, maxDepth);
   }
 
 
   @GET
+  @Path("info/{path:.*}")
+  public HealthCheckInfo list(@PathParam("path") final List<String> path,
+          @QueryParam("maxDepth") @DefaultValue("10") final int maxDepth) {
+    String[] pathArr = path.toArray(new String[path.size()]);
+    HealthOrgNode hNode = checks.getHealthNode(pathArr);
+    if (hNode == null) {
+        throw new NotFoundException("No health checks at " + path);
+    }
+    return hNode.getHealthCheckInfo(path.isEmpty() ? "" : path.get(path.size() - 1), maxDepth);
+  }
+
+  @GET
+  @Path("check")
+  public Response run(
+          @QueryParam("debug") @DefaultValue("false") final boolean pisDebug,
+          @QueryParam("debugOnError") @DefaultValue("true") final boolean pisDebugOnError,
+          @Context SecurityContext secCtx) {
+    return run(Collections.EMPTY_LIST, pisDebug, pisDebugOnError, secCtx);
+  }
+
+  @GET
   @Path("check/{path:.*}")
-  public HealthRecord record(@PathParam("path") final List<PathSegment> path,
-          @QueryParam("exclude") final List<String> excludeChecks,
+  public Response run(@PathParam("path") final List<PathSegment> path,
           @QueryParam("debug") @DefaultValue("false") final boolean pisDebug,
           @QueryParam("debugOnError") @DefaultValue("true") final boolean pisDebugOnError,
           @Context SecurityContext secCtx) {
@@ -117,70 +109,11 @@ public final class HealthResource {
       isDebug = false;
       isDebugOnError = false;
     }
-    Object aChecks = checks;
-    String name = "";
-    for (PathSegment seg : path) {
-      if (aChecks instanceof Map) {
-        name = seg.getPath();
-        aChecks = ((Map<String, Object>) aChecks).get(name);
-      } else {
-        throw new NotFoundException("No health checks at " + path);
-      }
-    }
-    if (aChecks instanceof HealthCheck) {
-      return check(name, (HealthCheck) aChecks, isDebug, isDebugOnError);
-    } else if (aChecks instanceof Map) {
-      return check(name, (Map<String, Object>) aChecks, isDebug, isDebugOnError);
+    HealthRecord healthRecord = checks.getHealthRecord("", host, LOG, isDebug, isDebugOnError);
+    if (healthRecord.getStatus() == HealthStatus.HEALTHY) {
+      return Response.ok(healthRecord).build();
     } else {
-      throw new IllegalStateException("Illegal entry " + aChecks);
-    }
-  }
-
-  private HealthRecord check(final String name, Map<String, Object> aChecks,
-          final boolean isDebug, final boolean isDebugOnError) {
-    HealthRecord.Builder respBuilder = HealthRecord.newBuilder()
-            .setName(name)
-            .setStatus(HealthStatus.HEALTHY);
-    List<HealthRecord> records = new ArrayList<>(aChecks.size());
-    for (Map.Entry<String, Object> entry : aChecks.entrySet()) {
-      Object value = entry.getValue();
-      HealthRecord record;
-      if (value instanceof HealthCheck) {
-        record = check(entry.getKey(), (HealthCheck) value, isDebug, isDebugOnError);
-      } else if (value instanceof Map) {
-        record = check(entry.getKey(), (Map<String, Object>) value, isDebug, isDebugOnError);
-      } else {
-        throw new IllegalStateException("Illegal entry " + entry);
-      }
-      records.add(record);
-      if (record.getStatus() == HealthStatus.UNHEALTHY) {
-        respBuilder.setStatus(HealthStatus.UNHEALTHY);
-        break;
-      }
-    }
-    respBuilder.setComponentsHealth(records);
-    return respBuilder.build();
-  }
-
-  private HealthRecord check(final String name,
-          final HealthCheck check, final boolean isDebug, final boolean isDebugOnError) {
-    try (ExecutionContext ec = ExecutionContexts.start(name,
-            check.timeout(TimeUnit.NANOSECONDS), TimeUnit.NANOSECONDS)) {
-      HealthRecord.Builder respBuilder = HealthRecord.newBuilder()
-              .setName(name);
-      try {
-        check.test(LOG);
-        respBuilder.setStatus(HealthStatus.HEALTHY);
-        if (isDebug) {
-          respBuilder.setDetail(ec.getDebugDetail(host, null));
-        }
-      } catch (Exception ex) {
-        respBuilder.setStatus(HealthStatus.UNHEALTHY);
-        if (isDebugOnError) {
-          respBuilder.setDetail(ec.getDebugDetail(host, ex));
-        }
-      }
-      return respBuilder.build();
+      return Response.status(500).entity(healthRecord).build();
     }
   }
 

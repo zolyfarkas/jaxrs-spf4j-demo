@@ -31,6 +31,7 @@ import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.spf4j.actuator.health.HealthCheck;
 import org.spf4j.avro.SchemaClient;
 import org.spf4j.base.avro.NetworkProtocol;
 import org.spf4j.base.avro.NetworkService;
@@ -81,7 +82,7 @@ public class DemoApplication extends ResourceConfig {
             .newBuilder()
             .connectTimeout(2, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
-            .register(new ExecutionContextClientFilter(dp))
+            .register(new ExecutionContextClientFilter(dp, true))
             .register(ClientCustomExecutorServiceProvider.class)
             .register(ClientCustomScheduledExecutionServiceProvider.class)
             .register(new CsvParameterConverterProvider(Collections.EMPTY_LIST))
@@ -96,6 +97,23 @@ public class DemoApplication extends ResourceConfig {
     register(CsvParameterConverterProvider.class);
     String initParameter = srvContext.getServletRegistration("jersey").getInitParameter("servlet.port");
     register(new ClusterBinder(Integer.parseInt(initParameter)));
+    register(new AbstractBinder() {
+      @Override
+      protected void configure() {
+        bind(new HealthCheck.Registration() {
+          @Override
+          public String[] getPath() {
+            return new String [] {"nop"};
+          }
+
+          @Override
+          public HealthCheck getCheck() {
+            return HealthCheck.NOP;
+          }
+        }).to
+            (HealthCheck.Registration.class);
+      }
+    });
     if (instance != null) {
       throw new IllegalStateException("Application already initialized " + instance);
     }
