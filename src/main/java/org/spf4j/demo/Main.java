@@ -52,6 +52,7 @@ public class Main {
     if (podName != null) {
        System.setProperty("logFileBase", podName);
        System.setProperty("podName", podName);
+       System.setProperty("hostName", podName);
     }
     SLF4JBridgeHandler.removeHandlersForRootLogger();
     SLF4JBridgeHandler.install();
@@ -66,9 +67,9 @@ public class Main {
   public static HttpServer startHttpServer() throws IOException, URISyntaxException {
     String envPort = System.getenv("APP_SERVICE_PORT");
     if (envPort == null) {
-      return startHttpServer(8080);
+      return startHttpServer(System.getProperty("hostName", "0.0.0.0"), 8080);
     } else {
-      return startHttpServer(Integer.parseInt(envPort));
+      return startHttpServer(System.getProperty("hostName", "0.0.0.0"), Integer.parseInt(envPort));
     }
   }
 

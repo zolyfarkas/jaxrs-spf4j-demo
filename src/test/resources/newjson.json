@@ -1,0 +1,1906 @@
+{
+  "origin": "spf4j.jaxrs.serverHost",
+  "status": "HEALTHY",
+  "componentsHealth": [{
+      "origin": "spf4j.jaxrs.serverHost",
+      "name": "allNodesHealth",
+      "status": "HEALTHY",
+      "detail": {
+        "origin": "spf4j.jaxrs.serverHost/allNodesHealth",
+        "logs": [{
+            "trId": "XrN5IABEi.2ee3.8gade.0/0/0",
+            "level": "DEBUG",
+            "ts": "2019-03-22T22:08:16.182Z",
+            "logger": "org.spf4j.actuator.health.HealthResource",
+            "thr": "gz-work-3",
+            "msg": "Getting health records for "
+          }, {
+            "trId": "XrN5IABEi.2ee3.8gade.0/0/0",
+            "level": "DEBUG",
+            "ts": "2019-03-22T22:08:16.183Z",
+            "logger": "org.spf4j.actuator.health.HealthResource",
+            "thr": "gz-work-3",
+            "msg": "Getting health record for allNodesHealth"
+          }, {
+            "trId": "XrN5IABEi.2ee3.8gade.0/0/0",
+            "level": "DEBUG",
+            "ts": "2019-03-22T22:08:16.197Z",
+            "logger": "org.spf4j.jaxrs.client.providers.ExecutionContextClientFilter",
+            "thr": "defExec-2",
+            "msg": "Invoking http://127.0.0.1:8080/health/check/local",
+            "attrs": {
+              "headers": {
+                "Accept": ["application/avro"],
+                "request-deadline": ["1553292506 182832861"],
+                "request-timeout": ["9986069510 n"],
+                "request-id": ["XrN5IABEi.2ee3.8gade.0/0/0/0"],
+                "Accept-Encoding": ["deflate", "gzip", "x-gzip"],
+                "User-Agent": ["Jersey/2.28 (HttpUrlConnection 11.0.2)"]
+              }
+            }
+          }, {
+            "trId": "XrN5IABEi.2ee3.8gade.0/0/0",
+            "level": "DEBUG",
+            "ts": "2019-03-22T22:08:16.294Z",
+            "logger": "org.spf4j.jaxrs.client.providers.ExecutionContextClientFilter",
+            "thr": "defExec-2",
+            "msg": "Done http://127.0.0.1:8080/health/check/local",
+            "attrs": {
+              "execUs": 97366,
+              "trId": "XrN5IABEi.2ee3.8gade.0/0/0/0",
+              "httpStatus": 200
+            }
+          }],
+        "stackSamples": [{
+            "id": 0,
+            "parentId": -1,
+            "count": 55,
+            "method": {
+              "declaringClass": "80323@ZMacBookPro.local",
+              "name": "ROOT"
+            }
+          }, {
+            "id": 1,
+            "parentId": 0,
+            "count": 55,
+            "method": {
+              "declaringClass": "org.spf4j.concurrent.LifoThreadPoolExecutorSQP$QueuedThread",
+              "name": "run"
+            }
+          }, {
+            "id": 2,
+            "parentId": 1,
+            "count": 55,
+            "method": {
+              "declaringClass": "org.spf4j.concurrent.LifoThreadPoolExecutorSQP$QueuedThread",
+              "name": "execute"
+            }
+          }, {
+            "id": 3,
+            "parentId": 2,
+            "count": 55,
+            "method": {
+              "declaringClass": "org.spf4j.failsafe.concurrent.FutureTask",
+              "name": "run"
+            }
+          }, {
+            "id": 4,
+            "parentId": 3,
+            "count": 55,
+            "method": {
+              "declaringClass": "org.spf4j.jaxrs.client.Spf4jInvocation$InvocationHandler",
+              "name": "call"
+            }
+          }, {
+            "id": 5,
+            "parentId": 4,
+            "count": 55,
+            "method": {
+              "declaringClass": "org.spf4j.jaxrs.client.Spf4jCompletionStageRxInvoker$$Lambda$326/0x0000000800420c40",
+              "name": "call"
+            }
+          }, {
+            "id": 6,
+            "parentId": 5,
+            "count": 55,
+            "method": {
+              "declaringClass": "org.spf4j.jaxrs.client.Spf4jCompletionStageRxInvoker",
+              "name": "lambda$get$1"
+            }
+          }, {
+            "id": 7,
+            "parentId": 6,
+            "count": 55,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.client.JerseyInvocation",
+              "name": "invoke"
+            }
+          }, {
+            "id": 8,
+            "parentId": 7,
+            "count": 55,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.process.internal.RequestScope",
+              "name": "runInScope"
+            }
+          }, {
+            "id": 9,
+            "parentId": 8,
+            "count": 55,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.internal.Errors",
+              "name": "process"
+            }
+          }, {
+            "id": 10,
+            "parentId": 9,
+            "count": 55,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.internal.Errors",
+              "name": "process"
+            }
+          }, {
+            "id": 11,
+            "parentId": 10,
+            "count": 55,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.internal.Errors",
+              "name": "process"
+            }
+          }, {
+            "id": 12,
+            "parentId": 11,
+            "count": 55,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.client.JerseyInvocation$$Lambda$308/0x00000008003cd440",
+              "name": "call"
+            }
+          }, {
+            "id": 13,
+            "parentId": 12,
+            "count": 55,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.client.JerseyInvocation",
+              "name": "lambda$invoke$1"
+            }
+          }, {
+            "id": 14,
+            "parentId": 13,
+            "count": 13,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.client.JerseyInvocation",
+              "name": "translate"
+            }
+          }, {
+            "id": 15,
+            "parentId": 13,
+            "count": 42,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.client.ClientRuntime",
+              "name": "invoke"
+            }
+          }, {
+            "id": 16,
+            "parentId": 14,
+            "count": 13,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.client.ClientResponse",
+              "name": "readEntity"
+            }
+          }, {
+            "id": 17,
+            "parentId": 15,
+            "count": 42,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.client.internal.HttpUrlConnector",
+              "name": "apply"
+            }
+          }, {
+            "id": 18,
+            "parentId": 16,
+            "count": 13,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.message.internal.InboundMessageContext",
+              "name": "readEntity"
+            }
+          }, {
+            "id": 19,
+            "parentId": 17,
+            "count": 42,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.client.internal.HttpUrlConnector",
+              "name": "_apply"
+            }
+          }, {
+            "id": 20,
+            "parentId": 18,
+            "count": 13,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.message.internal.InboundMessageContext",
+              "name": "readEntity"
+            }
+          }, {
+            "id": 21,
+            "parentId": 19,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.client.internal.HttpUrlConnector",
+              "name": "getInputStream"
+            }
+          }, {
+            "id": 22,
+            "parentId": 19,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.net.www.protocol.http.HttpURLConnection",
+              "name": "getHeaderFields"
+            }
+          }, {
+            "id": 23,
+            "parentId": 19,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.jaxrs.client.Spf4JClient$CustomConnectionFactory",
+              "name": "getConnection"
+            }
+          }, {
+            "id": 24,
+            "parentId": 19,
+            "count": 39,
+            "method": {
+              "declaringClass": "java.net.HttpURLConnection",
+              "name": "getResponseCode"
+            }
+          }, {
+            "id": 25,
+            "parentId": 20,
+            "count": 13,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.message.internal.MessageBodyFactory",
+              "name": "readFrom"
+            }
+          }, {
+            "id": 26,
+            "parentId": 21,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.client.internal.HttpUrlConnector$2",
+              "name": "<init>"
+            }
+          }, {
+            "id": 27,
+            "parentId": 22,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.net.www.protocol.http.HttpURLConnection",
+              "name": "getFilteredHeaderFields"
+            }
+          }, {
+            "id": 28,
+            "parentId": 23,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.net.URL",
+              "name": "openConnection"
+            }
+          }, {
+            "id": 29,
+            "parentId": 24,
+            "count": 39,
+            "method": {
+              "declaringClass": "sun.net.www.protocol.http.HttpURLConnection",
+              "name": "getInputStream"
+            }
+          }, {
+            "id": 30,
+            "parentId": 25,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.message.internal.ReaderInterceptorExecutor",
+              "name": "<init>"
+            }
+          }, {
+            "id": 31,
+            "parentId": 25,
+            "count": 12,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.message.internal.ReaderInterceptorExecutor",
+              "name": "proceed"
+            }
+          }, {
+            "id": 32,
+            "parentId": 26,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 33,
+            "parentId": 27,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.util.Collections$UnmodifiableMap$UnmodifiableEntrySet$1",
+              "name": "next"
+            }
+          }, {
+            "id": 34,
+            "parentId": 28,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.net.www.protocol.http.Handler",
+              "name": "openConnection"
+            }
+          }, {
+            "id": 35,
+            "parentId": 29,
+            "count": 39,
+            "method": {
+              "declaringClass": "sun.net.www.protocol.http.HttpURLConnection",
+              "name": "getInputStream0"
+            }
+          }, {
+            "id": 36,
+            "parentId": 30,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 37,
+            "parentId": 31,
+            "count": 12,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.spi.ContentEncoder",
+              "name": "aroundReadFrom"
+            }
+          }, {
+            "id": 38,
+            "parentId": 32,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.ClassLoaders$AppClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 39,
+            "parentId": 33,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.util.Collections$UnmodifiableMap$UnmodifiableEntrySet$1",
+              "name": "next"
+            }
+          }, {
+            "id": 40,
+            "parentId": 34,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.net.www.protocol.http.Handler",
+              "name": "openConnection"
+            }
+          }, {
+            "id": 41,
+            "parentId": 35,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.net.www.protocol.http.HttpURLConnection",
+              "name": "writeRequests"
+            }
+          }, {
+            "id": 42,
+            "parentId": 35,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.util.logging.PlatformLogger",
+              "name": "fine"
+            }
+          }, {
+            "id": 43,
+            "parentId": 35,
+            "count": 37,
+            "method": {
+              "declaringClass": "sun.net.www.http.HttpClient",
+              "name": "parseHTTP"
+            }
+          }, {
+            "id": 44,
+            "parentId": 36,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.ClassLoaders$AppClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 45,
+            "parentId": 37,
+            "count": 12,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.message.internal.ReaderInterceptorExecutor",
+              "name": "proceed"
+            }
+          }, {
+            "id": 46,
+            "parentId": 38,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 47,
+            "parentId": 39,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.util.HashMap$EntryIterator",
+              "name": "next"
+            }
+          }, {
+            "id": 48,
+            "parentId": 40,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.net.www.protocol.http.HttpURLConnection",
+              "name": "<init>"
+            }
+          }, {
+            "id": 49,
+            "parentId": 41,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.util.logging.PlatformLogger",
+              "name": "fine"
+            }
+          }, {
+            "id": 50,
+            "parentId": 42,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.util.logging.internal.LoggingProviderImpl$JULWrapper",
+              "name": "log"
+            }
+          }, {
+            "id": 51,
+            "parentId": 43,
+            "count": 37,
+            "method": {
+              "declaringClass": "sun.net.www.http.HttpClient",
+              "name": "parseHTTPHeader"
+            }
+          }, {
+            "id": 52,
+            "parentId": 44,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 53,
+            "parentId": 45,
+            "count": 12,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.spi.ContentEncoder",
+              "name": "aroundReadFrom"
+            }
+          }, {
+            "id": 54,
+            "parentId": 46,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClassOrNull"
+            }
+          }, {
+            "id": 55,
+            "parentId": 47,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.util.HashMap$EntryIterator",
+              "name": "next"
+            }
+          }, {
+            "id": 56,
+            "parentId": 48,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.net.www.protocol.http.HttpURLConnection",
+              "name": "checkURL"
+            }
+          }, {
+            "id": 57,
+            "parentId": 49,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.util.logging.internal.LoggingProviderImpl$JULWrapper",
+              "name": "log"
+            }
+          }, {
+            "id": 58,
+            "parentId": 50,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.util.logging.Logger",
+              "name": "log"
+            }
+          }, {
+            "id": 59,
+            "parentId": 51,
+            "count": 36,
+            "method": {
+              "declaringClass": "java.io.BufferedInputStream",
+              "name": "read"
+            }
+          }, {
+            "id": 60,
+            "parentId": 52,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClassOrNull"
+            }
+          }, {
+            "id": 61,
+            "parentId": 53,
+            "count": 12,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.message.internal.ReaderInterceptorExecutor",
+              "name": "proceed"
+            }
+          }, {
+            "id": 62,
+            "parentId": 54,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "findClassOnClassPathOrNull"
+            }
+          }, {
+            "id": 63,
+            "parentId": 55,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.util.HashMap$HashIterator",
+              "name": "nextNode"
+            }
+          }, {
+            "id": 64,
+            "parentId": 56,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.net.URL",
+              "name": "toExternalForm"
+            }
+          }, {
+            "id": 65,
+            "parentId": 57,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.util.logging.Logger",
+              "name": "log"
+            }
+          }, {
+            "id": 66,
+            "parentId": 58,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.util.logging.Logger",
+              "name": "doLog"
+            }
+          }, {
+            "id": 67,
+            "parentId": 59,
+            "count": 36,
+            "method": {
+              "declaringClass": "java.io.BufferedInputStream",
+              "name": "read1"
+            }
+          }, {
+            "id": 68,
+            "parentId": 60,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "findClassOnClassPathOrNull"
+            }
+          }, {
+            "id": 69,
+            "parentId": 61,
+            "count": 12,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.message.internal.ReaderInterceptorExecutor$TerminalReaderInterceptor",
+              "name": "aroundReadFrom"
+            }
+          }, {
+            "id": 70,
+            "parentId": 62,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "defineClass"
+            }
+          }, {
+            "id": 71,
+            "parentId": 64,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.net.URLStreamHandler",
+              "name": "toExternalForm"
+            }
+          }, {
+            "id": 72,
+            "parentId": 65,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.util.logging.Logger",
+              "name": "doLog"
+            }
+          }, {
+            "id": 73,
+            "parentId": 66,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.util.logging.Logger",
+              "name": "log"
+            }
+          }, {
+            "id": 74,
+            "parentId": 67,
+            "count": 36,
+            "method": {
+              "declaringClass": "java.io.BufferedInputStream",
+              "name": "fill"
+            }
+          }, {
+            "id": 75,
+            "parentId": 68,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.URLClassPath",
+              "name": "getResource"
+            }
+          }, {
+            "id": 76,
+            "parentId": 69,
+            "count": 12,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.message.internal.ReaderInterceptorExecutor$TerminalReaderInterceptor",
+              "name": "invokeReadFrom"
+            }
+          }, {
+            "id": 77,
+            "parentId": 70,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.security.SecureClassLoader",
+              "name": "defineClass"
+            }
+          }, {
+            "id": 78,
+            "parentId": 71,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.StringBuilder",
+              "name": "<init>"
+            }
+          }, {
+            "id": 79,
+            "parentId": 72,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.util.logging.Logger",
+              "name": "log"
+            }
+          }, {
+            "id": 80,
+            "parentId": 73,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.log.SLF4JBridgeHandler",
+              "name": "publish"
+            }
+          }, {
+            "id": 81,
+            "parentId": 74,
+            "count": 36,
+            "method": {
+              "declaringClass": "java.net.SocketInputStream",
+              "name": "read"
+            }
+          }, {
+            "id": 82,
+            "parentId": 76,
+            "count": 12,
+            "method": {
+              "declaringClass": "org.spf4j.jaxrs.common.providers.avro.AvroMessageBodyReader",
+              "name": "readFrom"
+            }
+          }, {
+            "id": 83,
+            "parentId": 77,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "defineClass"
+            }
+          }, {
+            "id": 84,
+            "parentId": 79,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.log.SLF4JBridgeHandler",
+              "name": "publish"
+            }
+          }, {
+            "id": 85,
+            "parentId": 80,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.log.SLF4JBridgeHandler",
+              "name": "callPlainSLF4JLogger"
+            }
+          }, {
+            "id": 86,
+            "parentId": 81,
+            "count": 36,
+            "method": {
+              "declaringClass": "java.net.SocketInputStream",
+              "name": "read"
+            }
+          }, {
+            "id": 87,
+            "parentId": 82,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 88,
+            "parentId": 82,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.generic.GenericDatumReader",
+              "name": "<clinit>"
+            }
+          }, {
+            "id": 89,
+            "parentId": 82,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.jaxrs.common.providers.avro.BinaryAvroMessageBodyReader",
+              "name": "getDecoder"
+            }
+          }, {
+            "id": 90,
+            "parentId": 82,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.jaxrs.common.providers.avro.DefaultSchemaProtocol",
+              "name": "deserialize"
+            }
+          }, {
+            "id": 91,
+            "parentId": 82,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.jaxrs.common.providers.avro.AvroMessageBodyReader",
+              "name": "wrapInputStream"
+            }
+          }, {
+            "id": 92,
+            "parentId": 82,
+            "count": 7,
+            "method": {
+              "declaringClass": "org.apache.avro.generic.GenericDatumReader",
+              "name": "read"
+            }
+          }, {
+            "id": 93,
+            "parentId": 83,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "postDefineClass"
+            }
+          }, {
+            "id": 94,
+            "parentId": 84,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.log.SLF4JBridgeHandler",
+              "name": "callPlainSLF4JLogger"
+            }
+          }, {
+            "id": 95,
+            "parentId": 85,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.log.SLF4JBridgeHandler",
+              "name": "logEfficient"
+            }
+          }, {
+            "id": 96,
+            "parentId": 86,
+            "count": 36,
+            "method": {
+              "declaringClass": "java.net.SocketInputStream",
+              "name": "socketRead"
+            }
+          }, {
+            "id": 97,
+            "parentId": 87,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.ClassLoaders$AppClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 98,
+            "parentId": 89,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.io.DecoderFactory",
+              "name": "binaryDecoder"
+            }
+          }, {
+            "id": 99,
+            "parentId": 90,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.Schema$Parser",
+              "name": "parse"
+            }
+          }, {
+            "id": 100,
+            "parentId": 92,
+            "count": 5,
+            "method": {
+              "declaringClass": "org.apache.avro.generic.GenericDatumReader",
+              "name": "getResolver"
+            }
+          }, {
+            "id": 101,
+            "parentId": 92,
+            "count": 2,
+            "method": {
+              "declaringClass": "org.apache.avro.generic.GenericDatumReader",
+              "name": "read"
+            }
+          }, {
+            "id": 102,
+            "parentId": 93,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.Class",
+              "name": "getPackageName"
+            }
+          }, {
+            "id": 103,
+            "parentId": 94,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.log.SLF4JBridgeHandler",
+              "name": "logEfficient"
+            }
+          }, {
+            "id": 104,
+            "parentId": 95,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.test.log.TestLogger",
+              "name": "debug"
+            }
+          }, {
+            "id": 105,
+            "parentId": 96,
+            "count": 36,
+            "method": {
+              "declaringClass": "java.net.SocketInputStream",
+              "name": "socketRead0"
+            }
+          }, {
+            "id": 106,
+            "parentId": 97,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 107,
+            "parentId": 98,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 108,
+            "parentId": 99,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.Schema$Parser",
+              "name": "parse"
+            }
+          }, {
+            "id": 109,
+            "parentId": 100,
+            "count": 5,
+            "method": {
+              "declaringClass": "org.apache.avro.generic.GenericDatumReader",
+              "name": "getResolver"
+            }
+          }, {
+            "id": 110,
+            "parentId": 101,
+            "count": 2,
+            "method": {
+              "declaringClass": "org.apache.avro.generic.GenericDatumReader",
+              "name": "readRecord"
+            }
+          }, {
+            "id": 111,
+            "parentId": 102,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.Class",
+              "name": "isArray"
+            }
+          }, {
+            "id": 112,
+            "parentId": 103,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.test.log.TestLogger",
+              "name": "debug"
+            }
+          }, {
+            "id": 113,
+            "parentId": 104,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.test.log.TestLogger",
+              "name": "log"
+            }
+          }, {
+            "id": 114,
+            "parentId": 106,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClassOrNull"
+            }
+          }, {
+            "id": 115,
+            "parentId": 107,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.ClassLoaders$AppClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 116,
+            "parentId": 108,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.Schema$Parser",
+              "name": "parse"
+            }
+          }, {
+            "id": 117,
+            "parentId": 109,
+            "count": 5,
+            "method": {
+              "declaringClass": "org.apache.avro.io.DecoderFactory",
+              "name": "resolvingDecoder"
+            }
+          }, {
+            "id": 118,
+            "parentId": 110,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.reflect.ReflectDatumReader",
+              "name": "readField"
+            }
+          }, {
+            "id": 119,
+            "parentId": 110,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.reflect.ReflectData",
+              "name": "newRecord"
+            }
+          }, {
+            "id": 120,
+            "parentId": 112,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.test.log.TestLogger",
+              "name": "log"
+            }
+          }, {
+            "id": 121,
+            "parentId": 113,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.test.log.CompositeLogHandler",
+              "name": "accept"
+            }
+          }, {
+            "id": 122,
+            "parentId": 114,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "findClassOnClassPathOrNull"
+            }
+          }, {
+            "id": 123,
+            "parentId": 115,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 124,
+            "parentId": 116,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.ObjectMapper",
+              "name": "readTree"
+            }
+          }, {
+            "id": 125,
+            "parentId": 117,
+            "count": 4,
+            "method": {
+              "declaringClass": "org.apache.avro.io.ResolvingDecoder",
+              "name": "<init>"
+            }
+          }, {
+            "id": 126,
+            "parentId": 118,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.generic.GenericDatumReader",
+              "name": "readField"
+            }
+          }, {
+            "id": 127,
+            "parentId": 119,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.specific.SpecificData",
+              "name": "newRecord"
+            }
+          }, {
+            "id": 128,
+            "parentId": 120,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.test.log.CompositeLogHandler",
+              "name": "accept"
+            }
+          }, {
+            "id": 129,
+            "parentId": 121,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.test.log.CompositeLogHandler",
+              "name": "accept"
+            }
+          }, {
+            "id": 130,
+            "parentId": 122,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "defineClass"
+            }
+          }, {
+            "id": 131,
+            "parentId": 123,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClassOrNull"
+            }
+          }, {
+            "id": 132,
+            "parentId": 124,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.ObjectMapper",
+              "name": "_readValue"
+            }
+          }, {
+            "id": 133,
+            "parentId": 125,
+            "count": 3,
+            "method": {
+              "declaringClass": "org.apache.avro.io.ResolvingDecoder",
+              "name": "resolve"
+            }
+          }, {
+            "id": 134,
+            "parentId": 125,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.io.ResolvingDecoder",
+              "name": "<init>"
+            }
+          }, {
+            "id": 135,
+            "parentId": 126,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.generic.GenericDatumReader",
+              "name": "read"
+            }
+          }, {
+            "id": 136,
+            "parentId": 127,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.specific.SpecificData",
+              "name": "newInstance"
+            }
+          }, {
+            "id": 137,
+            "parentId": 128,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.test.log.CompositeLogHandler",
+              "name": "accept"
+            }
+          }, {
+            "id": 138,
+            "parentId": 129,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.test.log.LogPrinter",
+              "name": "handle"
+            }
+          }, {
+            "id": 139,
+            "parentId": 130,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.security.SecureClassLoader",
+              "name": "defineClass"
+            }
+          }, {
+            "id": 140,
+            "parentId": 131,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "findLoadedClass"
+            }
+          }, {
+            "id": 141,
+            "parentId": 132,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.deser.std.JsonNodeDeserializer",
+              "name": "deserialize"
+            }
+          }, {
+            "id": 142,
+            "parentId": 133,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 143,
+            "parentId": 133,
+            "count": 2,
+            "method": {
+              "declaringClass": "org.apache.avro.io.parsing.ResolvingGrammarGenerator",
+              "name": "generate"
+            }
+          }, {
+            "id": 144,
+            "parentId": 134,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.io.ValidatingDecoder",
+              "name": "<init>"
+            }
+          }, {
+            "id": 145,
+            "parentId": 135,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.generic.GenericDatumReader",
+              "name": "readString"
+            }
+          }, {
+            "id": 146,
+            "parentId": 136,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.util.concurrent.ConcurrentHashMap",
+              "name": "computeIfAbsent"
+            }
+          }, {
+            "id": 147,
+            "parentId": 137,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.test.log.LogPrinter",
+              "name": "handle"
+            }
+          }, {
+            "id": 148,
+            "parentId": 138,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.log.LogPrinter",
+              "name": "print"
+            }
+          }, {
+            "id": 149,
+            "parentId": 139,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "defineClass"
+            }
+          }, {
+            "id": 150,
+            "parentId": 140,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "findLoadedClass0"
+            }
+          }, {
+            "id": 151,
+            "parentId": 141,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.deser.std.JsonNodeDeserializer",
+              "name": "deserialize"
+            }
+          }, {
+            "id": 152,
+            "parentId": 142,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.ClassLoaders$AppClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 153,
+            "parentId": 143,
+            "count": 2,
+            "method": {
+              "declaringClass": "org.apache.avro.io.parsing.ResolvingGrammarGenerator",
+              "name": "generate"
+            }
+          }, {
+            "id": 154,
+            "parentId": 144,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.io.ParsingDecoder",
+              "name": "<init>"
+            }
+          }, {
+            "id": 155,
+            "parentId": 145,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.io.ResolvingDecoder",
+              "name": "readString"
+            }
+          }, {
+            "id": 156,
+            "parentId": 146,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.specific.SpecificData$$Lambda$347/0x0000000800424440",
+              "name": "apply"
+            }
+          }, {
+            "id": 157,
+            "parentId": 147,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.log.LogPrinter",
+              "name": "print"
+            }
+          }, {
+            "id": 158,
+            "parentId": 148,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.log.LogPrinter",
+              "name": "print"
+            }
+          }, {
+            "id": 159,
+            "parentId": 149,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "defineClass1"
+            }
+          }, {
+            "id": 160,
+            "parentId": 151,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.deser.std.BaseNodeDeserializer",
+              "name": "deserializeObject"
+            }
+          }, {
+            "id": 161,
+            "parentId": 152,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 162,
+            "parentId": 153,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.io.parsing.ResolvingGrammarGenerator",
+              "name": "resolveRecords"
+            }
+          }, {
+            "id": 163,
+            "parentId": 153,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.io.parsing.ResolvingGrammarGenerator$1",
+              "name": "<clinit>"
+            }
+          }, {
+            "id": 164,
+            "parentId": 154,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 165,
+            "parentId": 155,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.io.BinaryDecoder",
+              "name": "readString"
+            }
+          }, {
+            "id": 166,
+            "parentId": 156,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.specific.SpecificData",
+              "name": "lambda$newInstance$0"
+            }
+          }, {
+            "id": 167,
+            "parentId": 157,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.log.LogPrinter",
+              "name": "print"
+            }
+          }, {
+            "id": 168,
+            "parentId": 158,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.log.LogPrinter",
+              "name": "print"
+            }
+          }, {
+            "id": 169,
+            "parentId": 160,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.deser.std.BaseNodeDeserializer",
+              "name": "deserializeArray"
+            }
+          }, {
+            "id": 170,
+            "parentId": 161,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClassOrNull"
+            }
+          }, {
+            "id": 171,
+            "parentId": 163,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.Schema$Type",
+              "name": "values"
+            }
+          }, {
+            "id": 172,
+            "parentId": 164,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.ClassLoaders$AppClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 173,
+            "parentId": 165,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.io.BinaryDecoder",
+              "name": "readInt"
+            }
+          }, {
+            "id": 174,
+            "parentId": 166,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 175,
+            "parentId": 167,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.maven.surefire.report.ConsoleOutputCapture$ForwardingPrintStream",
+              "name": "write"
+            }
+          }, {
+            "id": 176,
+            "parentId": 168,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.base.Slf4jMessageFormatter",
+              "name": "format"
+            }
+          }, {
+            "id": 177,
+            "parentId": 169,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.deser.std.BaseNodeDeserializer",
+              "name": "deserializeObject"
+            }
+          }, {
+            "id": 178,
+            "parentId": 170,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "findClassOnClassPathOrNull"
+            }
+          }, {
+            "id": 179,
+            "parentId": 171,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.Object",
+              "name": "clone"
+            }
+          }, {
+            "id": 180,
+            "parentId": 172,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 181,
+            "parentId": 173,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.io.BinaryDecoder",
+              "name": "ensureBounds"
+            }
+          }, {
+            "id": 182,
+            "parentId": 174,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.ClassLoaders$AppClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 183,
+            "parentId": 175,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.maven.surefire.booter.ForkingRunListener",
+              "name": "writeTestOutput"
+            }
+          }, {
+            "id": 184,
+            "parentId": 176,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.base.EscapeJsonStringAppendableWrapper",
+              "name": "append"
+            }
+          }, {
+            "id": 185,
+            "parentId": 177,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.deser.std.BaseNodeDeserializer",
+              "name": "deserializeArray"
+            }
+          }, {
+            "id": 186,
+            "parentId": 178,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "defineClass"
+            }
+          }, {
+            "id": 187,
+            "parentId": 180,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClassOrNull"
+            }
+          }, {
+            "id": 188,
+            "parentId": 181,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.io.BinaryDecoder$ByteSource",
+              "name": "compactAndFill"
+            }
+          }, {
+            "id": 189,
+            "parentId": 182,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClass"
+            }
+          }, {
+            "id": 190,
+            "parentId": 183,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.io.PrintStream",
+              "name": "write"
+            }
+          }, {
+            "id": 191,
+            "parentId": 185,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.deser.std.BaseNodeDeserializer",
+              "name": "deserializeObject"
+            }
+          }, {
+            "id": 192,
+            "parentId": 186,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.security.SecureClassLoader",
+              "name": "defineClass"
+            }
+          }, {
+            "id": 193,
+            "parentId": 187,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "findClassOnClassPathOrNull"
+            }
+          }, {
+            "id": 194,
+            "parentId": 188,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.apache.avro.io.BinaryDecoder$InputStreamByteSource",
+              "name": "tryReadRaw"
+            }
+          }, {
+            "id": 195,
+            "parentId": 189,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClassOrNull"
+            }
+          }, {
+            "id": 196,
+            "parentId": 191,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.deser.std.BaseNodeDeserializer",
+              "name": "deserializeArray"
+            }
+          }, {
+            "id": 197,
+            "parentId": 192,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "defineClass"
+            }
+          }, {
+            "id": 198,
+            "parentId": 193,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "defineClass"
+            }
+          }, {
+            "id": 199,
+            "parentId": 194,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.io.MemorizingBufferedInputStream",
+              "name": "read"
+            }
+          }, {
+            "id": 200,
+            "parentId": 195,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClassOrNull"
+            }
+          }, {
+            "id": 201,
+            "parentId": 196,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.deser.std.BaseNodeDeserializer",
+              "name": "deserializeObject"
+            }
+          }, {
+            "id": 202,
+            "parentId": 197,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "defineClass1"
+            }
+          }, {
+            "id": 203,
+            "parentId": 198,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.security.SecureClassLoader",
+              "name": "defineClass"
+            }
+          }, {
+            "id": 204,
+            "parentId": 199,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.spf4j.io.MemorizingBufferedInputStream",
+              "name": "fill"
+            }
+          }, {
+            "id": 205,
+            "parentId": 200,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.BuiltinClassLoader",
+              "name": "loadClassOrNull"
+            }
+          }, {
+            "id": 206,
+            "parentId": 201,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.deser.std.BaseNodeDeserializer",
+              "name": "deserializeObject"
+            }
+          }, {
+            "id": 207,
+            "parentId": 203,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "defineClass"
+            }
+          }, {
+            "id": 208,
+            "parentId": 204,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.io.FilterInputStream",
+              "name": "read"
+            }
+          }, {
+            "id": 209,
+            "parentId": 205,
+            "count": 1,
+            "method": {
+              "declaringClass": "jdk.internal.loader.ClassLoaders$BootClassLoader",
+              "name": "loadClassOrNull"
+            }
+          }, {
+            "id": 210,
+            "parentId": 206,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.deser.std.BaseNodeDeserializer",
+              "name": "deserializeObject"
+            }
+          }, {
+            "id": 211,
+            "parentId": 207,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "defineClass1"
+            }
+          }, {
+            "id": 212,
+            "parentId": 208,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.message.internal.ReaderInterceptorExecutor$UnCloseableInputStream",
+              "name": "read"
+            }
+          }, {
+            "id": 213,
+            "parentId": 209,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.System$2",
+              "name": "findBootstrapClassOrNull"
+            }
+          }, {
+            "id": 214,
+            "parentId": 210,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.deser.std.BaseNodeDeserializer",
+              "name": "deserializeArray"
+            }
+          }, {
+            "id": 215,
+            "parentId": 212,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.message.internal.EntityInputStream",
+              "name": "read"
+            }
+          }, {
+            "id": 216,
+            "parentId": 213,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "findBootstrapClassOrNull"
+            }
+          }, {
+            "id": 217,
+            "parentId": 214,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.deser.std.BaseNodeDeserializer",
+              "name": "deserializeObject"
+            }
+          }, {
+            "id": 218,
+            "parentId": 215,
+            "count": 1,
+            "method": {
+              "declaringClass": "org.glassfish.jersey.client.internal.HttpUrlConnector$2",
+              "name": "read"
+            }
+          }, {
+            "id": 219,
+            "parentId": 216,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.lang.ClassLoader",
+              "name": "findBootstrapClass"
+            }
+          }, {
+            "id": 220,
+            "parentId": 217,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.node.JsonNodeFactory",
+              "name": "textNode"
+            }
+          }, {
+            "id": 221,
+            "parentId": 218,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.net.www.protocol.http.HttpURLConnection$HttpInputStream",
+              "name": "read"
+            }
+          }, {
+            "id": 222,
+            "parentId": 220,
+            "count": 1,
+            "method": {
+              "declaringClass": "com.fasterxml.jackson.databind.node.TextNode",
+              "name": "valueOf"
+            }
+          }, {
+            "id": 223,
+            "parentId": 221,
+            "count": 1,
+            "method": {
+              "declaringClass": "java.io.FilterInputStream",
+              "name": "read"
+            }
+          }, {
+            "id": 224,
+            "parentId": 223,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.net.www.MeteredStream",
+              "name": "read"
+            }
+          }, {
+            "id": 225,
+            "parentId": 224,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.net.www.MeteredStream",
+              "name": "justRead"
+            }
+          }, {
+            "id": 226,
+            "parentId": 225,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.net.www.http.KeepAliveStream",
+              "name": "close"
+            }
+          }, {
+            "id": 227,
+            "parentId": 226,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.net.www.http.HttpClient",
+              "name": "finished"
+            }
+          }, {
+            "id": 228,
+            "parentId": 227,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.net.www.http.HttpClient",
+              "name": "putInKeepAliveCache"
+            }
+          }, {
+            "id": 229,
+            "parentId": 228,
+            "count": 1,
+            "method": {
+              "declaringClass": "sun.net.www.http.KeepAliveCache",
+              "name": "put"
+            }
+          }]
+      },
+      "componentsHealth": [{
+          "origin": "spf4j.jaxrs.serverHost",
+          "status": "HEALTHY",
+          "componentsHealth": [{
+              "origin": "spf4j.jaxrs.serverHost",
+              "name": "nop",
+              "status": "HEALTHY"
+            }]
+        }]
+    }]
+}

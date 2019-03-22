@@ -42,7 +42,7 @@ public final class HealthResource {
   @Inject
   public HealthResource(final Iterable<HealthCheck.Registration> healthChecks,
           final DebugDetailEntitlement ddEnt,
-          @ConfigProperty("spf4j.jaxrs.serverHost") @DefaultValue("spf4j.jaxrs.serverHost") final String host) {
+          @ConfigProperty("servlet.bindAddr") @DefaultValue("servlet.bindAddr") final String host) {
     this.ddEnt = ddEnt;
     this.host = host;
     checks =  HealthOrgNode.newHealthChecks();
