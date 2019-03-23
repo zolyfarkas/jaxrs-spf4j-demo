@@ -76,10 +76,4 @@ public class HealthResourceTest extends ServiceIntegrationBase {
     System.out.println(new String(bos.toByteArray(), StandardCharsets.UTF_8));
   }
 
-  @Test
-  public void testHealthCheckCluster2Repro() throws IOException {
-    AvroUtils.readAvroExtendedJson(ClassLoader.getSystemResourceAsStream("newjson.json"), HealthRecord.class);
-  }
-
-
 }
