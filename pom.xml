@@ -10,11 +10,12 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <avro.version>1.9.0.3p-SNAPSHOT</avro.version>
+    <avro.version>1.9.0.4p-SNAPSHOT</avro.version>
     <bintray.subject>zolyfarkas</bintray.subject>
     <bintray.repo>core</bintray.repo>
     <bintray.package>${project.artifactId}</bintray.package>
     <spf4j.version>8.6.6-SNAPSHOT</spf4j.version>
+    <spf4j-jaxrs.version>2.1.6-SNAPSHOT</spf4j-jaxrs.version>
   </properties>
 
   <repositories>
@@ -91,12 +92,12 @@
     <dependency>
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-jaxrs-server</artifactId>
-      <version>2.1.5-SNAPSHOT</version>
+      <version>${spf4j-jaxrs.version}</version>
     </dependency>
     <dependency>
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-jaxrs-kube</artifactId>
-      <version>2.1.5-SNAPSHOT</version>
+      <version>${spf4j-jaxrs.version}</version>
     </dependency>
     <dependency>
       <groupId>org.spf4j.demo</groupId>
