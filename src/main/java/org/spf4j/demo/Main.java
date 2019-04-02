@@ -32,6 +32,7 @@ import org.spf4j.io.ByteArrayBuilder;
 import org.spf4j.jaxrs.common.providers.avro.DefaultSchemaProtocol;
 import org.spf4j.jaxrs.common.providers.avro.XJsonAvroMessageBodyWriter;
 import org.spf4j.log.SLF4JBridgeHandler;
+import org.spf4j.perf.ProcessVitals;
 import org.spf4j.stackmonitor.ProfiledExecutionContextFactory;
 import org.spf4j.stackmonitor.ProfilingTLAttacher;
 import org.spf4j.stackmonitor.Sampler;
@@ -53,6 +54,8 @@ public class Main {
        System.setProperty("logFileBase", podName);
        System.setProperty("podName", podName);
        System.setProperty("hostName", podName);
+       System.setProperty("spf4j.perf.ms.defaultTsdbFolderPath", "/var/log");
+       System.setProperty("spf4j.perf.ms.defaultSsdumpFolder", "/var/log");
     }
     SLF4JBridgeHandler.removeHandlersForRootLogger();
     SLF4JBridgeHandler.install();
@@ -97,6 +100,7 @@ public class Main {
     servletRegistration.setInitParameter("servlet.bindAddr", bindAddr);
     servletRegistration.setInitParameter("servlet.port", Integer.toString(port));
     servletRegistration.setInitParameter("servlet.protocol", "http");
+    servletRegistration.setInitParameter("application.logFilesPath", "/var/log");
     servletRegistration.setInitParameter(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, "true");
     servletRegistration.setLoadOnStartup(0);
     HttpServer server = new HttpServer();
@@ -199,10 +203,13 @@ public class Main {
    * @throws IOException
    */
   public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
+    ProcessVitals vitals = new ProcessVitals();
+    vitals.start();
     final CountDownLatch latch = new CountDownLatch(1);
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
+        vitals.close();
         latch.countDown();
       }
 
