@@ -309,17 +309,5 @@ public class HelloResourceTest extends ServiceIntegrationBase {
     expect.assertObservation();
   }
 
-  @Test
-  public void testGetErrorIDE() {
-
-    Invocation.Builder request = getTarget().path("demo/helloResource/error").request();
-    try {
-      request.get(String.class);
-      Assert.fail();
-    } catch (WebApplicationException ex) {
-      LOG.debug("Expected Error Response", ex.getResponse().getEntity(), ex);
-    }
-  }
-
 
 }
