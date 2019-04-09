@@ -5,7 +5,7 @@
   <groupId>org.spf4j.demo</groupId>
   <artifactId>jaxrs-spf4j-demo</artifactId>
   <packaging>jar</packaging>
-  <version>0.5-SNAPSHOT</version>
+  <version>0.5</version>
   <name>${project.artifactId}-${project.version}</name>
 
   <properties>
@@ -40,7 +40,7 @@
     <connection>scm:git:https://github.com/zolyfarkas/jaxrs-spf4j-demo.git</connection>
     <developerConnection>scm:git:https://github.com/zolyfarkas/jaxrs-spf4j-demo.git</developerConnection>
     <url>https://github.com/zolyfarkas/jaxrs-spf4j-demo/</url>
-    <tag>HEAD</tag>
+    <tag>jaxrs-spf4j-demo-0.5</tag>
   </scm>
 
   <dependencyManagement>
