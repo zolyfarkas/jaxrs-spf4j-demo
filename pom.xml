@@ -308,6 +308,8 @@
           <buildArgs>
             <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
           </buildArgs>
+          <username>${docker.user}</username>
+          <password>${docker.password}</password>
         </configuration>
       </plugin>
     </plugins>
