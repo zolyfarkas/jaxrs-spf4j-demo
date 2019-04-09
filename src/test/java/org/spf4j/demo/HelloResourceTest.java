@@ -25,6 +25,7 @@ import org.spf4j.base.avro.RemoteException;
 import org.spf4j.base.avro.ServiceError;
 import org.spf4j.concurrent.DefaultExecutor;
 import org.spf4j.failsafe.HedgePolicy;
+import org.spf4j.failsafe.RetryPolicy;
 import org.spf4j.failsafe.TimeoutRelativeHedge;
 import org.spf4j.jaxrs.client.Spf4jInvocationBuilder;
 import org.spf4j.log.Level;
@@ -151,10 +152,11 @@ public class HelloResourceTest extends ServiceIntegrationBase {
   @Test
   public void testBuggyHelloWorld() throws InterruptedException, ExecutionException, TimeoutException {
     Spf4jInvocationBuilder request = getClient().withHedgePolicy(HedgePolicy.NONE)
+            .withRetryPolicy(RetryPolicy.noRetryPolicy())
         .target(getLocalService()).path("demo/helloResource/buggyHelloWorld").request();
     try {
         request
-            .withTimeout(3000, TimeUnit.SECONDS)
+            .withTimeout(30000, TimeUnit.SECONDS)
             .buildGet().invoke(String.class);
       Assert.fail();
     } catch (RuntimeException ex) {
