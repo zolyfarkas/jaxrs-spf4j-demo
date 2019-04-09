@@ -10,12 +10,12 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <avro.version>1.9.0.4p-SNAPSHOT</avro.version>
+    <avro.version>1.9.0.5p-SNAPSHOT</avro.version>
     <bintray.subject>zolyfarkas</bintray.subject>
     <bintray.repo>core</bintray.repo>
     <bintray.package>${project.artifactId}</bintray.package>
-    <spf4j.version>8.6.6</spf4j.version>
-    <spf4j-jaxrs.version>2.1.6-SNAPSHOT</spf4j-jaxrs.version>
+    <spf4j.version>8.6.7</spf4j.version>
+    <spf4j-jaxrs.version>2.1.6</spf4j-jaxrs.version>
   </properties>
 
   <repositories>
@@ -75,9 +75,14 @@
       <version>${spf4j.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.avro</groupId>
+      <artifactId>avro</artifactId>
+      <version>${avro.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-logback</artifactId>
-      <version>1.2.1</version>
+      <version>1.2.2</version>
     </dependency>
     <dependency> <!-- jersey wants this, otherwise some ugly warn message in the logs -->
       <groupId>javax.activation</groupId>
