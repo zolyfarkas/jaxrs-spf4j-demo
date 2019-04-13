@@ -45,8 +45,8 @@ This example shows how you can overcome some of the challenges you will face in 
 This demo is built and published to docker-hub, you can run this service by:
 
 ```
-$ docker pull zolyfarkas/jaxrs-spf4j-demo:0.4
-$ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:0.4
+$ docker pull zolyfarkas/jaxrs-spf4j-demo:0.5
+$ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:0.5
 ```
 
 open in your browser: 
@@ -60,9 +60,11 @@ open in your browser:
 
 if adventurous you can try this in kubernetes:
 
-  Install a kubernetes local cluster from (or use minikube): https://github.com/kubernetes-sigs/kubeadm-dind-cluster
+  Install and run a kubernetes local cluster from: https://github.com/kubernetes-sigs/kubeadm-dind-cluster
 
 ```
+  kubectl create -f ./src/main/kube/kube-rbac.yaml
+  
   kubectl create -f ./src/main/kube/kube-deployment.yaml
 
   kubectl create -f ./src/main/kube/kube-service.yaml
@@ -70,7 +72,7 @@ if adventurous you can try this in kubernetes:
   kubectl port-forward  deployment/jaxrs-spf4j-demo 8080:8080
 
 ```
-  now you can access the cluster vvia localhost:8080.
+  now you can access the cluster via localhost:8080.
 
   And try out additionally some cluster endpoints in your browser:
 
