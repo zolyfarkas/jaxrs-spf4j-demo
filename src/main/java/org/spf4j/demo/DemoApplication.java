@@ -30,7 +30,6 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
-import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.spf4j.actuator.health.ClusterAllNodesCheck;
 import org.spf4j.actuator.health.ClusterAllNodesRegistration;
@@ -48,6 +47,7 @@ import org.spf4j.jaxrs.client.providers.ClientCustomScheduledExecutionServicePro
 import org.spf4j.jaxrs.client.providers.ExecutionContextClientFilter;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.common.providers.CsvParameterConverterProvider;
+import org.spf4j.jaxrs.common.providers.GZipEncoderDecoder;
 import org.spf4j.jaxrs.common.providers.avro.AvroFeature;
 import org.spf4j.jaxrs.common.providers.avro.DefaultSchemaProtocol;
 import org.spf4j.kube.client.Client;
@@ -89,7 +89,7 @@ public class DemoApplication extends ResourceConfig {
             .register(ClientCustomExecutorServiceProvider.class)
             .register(ClientCustomScheduledExecutionServiceProvider.class)
             .register(new CsvParameterConverterProvider(Collections.EMPTY_LIST))
-            .register(GZipEncoder.class)
+            .register(GZipEncoderDecoder.class)
             .register(DeflateEncoder.class)
             .register(EncodingFilter.class)
             .register(avroFeature)
@@ -98,6 +98,7 @@ public class DemoApplication extends ResourceConfig {
     register(new Spf4jBinder(schemaClient, restClient, (x) -> true));
     register(avroFeature);
     register(CsvParameterConverterProvider.class);
+    register(GZipEncoderDecoder.class);
     String initParameter = srvContext.getServletRegistration("jersey").getInitParameter("servlet.port");
     register(new ClusterBinder(Integer.parseInt(initParameter)));
     register(new AbstractBinder() {

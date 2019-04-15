@@ -93,6 +93,12 @@
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-jaxrs-server</artifactId>
       <version>${spf4j-jaxrs.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.glassfish.jersey.media</groupId>
+          <artifactId>jersey-media-jaxb</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
