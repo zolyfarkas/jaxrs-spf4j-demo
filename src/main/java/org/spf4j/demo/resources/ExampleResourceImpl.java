@@ -1,4 +1,4 @@
-package org.spf4j.demo;
+package org.spf4j.demo.resources;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -12,6 +12,7 @@ import org.apache.avro.generic.GenericRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spf4j.avro.Projections;
+import org.spf4j.demo.ExampleResource;
 import org.spf4j.demo.avro.DemoRecord;
 import org.spf4j.demo.avro.DemoRecordInfo;
 import org.spf4j.demo.avro.MetaData;

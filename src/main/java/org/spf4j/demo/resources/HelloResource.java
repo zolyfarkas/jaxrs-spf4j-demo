@@ -1,4 +1,4 @@
-package org.spf4j.demo;
+package org.spf4j.demo.resources;
 
 import java.util.Arrays;
 import java.util.List;
