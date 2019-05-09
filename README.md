@@ -41,6 +41,8 @@ This example shows how you can overcome some of the challenges you will face in 
 
 10) Deprecation support, clients will be notified when hitting deprecated endpoints via HTTP Warning headers.
 
+11) Actuatur endoints  for logs, health info
+
 
 This demo is built and published to docker-hub, you can run this service by:
 
