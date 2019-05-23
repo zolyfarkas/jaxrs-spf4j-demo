@@ -82,7 +82,7 @@
     <dependency>
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-logback</artifactId>
-      <version>1.2.2</version>
+      <version>1.2.3-SNAPSHOT</version>
     </dependency>
     <dependency> <!-- jersey wants this, otherwise some ugly warn message in the logs -->
       <groupId>javax.activation</groupId>
