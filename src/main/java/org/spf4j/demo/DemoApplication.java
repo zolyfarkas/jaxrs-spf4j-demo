@@ -31,6 +31,7 @@ import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.spf4j.actuator.apiBrowser.OpenApiResource;
 import org.spf4j.actuator.health.ClusterAllNodesCheck;
 import org.spf4j.actuator.health.ClusterAllNodesRegistration;
 import org.spf4j.actuator.health.HealthCheck;
@@ -38,6 +39,7 @@ import org.spf4j.avro.SchemaClient;
 import org.spf4j.base.avro.NetworkProtocol;
 import org.spf4j.base.avro.NetworkService;
 import org.spf4j.cluster.Cluster;
+import org.spf4j.cluster.Service;
 import org.spf4j.cluster.SingleNodeCluster;
 import org.spf4j.hk2.Spf4jBinder;
 import org.spf4j.http.DefaultDeadlineProtocol;
@@ -46,7 +48,9 @@ import org.spf4j.jaxrs.client.providers.ClientCustomExecutorServiceProvider;
 import org.spf4j.jaxrs.client.providers.ClientCustomScheduledExecutionServiceProvider;
 import org.spf4j.jaxrs.client.providers.ExecutionContextClientFilter;
 import org.spf4j.jaxrs.client.Spf4JClient;
+import org.spf4j.jaxrs.common.providers.CharSequenceMessageProvider;
 import org.spf4j.jaxrs.common.providers.CsvParameterConverterProvider;
+import org.spf4j.jaxrs.common.providers.DirectStringMessageProvider;
 import org.spf4j.jaxrs.common.providers.GZipEncoderDecoder;
 import org.spf4j.jaxrs.common.providers.avro.AvroFeature;
 import org.spf4j.jaxrs.common.providers.avro.DefaultSchemaProtocol;
@@ -89,6 +93,7 @@ public class DemoApplication extends ResourceConfig {
             .register(ClientCustomExecutorServiceProvider.class)
             .register(ClientCustomScheduledExecutionServiceProvider.class)
             .register(new CsvParameterConverterProvider(Collections.EMPTY_LIST))
+            .register(new CharSequenceMessageProvider())
             .register(GZipEncoderDecoder.class)
             .register(DeflateEncoder.class)
             .register(EncodingFilter.class)
@@ -99,6 +104,9 @@ public class DemoApplication extends ResourceConfig {
     register(avroFeature);
     register(CsvParameterConverterProvider.class);
     register(GZipEncoderDecoder.class);
+    register(new DirectStringMessageProvider());
+    register(new CharSequenceMessageProvider());
+    registerClasses(OpenApiResource.class);
     String initParameter = srvContext.getServletRegistration("jersey").getInitParameter("servlet.port");
     register(new ClusterBinder(Integer.parseInt(initParameter)));
     register(new AbstractBinder() {
@@ -197,12 +205,13 @@ public class DemoApplication extends ResourceConfig {
           } else {
             caCert = null;
           }
-          bind(new KubeCluster(new Client(
+          KubeCluster kubeCluster = new KubeCluster(new Client(
                   Files.readString(
                           Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/token"), StandardCharsets.UTF_8),
                   caCert),
-                  kubeNameSpace, System.getenv("KUBE_APP_NAME")))
-                  .to(Cluster.class);
+                  kubeNameSpace, System.getenv("KUBE_APP_NAME"));
+          bind(kubeCluster).to(Cluster.class);
+          bind(kubeCluster).to(Service.class);
         } catch (IOException ex) {
           throw new UncheckedIOException(ex);
         }

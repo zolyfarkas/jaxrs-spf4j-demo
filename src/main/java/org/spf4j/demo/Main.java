@@ -1,5 +1,6 @@
 package org.spf4j.demo;
 
+import io.swagger.v3.core.converter.ModelConverters;
 import org.glassfish.grizzly.http.server.HttpServer;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -21,6 +22,7 @@ import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spf4j.actuator.apiBrowser.AvroModelConverter;
 import org.spf4j.avro.SchemaClient;
 import org.spf4j.base.Arrays;
 import org.spf4j.base.ExecutionContexts;
@@ -203,6 +205,7 @@ public class Main {
    * @throws IOException
    */
   public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
+    ModelConverters.getInstance().addConverter(AvroModelConverter.INSTANCE);
     ProcessVitals vitals = new ProcessVitals();
     vitals.start();
     final CountDownLatch latch = new CountDownLatch(1);
