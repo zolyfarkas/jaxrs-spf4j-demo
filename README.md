@@ -44,6 +44,8 @@ This example shows how you can overcome some of the challenges you will face in 
 11) Actuatur endoints  for logs, health info
 
 
+See the [wiki](https://github.com/zolyfarkas/jaxrs-spf4j-demo/wiki) for more detailed descriptions of the concepts implemented here
+
 This demo is built and published to docker-hub, you can run this service by:
 
 ```
