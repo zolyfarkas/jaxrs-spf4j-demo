@@ -115,6 +115,11 @@
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-jaxrs-actuator</artifactId>
       <version>${spf4j-jaxrs.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.spf4j</groupId>
+      <artifactId>spf4j-jaxrs-actuator-cluster</artifactId>
+      <version>${spf4j-jaxrs.version}</version>
     </dependency>    
     <dependency>
       <groupId>org.spf4j</groupId>
