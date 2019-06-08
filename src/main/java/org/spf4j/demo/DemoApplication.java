@@ -1,6 +1,7 @@
 package org.spf4j.demo;
 
 import avro.shaded.com.google.common.collect.ImmutableSet;
+import com.google.common.base.Suppliers;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetAddress;
@@ -115,7 +116,7 @@ public class DemoApplication extends ResourceConfig {
         bind(new HealthCheck.Registration() {
           @Override
           public String[] getPath() {
-            return new String [] {"nop"};
+            return new String[]{"nop"};
           }
 
           @Override
@@ -181,7 +182,6 @@ public class DemoApplication extends ResourceConfig {
       this.port = port;
     }
 
-
     @Override
     protected void configure() {
       String kubeNameSpace = System.getenv("KUBE_NAME_SPACE");
@@ -205,11 +205,15 @@ public class DemoApplication extends ResourceConfig {
           } else {
             caCert = null;
           }
-          KubeCluster kubeCluster = new KubeCluster(new Client(
-                  Files.readString(
-                          Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/token"), StandardCharsets.UTF_8),
-                  caCert),
-                  kubeNameSpace, System.getenv("KUBE_APP_NAME"));
+          KubeCluster kubeCluster = new KubeCluster(new Client(Suppliers.memoizeWithExpiration(
+                  () -> {
+            try {
+              return Files.readString(Paths.get("/var/run/secrets/kubernetes.io/serviceaccount/token"),
+                      StandardCharsets.UTF_8);
+            } catch (IOException ex) {
+              throw new UncheckedIOException(ex);
+            }
+          }, 10, TimeUnit.MINUTES), caCert), kubeNameSpace, System.getenv("KUBE_APP_NAME"));
           bind(kubeCluster).to(Cluster.class);
           bind(kubeCluster).to(Service.class);
         } catch (IOException ex) {
