@@ -46,8 +46,8 @@ spec:
             mountPath: /var/log
         resources:
           requests:
-            cpu: "1"
-            memory: 256Mi
+            cpu: "100m"
+            memory: 196Mi
         securityContext:
           privileged: false
           procMount: Default

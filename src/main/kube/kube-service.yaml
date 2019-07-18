@@ -7,7 +7,6 @@ metadata:
   name: jaxrs-spf4j-demo
   namespace: default
 spec:
-  clusterIP: 10.100.75.202
   externalTrafficPolicy: Cluster
   ports:
   - name: http

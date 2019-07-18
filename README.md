@@ -55,11 +55,11 @@ $ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:0.5
 
 open in your browser: 
 
-  * [Hello](http://127.0.0.1:8080/demo/helloResource/hello)
-  * [Json avro response](http://127.0.0.1:8080/demo/example/records?_Accept=application/json)
-  * [Binary avro response](http://127.0.0.1:8080/demo/example/records)
-  * [Error response](http://127.0.0.1:8080/demo/helloResource/aError)
-  * [Error Response + profile data](http://127.0.0.1:8080/demo/helloResource/slowBrokenHello?time=31)
+  * [Hello](http://demo.spf4j.org/demo/helloResource/hello)
+  * [Json avro response](http://demo.spf4j.org/demo/example/records?_Accept=application/json)
+  * [Binary avro response](http://demo.spf4j.org/demo/example/records)
+  * [Error response](http://demo.spf4j.org/demo/helloResource/aError)
+  * [Error Response + profile data](http://demo.spf4j.org/demo/helloResource/slowBrokenHello?time=31)
 
 
 if adventurous you can try this in kubernetes:
@@ -80,7 +80,8 @@ if adventurous you can try this in kubernetes:
 
   And try out additionally some cluster endpoints in your browser:
 
-  * [app cluster info](http://127.0.0.1:8080/info/cluster?_Accept=application/json)
-  * [debug a request](http://127.0.0.1:8080/info/cluster?_Accept=application/json&_log-level=DEBUG)
-  * [see app logs](http://127.0.0.1:8080/logs/cluster)
-  * [see app logs as json](http://127.0.0.1:8080/logs/cluster?_Accept=application/json)
+  * [app cluster info](http://demo.spf4j.org/info/cluster?_Accept=application/json)
+  * [debug a request](http://demo.spf4j.org/info/cluster?_Accept=application/json&_log-level=DEBUG)
+  * [see app logs](http://demo.spf4j.org/logs/cluster)
+  * [see app logs as json](http://demo.spf4j.org/logs/cluster?_Accept=application/json)
+  * [browse the api](http://demo.spf4j.org/apiBrowser)
