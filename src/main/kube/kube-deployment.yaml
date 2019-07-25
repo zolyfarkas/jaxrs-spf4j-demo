@@ -1,19 +1,13 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  annotations:
-    deployment.kubernetes.io/revision: "1"
-  generation: 1
   labels:
     app: jaxrs-spf4j-demo
     version: 0.7-SNAPSHOT
   name: jaxrs-spf4j-demo
   namespace: default
-  selfLink: /apis/extensions/v1beta1/namespaces/default/deployments/jaxrs-spf4j-demo
 spec:
-  progressDeadlineSeconds: 2147483647
   replicas: 2
-  revisionHistoryLimit: 2147483647
   selector:
     matchLabels:
       app: jaxrs-spf4j-demo
@@ -25,7 +19,6 @@ spec:
     type: RollingUpdate
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: jaxrs-spf4j-demo
         version: 0.7-SNAPSHOT
@@ -64,21 +57,21 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-        livenessProbe:
-             httpGet:
-               path: /health/check/local
-               port: 8080
-             initialDelaySeconds: 10
-             periodSeconds: 5
-        readinessProbe:
-             httpGet:
-               path: /health/ping
-               port: 8080
-             initialDelaySeconds: 3
-             periodSeconds: 5
+#        livenessProbe:
+#             httpGet:
+#               path: /health/check/local
+#               port: 8080
+#             initialDelaySeconds: 10
+#             periodSeconds: 5
+#             timeoutSeconds: 3
+#        readinessProbe:
+#             httpGet:
+#               path: /health/ping
+#               port: 8080
+#             initialDelaySeconds: 5
+#             periodSeconds: 10
+#             timeoutSeconds: 2
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
-      securityContext: {}
       terminationGracePeriodSeconds: 30
-status: {}
