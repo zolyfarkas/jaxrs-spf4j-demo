@@ -1,8 +1,10 @@
 package org.spf4j.demo;
 
+import org.spf4j.grizzly.GrizzlyErrorPageGenerator;
 import io.swagger.v3.core.converter.ModelConverters;
 import org.glassfish.grizzly.http.server.HttpServer;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +18,7 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spf4j.actuator.apiBrowser.AvroModelConverter;
+import org.spf4j.avro.SchemaClient;
 import org.spf4j.base.ExecutionContexts;
 import org.spf4j.concurrent.LifoThreadPoolBuilder;
 import org.spf4j.log.SLF4JBridgeHandler;
@@ -38,11 +41,11 @@ public class Main {
       System.setProperty("appName", appName);
     }
     if (podName != null) {
-       System.setProperty("logFileBase", podName);
-       System.setProperty("podName", podName);
-       System.setProperty("hostName", podName);
-       System.setProperty("spf4j.perf.ms.defaultTsdbFolderPath", "/var/log");
-       System.setProperty("spf4j.perf.ms.defaultSsdumpFolder", "/var/log");
+      System.setProperty("logFileBase", podName);
+      System.setProperty("podName", podName);
+      System.setProperty("hostName", podName);
+      System.setProperty("spf4j.perf.ms.defaultTsdbFolderPath", "/var/log");
+      System.setProperty("spf4j.perf.ms.defaultSsdumpFolder", "/var/log");
     }
     SLF4JBridgeHandler.removeHandlersForRootLogger();
     SLF4JBridgeHandler.install();
@@ -52,7 +55,6 @@ public class Main {
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
-
 
   public static HttpServer startHttpServer() throws IOException, URISyntaxException {
     String envPort = System.getenv("APP_SERVICE_PORT");
@@ -65,7 +67,7 @@ public class Main {
 
   public static HttpServer startHttpServer(final int port)
           throws IOException, URISyntaxException {
-          return startHttpServer(System.getProperty("hostName", "127.0.0.1"), "0.0.0.0", port);
+    return startHttpServer(System.getProperty("hostName", "127.0.0.1"), "0.0.0.0", port);
   }
 
   /**
@@ -92,8 +94,64 @@ public class Main {
     servletRegistration.setLoadOnStartup(0);
     HttpServer server = new HttpServer();
     server.getServerConfiguration()
-            .setDefaultErrorPageGenerator(new GrizzlyErrorPageGenerator());
-//  final ServerConfiguration config = server.getServerConfiguration();
+            .setDefaultErrorPageGenerator(new GrizzlyErrorPageGenerator(
+                    new SchemaClient(new URI("https://dl.bintray.com/zolyfarkas/core"))));
+    NetworkListener listener
+            = createHttpListener(bindAddr, port);
+    server.addListener(listener);
+
+    webappContext.deploy(server);
+    server.start();
+    DemoApplication.getInstance().start();
+    return server;
+  }
+
+
+  public static NetworkListener createHttpsListener(final String bindAddr, final int port) {
+    //  final ServerConfiguration config = server.getServerConfiguration();
+    NetworkListener listener = createHttpListener("https", bindAddr, port);
+    listener.setSecure(true);
+    return listener;
+  }
+
+//  private SSLEngineConfigurator createSSLConfig(boolean isServer)
+//        throws Exception {
+//    final SSLContextConfigurator sslContextConfigurator = new SSLContextConfigurator();
+//    sslContextConfigurator.setKeyStoreFile(keyStoreFile);
+//    // override system properties
+//    final File cacerts = getStoreFile("server truststore",
+//            "truststore_server.jks");
+//    if (cacerts != null) {
+//        sslContextConfigurator.setTrustStoreFile(cacerts.getAbsolutePath());
+//        sslContextConfigurator.setTrustStorePass(TRUSTSTORE_PASSWORD);
+//    }
+//
+//    // override system properties
+//    final File keystore = getStoreFile("server keystore", "keystore_server.jks");
+//    if (keystore != null) {
+//        sslContextConfigurator.setKeyStoreFile(keystore.getAbsolutePath());
+//        sslContextConfigurator.setKeyStorePass(TRUSTSTORE_PASSWORD);
+//    }
+//
+//    //
+//    boolean clientMode = false;
+//    // force client Authentication ...
+//    boolean needClientAuth = settings.isNeedClientAuth();
+//    boolean wantClientAuth = settings.isWantClientAuth();
+//    SSLEngineConfigurator result = new SSLEngineConfigurator(
+//            sslContextConfigurator.createSSLContext(), clientMode, needClientAuth,
+//            wantClientAuth);
+//    return result;
+//}
+
+  public static NetworkListener createHttpListener(final String bindAddr,
+          final int port) {
+    return createHttpListener("http", bindAddr, port);
+  }
+
+  public static NetworkListener createHttpListener(final String name, final String bindAddr,
+          final int port) {
+    //  final ServerConfiguration config = server.getServerConfiguration();
 //  config.addHttpHandler(new StaticHttpHandler(docRoot), "/");
     final NetworkListener listener
             = new NetworkListener("http", bindAddr, port);
@@ -124,12 +182,7 @@ public class Main {
             .withQueueSizeLimit(0)
             .enableJmx()
             .build());
-    server.addListener(listener);
-
-    webappContext.deploy(server);
-    server.start();
-    DemoApplication.getInstance().start();
-    return server;
+    return listener;
   }
 
   public static Sampler startProfiler() {

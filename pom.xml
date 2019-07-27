@@ -16,7 +16,7 @@
     <bintray.subject>zolyfarkas</bintray.subject>
     <bintray.repo>core</bintray.repo>
     <bintray.package>${project.artifactId}</bintray.package>
-    <spf4j.version>8.6.16</spf4j.version>
+    <spf4j.version>8.6.18</spf4j.version>
     <spf4j-jaxrs.version>2.1.15-SNAPSHOT</spf4j-jaxrs.version>
     <jersey.version>2.29</jersey.version>
   </properties>
@@ -76,6 +76,11 @@
       <artifactId>spf4j-slf4j-test</artifactId>
       <scope>test</scope>
       <version>${spf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.spf4j</groupId>
+      <artifactId>spf4j-jaxrs-grizzly</artifactId>
+      <version>${spf4j-jaxrs.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.avro</groupId>
@@ -141,15 +146,20 @@
       <version>${jersey.version}</version>
     </dependency>
 
+
 <!-- if we want wadls support, would also need to include JAXB  as a dependency in that case.
     <dependency>
       <groupId>org.glassfish.jersey.ext</groupId>
       <artifactId>jersey-wadl-doclet</artifactId>
       <version>2.28</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.glassfish.jersey.ext</groupId>
+      <artifactId>jersey-entity-filtering</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
         -->
-
-
   </dependencies>
 
   <build>
