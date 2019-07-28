@@ -76,8 +76,8 @@ public class DemoApplication extends ResourceConfig {
   public DemoApplication(@Context ServletContext srvContext, ServiceLocator locator) {
     ServiceLocatorUtilities.enableImmediateScope(locator);
     DefaultDeadlineProtocol dp = new DefaultDeadlineProtocol();
-    FilterRegistration testFilterReg = srvContext.addFilter("server", new ExecutionContextFilter(dp));
-    testFilterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
+    FilterRegistration ecFilter = srvContext.addFilter("server", new ExecutionContextFilter(dp));
+    ecFilter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
     try {
       schemaClient = new SchemaClient(new URI("https://dl.bintray.com/zolyfarkas/core"));
     } catch (URISyntaxException ex) {
@@ -172,10 +172,12 @@ public class DemoApplication extends ResourceConfig {
         ServletRegistration servletRegistration = srvContext.getServletRegistration("jersey");
         String bindAddr = servletRegistration.getInitParameter("servlet.bindAddr");
         try {
-          bind(new SingleNodeCluster(ImmutableSet.copyOf(InetAddress.getAllByName(bindAddr)),
+          SingleNodeCluster singleNodeCluster = new SingleNodeCluster(ImmutableSet.copyOf(InetAddress.getAllByName(bindAddr)),
                   Collections.singleton(new NetworkService("http",
-                          port, NetworkProtocol.TCP))))
+                          port, NetworkProtocol.TCP)));
+          bind(singleNodeCluster)
                   .to(Cluster.class);
+          bind(singleNodeCluster).to(Service.class);
         } catch (UnknownHostException ex) {
           throw new RuntimeException(ex);
         }
