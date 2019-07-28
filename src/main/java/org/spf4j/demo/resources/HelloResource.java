@@ -143,7 +143,7 @@ public class HelloResource {
   @Path("flakyHelloWorld")
   public void flakyHelloWorld(@Suspended final AsyncResponse ar) throws InterruptedException, TimeoutException {
     beFlaky();
-    Spf4jWebTarget base = cl.target("http://localhost:" + port).path("demo/helloResource");
+    Spf4jWebTarget base = cl.target("http://localhost:" + port).path("helloResource");
     base.path("flakyHello").request(MediaType.TEXT_PLAIN).rx().get(String.class)
             .thenCombine(base.path("flakyWorld").request(MediaType.TEXT_PLAIN).rx().get(String.class),
                     (h, w) -> h + ' ' + w
@@ -161,7 +161,7 @@ public class HelloResource {
   @Produces(MediaType.TEXT_PLAIN)
   @Path("buggyHelloWorld")
   public void buggyHelloWorld(@Suspended final AsyncResponse ar) throws InterruptedException, TimeoutException {
-    Spf4jWebTarget base = cl.target("http://localhost:" + port).path("demo/404");
+    Spf4jWebTarget base = cl.target("http://localhost:" + port).path("404");
     CompletionStage<String> cf1 = base.path("flakyHello").request(MediaType.TEXT_PLAIN).rx().get(String.class);
     CompletionStage<String> cf2 = base.path("flakyWorld").request(MediaType.TEXT_PLAIN).rx().get(String.class);
     cf1.thenCombine(cf2, (h, w) -> h + ' ' + w
@@ -180,7 +180,7 @@ public class HelloResource {
   @Path("flakyHelloWorldSync")
   public String flakyHelloWorldSync() throws InterruptedException, TimeoutException {
     beFlaky();
-    Spf4jWebTarget base = cl.target("http://localhost:" + port).path("demo/helloResource");
+    Spf4jWebTarget base = cl.target("http://localhost:" + port).path("helloResource");
     return base.path("flakyHello").request(MediaType.TEXT_PLAIN).get(String.class)
             + ' ' + base.path("flakyWorld").request(MediaType.TEXT_PLAIN).get(String.class);
   }

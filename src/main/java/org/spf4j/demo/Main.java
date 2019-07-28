@@ -81,7 +81,7 @@ public class Main {
           throws IOException, URISyntaxException {
     FixedWebappContext webappContext = new FixedWebappContext("grizzly web context", "");
     ServletRegistration servletRegistration = webappContext.addServlet("jersey", ServletContainer.class);
-    servletRegistration.addMapping("/demo/*");
+    servletRegistration.addMapping("/*");
     servletRegistration.setInitParameter("javax.ws.rs.Application", "org.spf4j.demo.DemoApplication");
     servletRegistration.setInitParameter(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, "true");
     servletRegistration.setInitParameter(ServerProperties.PROVIDER_PACKAGES,
@@ -98,7 +98,8 @@ public class Main {
     ServerConfiguration config = server.getServerConfiguration();
     config.setDefaultErrorPageGenerator(new GrizzlyErrorPageGenerator(
                     new SchemaClient(new URI("https://dl.bintray.com/zolyfarkas/core"))));
-    config.addHttpHandler(new CLStaticHttpHandler(Thread.currentThread().getContextClassLoader(), "/static/"), "/");
+//    config.addHttpHandler(new CLStaticHttpHandler(Thread.currentThread().getContextClassLoader(), "/static/"),
+//            "/*.ico", "/*.png");
     NetworkListener listener
             = createHttpListener(bindAddr, port);
     server.addListener(listener);

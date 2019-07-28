@@ -1,5 +1,6 @@
 package org.spf4j.demo;
 
+import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -9,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.ResponseProcessingException;
@@ -45,7 +47,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
   @Test
   public void testHello() {
     for (int i = 0; i < 100; i++) {
-      Invocation.Builder request = getTarget().path("demo/helloResource/hello").request();
+      Invocation.Builder request = getTarget().path("helloResource/hello").request();
       String responseMsg = request.get(String.class);
       Assert.assertThat(responseMsg, Matchers.startsWith("Hello world"));
     }
@@ -54,7 +56,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
   @Test
   public void testEchoCsvList() {
       List<Integer> expected = Arrays.asList(1,2,3,4);
-      Invocation.Builder request = getTarget().path("demo/helloResource/csvListParamEcho")
+      Invocation.Builder request = getTarget().path("helloResource/csvListParamEcho")
               .queryParam("lp", expected.stream().map((x) -> x.toString()).collect(Collectors.joining(",")))
               .request().accept("application/json");
       List<Integer> result = request.get(new GenericType<List<Integer>>() {});
@@ -64,7 +66,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
 
   @Test
   public void test404() {
-      Invocation.Builder request = getTarget().path("demo/helloResource/helloLalaland")
+      Invocation.Builder request = getTarget().path("helloResource/helloLalaland")
               .request()
               .accept("text/html", "application/xhtml+xml", "application/xml;q=0.9", "*/*;q=0.8");
       try {
@@ -83,7 +85,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
   @ExpectLog(level = Level.WARN, messageRegexp = "Done GET.*")
   @ExpectLog(level = Level.INFO, messageRegexp = "profileDetail")
   public void testSlowHello() {
-    Spf4jInvocationBuilder request = getTarget().path("demo/helloResource/slowHello")
+    Spf4jInvocationBuilder request = getTarget().path("helloResource/slowHello")
             .request().withTimeout(2, TimeUnit.SECONDS);
     String responseMsg = request.get(String.class);
     Assert.assertThat(responseMsg, Matchers.startsWith("Slow Hello world"));
@@ -97,7 +99,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
   @ExpectLog(level = Level.ERROR, messageRegexp = "Done GET.*")
   @ExpectLog(level = Level.INFO, messageRegexp = "profileDetail")
   public void testSlowBrokenHello() {
-    Spf4jInvocationBuilder request = getTarget().path("demo/helloResource/slowBrokenHello")
+    Spf4jInvocationBuilder request = getTarget().path("helloResource/slowBrokenHello")
             .request().withTimeout(3, TimeUnit.SECONDS);
     try {
       request.get(String.class);
@@ -110,7 +112,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
 
   @Test
   public void testAHello() {
-    Invocation.Builder request = getTarget().path("demo/helloResource/ahello").request();
+    Invocation.Builder request = getTarget().path("helloResource/ahello").request();
     String responseMsg = request.get(String.class);
     Assert.assertThat(responseMsg, Matchers.startsWith("A Delayed hello"));
   }
@@ -120,7 +122,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
     LogAssert expect = TestLoggers.sys().expect("", Level.ERROR,
             true, LogMatchers.hasMessageWithPattern(".*"),
             Matchers.any((Class) Iterable.class));
-    Invocation.Builder request = getTarget().path("demo/helloResource/errorCustom").request();
+    Invocation.Builder request = getTarget().path("helloResource/errorCustom").request();
     try {
       request.get(String.class);
       Assert.fail();
@@ -140,7 +142,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
     Spf4jInvocationBuilder request = getClient()
             .withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
             TimeUnit.MILLISECONDS.toNanos(200), 2))
-            .target(getLocalService()).path("demo/helloResource/flakyHelloWorld").request();
+            .target(getLocalService()).path("helloResource/flakyHelloWorld").request();
     Future<String> responseMsg = request.withTimeout(3000, TimeUnit.SECONDS)
             .buildGet().submit(String.class);
     Assert.assertThat(responseMsg.get(3000, TimeUnit.SECONDS), Matchers.startsWith("Hello World"));
@@ -153,7 +155,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
   public void testBuggyHelloWorld() throws InterruptedException, ExecutionException, TimeoutException {
     Spf4jInvocationBuilder request = getClient().withHedgePolicy(HedgePolicy.NONE)
             .withRetryPolicy(RetryPolicy.noRetryPolicy())
-        .target(getLocalService()).path("demo/helloResource/buggyHelloWorld").request();
+        .target(getLocalService()).path("helloResource/buggyHelloWorld").request();
     try {
         request
             .withTimeout(30000, TimeUnit.SECONDS)
@@ -212,7 +214,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
     Spf4jInvocationBuilder request = getClient().withHedgePolicy(
             new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
         TimeUnit.MILLISECONDS.toNanos(200), 2))
-        .target(getLocalService()).path("demo/helloResource/flakyHelloWorldSync").request()
+        .target(getLocalService()).path("helloResource/flakyHelloWorldSync").request()
             .withTimeout(5, TimeUnit.SECONDS);
     String responseMsg = request.get(String.class);
     Assert.assertThat(responseMsg, Matchers.startsWith("Hello World"));
@@ -227,12 +229,12 @@ public class HelloResourceTest extends ServiceIntegrationBase {
             true, LogMatchers.hasMessageWithPattern("Done GET.*"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
-      getTarget().path("demo/helloResource/aTimeout")
+      getTarget().path("helloResource/aTimeout")
              .request()
               .withTimeout(500, TimeUnit.MILLISECONDS)
               .get(String.class);
       Assert.fail();
-    } catch (InternalServerErrorException | UncheckedTimeoutException ex) {
+    } catch (InternalServerErrorException | UncheckedTimeoutException | ProcessingException ex) {
       LOG.debug("Expected Error Response", ex);
     } finally {
       Thread.sleep(2000);
@@ -247,7 +249,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
             true, LogMatchers.hasMessageWithPattern("Done GET.*aError"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
-      getTarget().path("demo/helloResource/aError")
+      getTarget().path("helloResource/aError")
              .request()
               .withTimeout(10000, TimeUnit.MILLISECONDS)
               .get(String.class);
@@ -265,7 +267,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
             true, LogMatchers.hasMessageWithPattern("Done GET.*/helloResource/aError"),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
     try  {
-      getTarget().path("demo/helloResource/aError")
+      getTarget().path("helloResource/aError")
              .request()
               .withTimeout(500, TimeUnit.MILLISECONDS)
               .async().get(String.class).get();
@@ -281,7 +283,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
 
   @Test
   public void testGetDeadline() throws InterruptedException {
-    Spf4jInvocationBuilder request = getTarget().path("demo/helloResource/deadline")
+    Spf4jInvocationBuilder request = getTarget().path("helloResource/deadline")
             .request();
     long deadline = System.currentTimeMillis() + 2000;
     Long responseMsg = request
@@ -300,7 +302,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
             true, Matchers.any(TestLogRecord.class),
             Matchers.not(Matchers.emptyIterableOf(TestLogRecord.class)));
-    Invocation.Builder request = getTarget().path("demo/helloResource/error").request();
+    Invocation.Builder request = getTarget().path("helloResource/error").request();
     try {
       request.get(String.class);
       Assert.fail();
