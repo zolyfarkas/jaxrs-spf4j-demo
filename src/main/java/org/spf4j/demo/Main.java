@@ -9,7 +9,9 @@ import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.glassfish.grizzly.http.CompressionConfig;
+import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
 import org.glassfish.grizzly.http.server.NetworkListener;
+import org.glassfish.grizzly.http.server.ServerConfiguration;
 import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
 import org.glassfish.grizzly.servlet.FixedWebappContext;
 import org.glassfish.grizzly.servlet.ServletRegistration;
@@ -93,9 +95,10 @@ public class Main {
     servletRegistration.setInitParameter(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, "true");
     servletRegistration.setLoadOnStartup(0);
     HttpServer server = new HttpServer();
-    server.getServerConfiguration()
-            .setDefaultErrorPageGenerator(new GrizzlyErrorPageGenerator(
+    ServerConfiguration config = server.getServerConfiguration();
+    config.setDefaultErrorPageGenerator(new GrizzlyErrorPageGenerator(
                     new SchemaClient(new URI("https://dl.bintray.com/zolyfarkas/core"))));
+    config.addHttpHandler(new CLStaticHttpHandler(Thread.currentThread().getContextClassLoader(), "/static/"), "/");
     NetworkListener listener
             = createHttpListener(bindAddr, port);
     server.addListener(listener);
@@ -152,7 +155,6 @@ public class Main {
   public static NetworkListener createHttpListener(final String name, final String bindAddr,
           final int port) {
     //  final ServerConfiguration config = server.getServerConfiguration();
-//  config.addHttpHandler(new StaticHttpHandler(docRoot), "/");
     final NetworkListener listener
             = new NetworkListener("http", bindAddr, port);
     CompressionConfig compressionConfig = listener.getCompressionConfig();
