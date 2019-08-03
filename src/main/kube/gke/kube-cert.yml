@@ -1,0 +1,7 @@
+apiVersion: networking.gke.io/v1beta1
+kind: ManagedCertificate
+metadata:
+  name: demo-spf4j-org-certificate
+spec:
+  domains:
+    - demo.spf4j.org

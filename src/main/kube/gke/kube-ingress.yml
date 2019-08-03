@@ -1,0 +1,12 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: demo-spf4j-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "demo-spf4j-org-global-premium"
+    networking.gke.io/managed-certificates: demo-spf4j-org-certificate
+    kubernetes.io/ingress.allow-http: "false"
+spec:
+  backend:
+    serviceName: jaxrs-spf4j-demo
+    servicePort: 8080

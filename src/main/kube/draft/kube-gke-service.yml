@@ -15,4 +15,4 @@ spec:
     app: "jaxrs-spf4j-demo"
     version: "0.7-SNAPSHOT"
   type: "LoadBalancer"
-  loadBalancerIP: "35.209.1.40"
+  loadBalancerIP: "34.96.112.42"
