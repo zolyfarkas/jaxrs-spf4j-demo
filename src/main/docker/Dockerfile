@@ -1,6 +1,6 @@
 
 # fetch basic image
-FROM adoptopenjdk/openjdk11:jdk-11.0.2.9-alpine-slim
+FROM adoptopenjdk/openjdk11:x86_64-alpine-jdk-11.0.4_11-slim
 MAINTAINER Zoltan Farkas <zolyfarkas@yahoo.com>
 
 
