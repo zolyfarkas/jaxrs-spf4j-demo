@@ -1,18 +1,26 @@
 # jaxrs-spf4j-demo
-A demo project for  a JAX-RS REST service showcasing spf4j functionality.
+A demo project for  a JAX-RS REST service showcasing spf4j profiling, logging, etc... functionality in a SOA (aka microserives) environment.
 
 This is right now work in progress, need to be brave to try it out :-)
 
-The truth is: "We replaced our monolith with micro services so that every outage could be more like a murder mystery"
+A recent version you can test on GKE [at](https://demo.spf4j.org/apiBrowser)
 
-In our monolith we have some advantages:
+Some time ago I stumbled upon the statement: "We replaced our monolith with micro services so that every outage could be more like a murder mystery"
+It did make me laugh, mostly because it is part joke, and part reality.
 
-1) A strack trace gives you a good/complete picture of what went wrong.
+To clarify my view on this, there is usually let me define monolith: a single OS process doing a lot of things.
+Usually it comes a time when things get too big (applies to a lot of things in CS), and a divide and conquer is needed to break things down into more manageable pieces.
+In this case a single process will result in a group of processes that communicate with each other via some form on IPC.
 
-2) Profiling the monolith gives also a complete picture.
+A reminder of some of the advantages we will give away when breaking down our monolith:
+
+1) A stack trace gives you a good/complete picture of what went wrong.
+
+2) Profiling the monolith presents a complete picture.
 
 3) Refactoring is a lot easier.
 
+4) Method calls within the process boundary are fast! and reliable (no network issues, etc).
 
 ...
 
@@ -23,7 +31,7 @@ This example shows how you can overcome some of the challenges you will face in 
 
 2) DEBUG on ERROR. Debug logs attached to the  service error response, of all the services involved!
 
-3) PROFILE detail on ERROR/WARN.
+3) PROFILE detail on slow requests. (continuous profiling)
 
 4) Timeout Propagation.
 
@@ -41,7 +49,7 @@ This example shows how you can overcome some of the challenges you will face in 
 
 10) Deprecation support, clients will be notified when hitting deprecated endpoints via HTTP Warning headers.
 
-11) Actuatur endoints  for logs, health info
+11) Actuator endpoints  for logs, health, info, swagger docs, jmx.
 
 
 See the [wiki](https://github.com/zolyfarkas/jaxrs-spf4j-demo/wiki) for more detailed descriptions of the concepts implemented here
