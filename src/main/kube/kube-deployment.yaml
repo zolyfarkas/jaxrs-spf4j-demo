@@ -64,13 +64,13 @@ spec:
 #             initialDelaySeconds: 10
 #             periodSeconds: 5
 #             timeoutSeconds: 3
-#        readinessProbe:
-#             httpGet:
-#               path: /health/ping
-#               port: 8080
-#             initialDelaySeconds: 5
-#             periodSeconds: 10
-#             timeoutSeconds: 2
+        readinessProbe:
+             httpGet:
+               path: /health/ping
+               port: 8080
+             initialDelaySeconds: 5
+             periodSeconds: 10
+             timeoutSeconds: 2
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
