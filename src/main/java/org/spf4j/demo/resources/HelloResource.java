@@ -117,16 +117,17 @@ public class HelloResource {
   public String hello() throws InterruptedException, TimeoutException {
     Thread.sleep(ThreadLocalRandom.current().nextInt(10));
     ExecutionContext ec = ExecutionContexts.current();
-    return "Hello world " + ec.getName() + ", timeleft " + ec.getMillisToDeadline();
+    return "Hello world " + ec.getName() + ", timeleft " + ec.getMillisToDeadline() + " ms";
   }
 
   @GET
   @Produces(MediaType.TEXT_PLAIN)
   @Path("slowHello")
-  public String slowHello() throws InterruptedException, TimeoutException {
-    Thread.sleep(1000);
+  public String slowHello(@QueryParam("time") @DefaultValue("2") final int timeSeconds)
+          throws InterruptedException, TimeoutException {
+    Thread.sleep(TimeUnit.SECONDS.toMillis(timeSeconds));
     ExecutionContext ec = ExecutionContexts.current();
-    return "Slow Hello world " + ec.getName() + ", timeleft " + ec.getMillisToDeadline();
+    return "Slow Hello world " + ec.getName() + ", timeleft " + ec.getMillisToDeadline() + " ms";
   }
 
   @GET
