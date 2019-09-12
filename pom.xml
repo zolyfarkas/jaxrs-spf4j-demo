@@ -17,8 +17,8 @@
     <bintray.repo>core</bintray.repo>
     <bintray.package>${project.artifactId}</bintray.package>
     <spf4j.version>8.6.19</spf4j.version>
-    <spf4j-jaxrs.version>2.1.16-SNAPSHOT</spf4j-jaxrs.version>
-    <jersey.version>2.29</jersey.version>
+    <spf4j-jaxrs.version>2.1.16</spf4j-jaxrs.version>
+    <jersey.version>2.29.1</jersey.version>
   </properties>
 
   <repositories>
@@ -150,6 +150,19 @@
       <version>${jersey.version}</version>
     </dependency>
 
+<!-- microprofile stuff
+    <dependency>
+      <groupId>org.glassfish.jersey.ext.microprofile</groupId>
+      <artifactId>jersey-mp-rest-client</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.glassfish.jersey.ext.microprofile</groupId>
+      <artifactId>jersey-mp-config</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+-->
 
 <!-- if we want wadls support, would also need to include JAXB  as a dependency in that case.
     <dependency>

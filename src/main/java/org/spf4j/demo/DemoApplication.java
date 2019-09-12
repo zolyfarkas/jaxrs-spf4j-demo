@@ -85,7 +85,7 @@ public class DemoApplication extends ResourceConfig {
     }
     SchemaResolvers.registerDefault(schemaClient);
     AvroFeature avroFeature = new AvroFeature(new DefaultSchemaProtocol(schemaClient), schemaClient);
-    restClient = new Spf4JClient(ClientBuilder
+    restClient = Spf4JClient.create(ClientBuilder
             .newBuilder()
             .connectTimeout(2, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)

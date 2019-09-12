@@ -1,6 +1,5 @@
 package org.spf4j.demo;
 
-import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -97,7 +96,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
    */
   @Test
   @ExpectLog(level = Level.ERROR, messageRegexp = "Done GET.*")
-  @ExpectLog(level = Level.INFO, messageRegexp = "profileDetail")
+  @ExpectLog(level = Level.INFO, messageRegexp = "Profile Detail.*")
   public void testSlowBrokenHello() {
     Spf4jInvocationBuilder request = getTarget().path("helloResource/slowBrokenHello")
             .request().withTimeout(3, TimeUnit.SECONDS);
