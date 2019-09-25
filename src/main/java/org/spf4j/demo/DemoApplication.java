@@ -25,6 +25,7 @@ import javax.servlet.ServletRegistration;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Context;
 import org.apache.avro.SchemaResolvers;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -43,7 +44,6 @@ import org.spf4j.cluster.Service;
 import org.spf4j.cluster.SingleNodeCluster;
 import org.spf4j.hk2.Spf4jBinder;
 import org.spf4j.http.DefaultDeadlineProtocol;
-import org.spf4j.jaxrs.ConfigProperty;
 import org.spf4j.jaxrs.client.providers.ClientCustomExecutorServiceProvider;
 import org.spf4j.jaxrs.client.providers.ClientCustomScheduledExecutionServiceProvider;
 import org.spf4j.jaxrs.client.providers.ExecutionContextClientFilter;
@@ -161,7 +161,7 @@ public class DemoApplication extends ResourceConfig {
     private final int port;
 
     @Inject
-    public ClusterBinder(@ConfigProperty("servlet.port") final int port) {
+    public ClusterBinder(@ConfigProperty(name = "servlet.port") final int port) {
       this.port = port;
     }
 

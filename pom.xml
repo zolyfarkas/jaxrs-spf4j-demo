@@ -16,8 +16,8 @@
     <bintray.subject>zolyfarkas</bintray.subject>
     <bintray.repo>core</bintray.repo>
     <bintray.package>${project.artifactId}</bintray.package>
-    <spf4j.version>8.6.19</spf4j.version>
-    <spf4j-jaxrs.version>2.1.16</spf4j-jaxrs.version>
+    <spf4j.version>8.6.20-SNAPSHOT</spf4j.version>
+    <spf4j-jaxrs.version>2.1.18-SNAPSHOT</spf4j-jaxrs.version>
     <jersey.version>2.29.1</jersey.version>
   </properties>
 
@@ -75,6 +75,11 @@
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-slf4j-test</artifactId>
       <scope>test</scope>
+      <version>${spf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.spf4j</groupId>
+      <artifactId>spf4j-core</artifactId>
       <version>${spf4j.version}</version>
     </dependency>
     <dependency>
@@ -168,7 +173,7 @@
     <dependency>
       <groupId>org.glassfish.jersey.ext</groupId>
       <artifactId>jersey-wadl-doclet</artifactId>
-      <version>2.28</version>
+      <version>${jersey.version}</version>
     </dependency>
 
     <dependency>

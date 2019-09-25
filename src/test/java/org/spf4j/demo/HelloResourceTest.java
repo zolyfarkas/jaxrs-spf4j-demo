@@ -82,10 +82,10 @@ public class HelloResourceTest extends ServiceIntegrationBase {
    */
   @Test
   @ExpectLog(level = Level.WARN, messageRegexp = "Done GET.*")
-  @ExpectLog(level = Level.INFO, messageRegexp = "profileDetail")
+  @ExpectLog(level = Level.INFO, messageRegexp = "Profile Detail.*")
   public void testSlowHello() {
     Spf4jInvocationBuilder request = getTarget().path("helloResource/slowHello")
-            .request().withTimeout(2, TimeUnit.SECONDS);
+            .request().withTimeout(3000, TimeUnit.MILLISECONDS);
     String responseMsg = request.get(String.class);
     Assert.assertThat(responseMsg, Matchers.startsWith("Slow Hello world"));
   }

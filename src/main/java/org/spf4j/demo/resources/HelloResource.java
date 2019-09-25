@@ -18,12 +18,12 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.LoggerFactory;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.Timing;
 import org.spf4j.concurrent.DefaultContextAwareExecutor;
-import org.spf4j.jaxrs.ConfigProperty;
 import org.spf4j.jaxrs.CsvParam;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
@@ -42,7 +42,7 @@ public class HelloResource {
   private final int port;
 
   @Inject
-  public HelloResource(final Spf4JClient cl, @ConfigProperty("servlet.port") final int port) {
+  public HelloResource(final Spf4JClient cl, @ConfigProperty(name = "servlet.port") final int port) {
     this.cl = cl;
     this.port = port;
   }
