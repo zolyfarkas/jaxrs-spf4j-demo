@@ -190,7 +190,7 @@ public class Main {
   public static Sampler startProfiler() {
     ProfilingTLAttacher contextFactory
             = (ProfilingTLAttacher) ExecutionContexts.threadLocalAttacher();
-    Sampler sampler = new Sampler(1,
+    Sampler sampler = new Sampler(Integer.getInteger("app.profiler.sampleTimeMillis", 10),
             (t) -> new TracingExecutionContexSampler(contextFactory::getCurrentThreadContexts,
                     (ctx) -> {
                       String name = ctx.getName();
