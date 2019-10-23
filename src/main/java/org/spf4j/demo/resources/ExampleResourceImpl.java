@@ -16,7 +16,7 @@ import org.spf4j.demo.ExampleResource;
 import org.spf4j.demo.avro.DemoRecord;
 import org.spf4j.demo.avro.DemoRecordInfo;
 import org.spf4j.demo.avro.MetaData;
-import org.spf4j.jaxrs.CloseableIterable;
+import org.spf4j.base.CloseableIterable;
 import org.spf4j.log.ExecContextLogger;
 
 /**
