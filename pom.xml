@@ -146,7 +146,13 @@
     <dependency>
       <groupId>org.spf4j.demo</groupId>
       <artifactId>jaxrs-spf4j-demo-schema</artifactId>
-      <version>0.3</version>
+      <version>0.4-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.calcite</groupId>
+      <artifactId>calcite-core</artifactId>
+      <version>1.21.0</version>
+      <optional>true</optional> <!-- only when using experimental  Avro sql operations -->
     </dependency>
 
     <dependency>
