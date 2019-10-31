@@ -14,6 +14,13 @@ import org.spf4j.demo.aql.DataSetResource;
 public class CharactersResourrceImpl implements DataSetResource<Character> {
 
   @Override
+  public String getName() {
+    return "characters";
+  }
+
+
+
+  @Override
   public Iterable<Character> getData(String where, String select) {
     return Arrays.asList(new Character("sth1", "James Kirk", "earth", "human"),
          new Character("sth2", "Fips", "earth", "dog"),

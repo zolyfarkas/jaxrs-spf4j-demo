@@ -10,6 +10,11 @@ import org.spf4j.demo.aql.Species;
 public class SpeciesResourceImpl  implements DataSetResource<Species> {
 
   @Override
+  public String getName() {
+    return "species";
+  }
+
+  @Override
   public Iterable<Species> getData(String where, String select) {
     return Arrays.asList(new Species("cat", 15, "earth"),
         new Species("dog", 13, "earth"),

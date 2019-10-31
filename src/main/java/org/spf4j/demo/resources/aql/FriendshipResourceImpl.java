@@ -12,6 +12,11 @@ import org.spf4j.demo.aql.Friendship;
 public class FriendshipResourceImpl implements DataSetResource<Friendship> {
 
   @Override
+  public String getName() {
+    return "friendships";
+  }
+
+  @Override
   public Iterable<Friendship> getData(String where, String select) {
     return Arrays.asList(new Friendship("sth1", "sth2"),
             new Friendship("sth1", "sth3"));

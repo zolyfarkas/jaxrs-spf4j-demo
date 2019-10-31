@@ -13,6 +13,11 @@ import org.spf4j.demo.aql.Planet;
 public class PlanetsResourceImpl implements DataSetResource<Planet> {
 
   @Override
+  public String getName() {
+    return "planets";
+  }
+
+  @Override
   public Iterable<Planet> getData(final String where, final String select) {
     return Arrays.asList(new Planet("earth", "M", 512731872312L),
             new Planet("vulcan", "M", 612731872312L),
