@@ -1,5 +1,6 @@
 package org.spf4j.demo.resources.aql;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import javax.inject.Inject;
@@ -7,6 +8,7 @@ import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Path;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.reflect.AvroSchema;
 import org.apache.calcite.config.Lex;
 import org.apache.calcite.interpreter.Interpreter;
 import org.apache.calcite.jdbc.JavaTypeFactoryImpl;
@@ -31,7 +33,6 @@ import org.spf4j.avro.calcite.IndexedRecords;
 import org.spf4j.avro.calcite.PlannerUtils;
 import org.spf4j.avro.calcite.Types;
 import org.spf4j.base.CloseableIterator;
-import org.spf4j.base.Writeable;
 import org.spf4j.demo.aql.AvroQueryResource;
 import org.spf4j.demo.aql.DataSetResource;
 import org.spf4j.jaxrs.IterableArrayContent;
@@ -47,16 +48,20 @@ public class QueryResourceImpl implements AvroQueryResource {
 
   private final Planner planner;
 
+  private final Map<String, Schema> schemas;
+
   @Inject
   public QueryResourceImpl(final Iterable<DataSetResource> resources) {
     SchemaPlus schema = Frameworks.createRootSchema(true);
+    schemas = new HashMap<>();
     for (DataSetResource res : resources) {
       String name = res.getName();
+      Schema tschema = res.getSchema();
+      schemas.put(name, tschema);
       LOG.debug("Registered {} table to schema", name);
-      schema.add(name, new AvroProjectableFilterableTable(res.getSchema(),
+      schema.add(name, new AvroProjectableFilterableTable(tschema,
               () -> CloseableIterator.from(res.getData(null, null).iterator())));
     }
-
     SqlParser.Config cfg = SqlParser.configBuilder()
             .setCaseSensitive(true)
             .setIdentifierMaxLength(255)
@@ -87,7 +92,7 @@ public class QueryResourceImpl implements AvroQueryResource {
     } catch (RelConversionException ex) {
       throw new RuntimeException(ex);
     }
-    RelNode relNode = PlannerUtils.pushDownPredicatesAndProjection(rel.project());
+    RelNode relNode = rel.project(); PlannerUtils.pushDownPredicatesAndProjection(rel.project());
     LOG.debug("exec plan: {}", new Object() {
       @Override
       public String toString() {
@@ -134,13 +139,14 @@ public class QueryResourceImpl implements AvroQueryResource {
   }
 
   @Override
-  public Map<String, Schema> schema() {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  @AvroSchema("{ \"type\" : \"map\", \"values\" : { \"type\" : \"string\" , \"logicalType\" : \"avsc\"} } ")
+  public Map<String, Schema> schemas() {
+    return schemas;
   }
 
   @Override
-  public Schema entitySchema(String enttityName) {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  public Schema entitySchema(final String entityName) {
+    return schemas.get(entityName);
   }
 
 }

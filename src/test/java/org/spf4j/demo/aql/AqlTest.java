@@ -1,15 +1,20 @@
 
 package org.spf4j.demo.aql;
 
+import java.util.Map;
 import org.spf4j.demo.*;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spf4j.base.CloseableIterable;
+import org.spf4j.log.Level;
+import org.spf4j.test.log.annotations.PrintLogs;
 
 /**
  *
@@ -19,6 +24,25 @@ public class AqlTest extends ServiceIntegrationBase {
 
   private static final Logger LOG = LoggerFactory.getLogger(AqlTest.class);
 
+
+  @Test
+  public void testGetSchemas() {
+    Map<String, Schema> schemas =
+            getTarget().path("avql/query/schemas")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(new GenericType<Map<String, Schema>>() {});
+    LOG.debug("Received", schemas);
+  }
+
+
+  @Test
+  public void testGetSchema() {
+    Schema schema =
+            getTarget().path("avql/query/schemas/{sname}").resolveTemplate("sname", "planets")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(new GenericType<Schema>() {});
+    LOG.debug("Received", schema);
+  }
 
   @Test
   public void testGetPlanets() {
@@ -47,11 +71,29 @@ public class AqlTest extends ServiceIntegrationBase {
         LOG.debug("Received", planet);
         i++;
       }
-      Assert.assertEquals(4, i);
+      Assert.assertEquals(5, i);
     }
   }
 
   @Test
+  @PrintLogs(category = "org.codehaus.janino", ideMinLevel = Level.INFO, greedy = true)
+  public void testGetQueryJoin() {
+    try (CloseableIterable<GenericRecord> characters =
+            getTarget().path("avql/query")
+                    .queryParam("query", "select c.name "
+                            + " from characters c, species s"
+                            + " where c.speciesName = s.name and s.originPlanet = 'earth'")
+                    .request(MediaType.valueOf("application/avro"))
+                    .get(new GenericType<CloseableIterable<GenericRecord>>() {})) {
+      for (GenericRecord character : characters) {
+        LOG.debug("Received", character);
+      }
+    }
+  }
+
+  @Test
+  @PrintLogs(category = "org.codehaus.janino", ideMinLevel = Level.INFO, greedy = true)
+  @Ignore // Calcite interpreter does not seem to implement Corelations.
   public void testGetQuery() {
     try (CloseableIterable<GenericRecord> character =
             getTarget().path("avql/query")

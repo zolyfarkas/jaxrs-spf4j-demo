@@ -25,6 +25,7 @@ public class CharactersResourrceImpl implements DataSetResource<Character> {
     return Arrays.asList(new Character("sth1", "James Kirk", "earth", "human"),
          new Character("sth2", "Fips", "earth", "dog"),
          new Character("sth3", "Cica Mama", "earth", "cat"),
-         new Character("sth4", "Spock", "vulcan", "vulcan"));
+         new Character("sth4", "Spock", "vulcan", "vulcan"),
+         new Character("sth5", "Thy'lek Shran", "andorian", "andoria"));
   }
 }
