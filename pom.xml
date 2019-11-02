@@ -144,17 +144,15 @@
       <version>${spf4j-jaxrs.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.spf4j</groupId>
+      <artifactId>spf4j-jaxrs-avro-sql</artifactId>
+      <version>${spf4j-jaxrs.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.spf4j.demo</groupId>
       <artifactId>jaxrs-spf4j-demo-schema</artifactId>
       <version>0.4-SNAPSHOT</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.calcite</groupId>
-      <artifactId>calcite-core</artifactId>
-      <version>1.21.0</version>
-      <optional>true</optional> <!-- only when using experimental  Avro sql operations -->
-    </dependency>
-
     <dependency>
       <groupId>org.glassfish.jersey.ext</groupId>
       <artifactId>jersey-proxy-client</artifactId>
