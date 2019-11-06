@@ -1,17 +1,24 @@
 package org.spf4j.demo.resources.aql;
 
+import com.google.common.collect.Iterables;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import org.spf4j.aql.DataSetResource;
+import javax.ws.rs.Produces;
+import org.apache.avro.generic.IndexedRecord;
 import org.spf4j.demo.aql.Planet;
+import org.spf4j.aql.AvroDataSetContract;
+import org.spf4j.base.CloseableIterable;
 
 /**
  *
  * @author Zoltan Farkas
  */
 @Path("avql/planets")
-public class PlanetsResourceImpl implements DataSetResource<Planet> {
+public class PlanetsResourceImpl implements AvroDataSetContract<Planet> {
 
   @Override
   public String getName() {
@@ -19,17 +26,17 @@ public class PlanetsResourceImpl implements DataSetResource<Planet> {
   }
 
   @GET
+  @Produces({"application/json", "application/avro+json", "application/avro"})
   public Iterable<Planet> getData() {
     return Arrays.asList(new Planet("earth", "M", 512731872312L),
             new Planet("vulcan", "M", 612731872312L),
             new Planet("andoria", "M", 602731872312L));
   }
-;
 
   @Override
-  public Iterable<Planet> getData(final String where, final String select) {
-    return getData();
+  public CloseableIterable<? extends IndexedRecord> getData(final Predicate<Planet> filter, final List<String> select,
+          final long timeout, final TimeUnit timeUnit) {
+    return CloseableIterable.from(Iterables.filter(getData(), filter::test));
   }
-;
 
 }
