@@ -1,10 +1,8 @@
 package org.spf4j.demo.resources.aql;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
@@ -16,6 +14,7 @@ import org.apache.avro.generic.IndexedRecord;
 import org.spf4j.demo.aql.Friendship;
 import org.spf4j.aql.AvroDataSetContract;
 import org.spf4j.base.CloseableIterable;
+import org.spf4j.security.SecurityContext;
 
 /**
  * @author Zoltan Farkas
@@ -28,10 +27,6 @@ public class FriendshipResourceImpl implements AvroDataSetContract<Friendship> {
     return "friendships";
   }
 
-  @Override
-  public Set<Feature> getFeatures() {
-    return ImmutableSet.of(Feature.FILTERABLE);
-  }
 
   @GET
   @Produces({"application/json", "application/avro+json", "application/avro"})
@@ -40,7 +35,8 @@ public class FriendshipResourceImpl implements AvroDataSetContract<Friendship> {
             new Friendship("sth1", "sth3")), filter == null ? (x) -> true : filter::test);
   }
 
-  public CloseableIterable<? extends IndexedRecord> getData(@Nullable Predicate<Friendship> filter, List<String> select,
+  public CloseableIterable<? extends IndexedRecord> getData(@Nullable Predicate<Friendship> filter,
+          List<String> select, final SecurityContext ctx,
           final long timeout, final TimeUnit timeUnit) {
     return CloseableIterable.from(getData(filter));
   }

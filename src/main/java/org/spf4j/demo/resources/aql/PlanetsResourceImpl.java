@@ -12,6 +12,7 @@ import org.apache.avro.generic.IndexedRecord;
 import org.spf4j.demo.aql.Planet;
 import org.spf4j.aql.AvroDataSetContract;
 import org.spf4j.base.CloseableIterable;
+import org.spf4j.security.SecurityContext;
 
 /**
  *
@@ -34,7 +35,8 @@ public class PlanetsResourceImpl implements AvroDataSetContract<Planet> {
   }
 
   @Override
-  public CloseableIterable<? extends IndexedRecord> getData(final Predicate<Planet> filter, final List<String> select,
+  public CloseableIterable<? extends IndexedRecord> getData(final Predicate<Planet> filter,
+          final List<String> select, final SecurityContext ctx,
           final long timeout, final TimeUnit timeUnit) {
     return CloseableIterable.from(Iterables.filter(getData(), filter::test));
   }

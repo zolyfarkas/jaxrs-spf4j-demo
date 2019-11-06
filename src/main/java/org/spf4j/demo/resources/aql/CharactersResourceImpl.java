@@ -1,16 +1,26 @@
 package org.spf4j.demo.resources.aql;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
 import org.spf4j.demo.aql.Character;
 import org.spf4j.aql.AvroDataSetContract;
+import org.spf4j.avro.schema.Schemas;
 import org.spf4j.base.CloseableIterable;
+import org.spf4j.jaxrs.CsvParam;
+import org.spf4j.jaxrs.IterableArrayContent;
+import org.spf4j.security.SecurityContext;
 
 /**
  *
@@ -24,20 +34,37 @@ public class CharactersResourceImpl implements AvroDataSetContract<Character> {
     return "characters";
   }
 
+  @Override
+  public Set<Feature> getFeatures() {
+    return ImmutableSet.of(Feature.FILTERABLE, Feature.PROJECTABLE);
+  }
+
   @GET
   @Produces({"application/json", "application/avro+json", "application/avro"})
-  public Iterable<Character> getData() {
-    return Arrays.asList(new Character("sth1", "James Kirk", "earth", "human"),
+  public Iterable<? extends IndexedRecord> getData(@QueryParam("_where") @Nullable Predicate<Character> filter,
+          @QueryParam("_project") @CsvParam @Nullable List<String> project) {
+    Iterable<Character> filtered = Iterables.filter(Arrays.asList(new Character("sth1", "James Kirk", "earth", "human"),
             new Character("sth2", "Fips", "earth", "dog"),
             new Character("sth3", "Cica Mama", "earth", "cat"),
             new Character("sth4", "Spock", "vulcan", "vulcan"),
-            new Character("sth5", "Thy'lek Shran", "andorian", "andoria"));
+            new Character("sth5", "Thy'lek Shran", "andorian", "andoria")),
+            filter == null ? (x) -> true : filter::test);
+    if (project != null) {
+      Schema sourceSchema = Character.getClassSchema();
+      Schema resultSchema = Schemas.project(sourceSchema, project);
+      return IterableArrayContent.from(Iterables.transform(filtered,
+                                             (x) -> Schemas.project(resultSchema, sourceSchema, x)),
+                                       resultSchema);
+    } else {
+      return IterableArrayContent.from(filtered, Character.getClassSchema());
+    }
   }
 
   @Override
   public CloseableIterable<? extends IndexedRecord> getData(final Predicate<Character> filter,
-          final List<String> selectProjections, final long timeout, final TimeUnit timeUnit) {
-    return CloseableIterable.from(getData());
+          final List<String> selectProjections, final SecurityContext ctx,
+          final long timeout, final TimeUnit timeUnit) {
+    return CloseableIterable.from(getData(filter, selectProjections));
   }
 
 }

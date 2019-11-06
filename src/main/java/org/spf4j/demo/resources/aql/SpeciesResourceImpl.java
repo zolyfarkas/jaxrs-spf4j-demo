@@ -16,6 +16,7 @@ import org.apache.avro.generic.IndexedRecord;
 import org.spf4j.demo.aql.Species;
 import org.spf4j.aql.AvroDataSetContract;
 import org.spf4j.base.CloseableIterable;
+import org.spf4j.security.SecurityContext;
 
 
 @Path("avql/species")
@@ -42,7 +43,8 @@ public class SpeciesResourceImpl  implements AvroDataSetContract<Species> {
   }
 
   @Override
-  public CloseableIterable<? extends IndexedRecord> getData(@Nullable Predicate<Species> filter, List<String> select,
+  public CloseableIterable<? extends IndexedRecord> getData(@Nullable Predicate<Species> filter,
+          List<String> select, final SecurityContext ctx,
           final long timeout, final TimeUnit timeUnit) {
     return CloseableIterable.from(getData(filter));
   }
