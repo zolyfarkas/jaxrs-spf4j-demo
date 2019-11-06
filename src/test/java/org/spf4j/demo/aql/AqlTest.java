@@ -60,6 +60,22 @@ public class AqlTest extends ServiceIntegrationBase {
   }
 
   @Test
+  public void testGetSpecies() {
+    try (CloseableIterable<Species> species =
+            getTarget().path("avql/species")
+                    .queryParam("_where", "name = 'human'")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(new GenericType<CloseableIterable<Species>>() {})) {
+      int i = 0;
+      for (Species s : species) {
+        LOG.debug("Received", s);
+        i++;
+      }
+      Assert.assertEquals(1, i);
+    }
+  }
+
+  @Test
   public void testGetQuerySimple() {
     try (CloseableIterable<GenericRecord> character =
             getTarget().path("avql/query")
