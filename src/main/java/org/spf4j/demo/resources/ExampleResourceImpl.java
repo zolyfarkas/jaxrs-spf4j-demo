@@ -7,6 +7,7 @@ import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import org.apache.avro.ArrayIterator;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import org.spf4j.demo.avro.DemoRecord;
 import org.spf4j.demo.avro.DemoRecordInfo;
 import org.spf4j.demo.avro.MetaData;
 import org.spf4j.base.CloseableIterable;
+import org.spf4j.jaxrs.IterableArrayContent;
 import org.spf4j.log.ExecContextLogger;
 
 /**
@@ -63,9 +65,10 @@ public class ExampleResourceImpl implements ExampleResource {
   }
 
   @Override
-  public <T> List<GenericRecord> getRecordsProjection(Schema elementProjection) {
-    return (List<GenericRecord>) Projections.project(Schema.createArray(elementProjection),
-            Schema.createArray(DemoRecordInfo.getClassSchema()), getRecords());
+  public Iterable<GenericRecord> getRecordsProjection(Schema elementProjection) {
+    return  IterableArrayContent.from(
+            (List<GenericRecord>) Projections.project(Schema.createArray(elementProjection),
+            Schema.createArray(DemoRecordInfo.getClassSchema()), getRecords()), elementProjection);
   }
 
 }

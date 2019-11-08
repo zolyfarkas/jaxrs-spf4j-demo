@@ -162,7 +162,7 @@ public class ExampleResourceTest extends ServiceIntegrationBase {
   public void testTypesProjection() {
     ExampleResourceExt service = WebResourceFactory.newResource(ExampleResourceExt.class,
             getTarget().path("example/records"));
-    List<DemoProjection> myInterest = service.getRecordsProjection(DemoProjection.class);
+    Iterable<DemoProjection> myInterest = service.getRecordsProjection(DemoProjection.class);
     LOG.debug("My  projection!", myInterest);
   }
 
