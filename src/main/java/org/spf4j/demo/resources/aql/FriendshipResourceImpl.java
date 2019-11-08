@@ -1,8 +1,10 @@
 package org.spf4j.demo.resources.aql;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
@@ -27,6 +29,10 @@ public class FriendshipResourceImpl implements AvroDataSetContract<Friendship> {
     return "friendships";
   }
 
+  @Override
+  public Set<Feature> getFeatures() {
+    return ImmutableSet.of(Feature.FILTERABLE);
+  }
 
   @GET
   @Produces({"application/json", "application/avro+json", "application/avro"})

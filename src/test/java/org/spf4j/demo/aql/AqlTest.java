@@ -60,6 +60,24 @@ public class AqlTest extends ServiceIntegrationBase {
   }
 
   @Test
+  public void testGetPlanetsFiltered() {
+    try (CloseableIterable<GenericRecord> planets =
+            getTarget().path("avql/planets")
+                    .queryParam("_where", "name = 'earth'")
+                    .queryParam("_project", "name,planetClass")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(new GenericType<CloseableIterable<GenericRecord>>() {})) {
+      int i = 0;
+      for (GenericRecord planet : planets) {
+        LOG.debug("Received", planet);
+        i++;
+      }
+      Assert.assertEquals(1, i);
+    }
+  }
+
+
+  @Test
   public void testGetSpecies() {
     try (CloseableIterable<Species> species =
             getTarget().path("avql/species")
@@ -86,6 +104,7 @@ public class AqlTest extends ServiceIntegrationBase {
       int i = 0;
       for (GenericRecord s : characters) {
         LOG.debug("Received", s);
+        Assert.assertTrue(((String) s.get("name")).startsWith("J"));
         i++;
       }
       Assert.assertEquals(1, i);

@@ -12,6 +12,8 @@ import org.apache.avro.generic.IndexedRecord;
 import org.spf4j.demo.aql.Planet;
 import org.spf4j.aql.AvroDataSetContract;
 import org.spf4j.base.CloseableIterable;
+import org.spf4j.jaxrs.ProjectionSupport;
+import org.spf4j.jaxrs.SqlFilterSupport;
 import org.spf4j.security.SecurityContext;
 
 /**
@@ -28,6 +30,8 @@ public class PlanetsResourceImpl implements AvroDataSetContract<Planet> {
 
   @GET
   @Produces({"application/json", "application/avro+json", "application/avro"})
+  @ProjectionSupport
+  @SqlFilterSupport
   public Iterable<Planet> getData() {
     return Arrays.asList(new Planet("earth", "M", 512731872312L),
             new Planet("vulcan", "M", 612731872312L),
