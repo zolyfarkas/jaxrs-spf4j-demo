@@ -2,11 +2,13 @@
 package org.spf4j.demo.aql;
 
 import java.util.Map;
+import javax.ws.rs.client.Entity;
 import org.spf4j.demo.*;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -142,6 +144,21 @@ public class AqlTest extends ServiceIntegrationBase {
       }
     }
   }
+
+  @Test
+  @PrintLogs(category = "org.codehaus.janino", ideMinLevel = Level.INFO, greedy = true)
+  public void testGetQueryPlan() {
+    CharSequence plan =
+            getTarget().path("avql/query/plan")
+                    .request(MediaType.valueOf("text/plain"))
+                    .post(Entity.text("select name,"
+                            + " ARRAY(select c2.name from friendships f, characters c2"
+                            + " where f.characterId1 = c.characterId and f.characterId2 = c2.characterId) as friends"
+                            + " from characters c"), CharSequence.class);
+    LOG.debug("Pplan received", plan);
+    Assert.assertThat(plan.toString(), Matchers.containsString("LogicalProject(characterId=[$0], name=[$1])"));
+  }
+
 
   @Test
   @PrintLogs(category = "org.codehaus.janino", ideMinLevel = Level.INFO, greedy = true)
