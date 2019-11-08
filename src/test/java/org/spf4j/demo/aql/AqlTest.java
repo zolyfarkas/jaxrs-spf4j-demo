@@ -164,7 +164,7 @@ public class AqlTest extends ServiceIntegrationBase {
   @PrintLogs(category = "org.codehaus.janino", ideMinLevel = Level.INFO, greedy = true)
   @Ignore // Calcite interpreter does not seem to implement Corelations.
   public void testGetQuery() {
-    try (CloseableIterable<GenericRecord> character =
+    try (CloseableIterable<GenericRecord> characters =
             getTarget().path("avql/query")
                     .queryParam("query", "select name,"
                             + " ARRAY(select c2.name from friendships f, characters c2"
@@ -173,8 +173,8 @@ public class AqlTest extends ServiceIntegrationBase {
                     .request(MediaType.valueOf("application/avro"))
                     .get(new GenericType<CloseableIterable<GenericRecord>>() {})) {
       int i = 0;
-      for (GenericRecord planet : character) {
-        LOG.debug("Received", planet);
+      for (GenericRecord charracter : characters) {
+        LOG.debug("Received", charracter);
         i++;
       }
       Assert.assertEquals(4, i);
