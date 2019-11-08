@@ -155,7 +155,7 @@ public class AqlTest extends ServiceIntegrationBase {
                             + " ARRAY(select c2.name from friendships f, characters c2"
                             + " where f.characterId1 = c.characterId and f.characterId2 = c2.characterId) as friends"
                             + " from characters c"), CharSequence.class);
-    LOG.debug("Pplan received", plan);
+    LOG.debug("Plan received", plan);
     Assert.assertThat(plan.toString(), Matchers.containsString("LogicalProject(characterId=[$0], name=[$1])"));
   }
 
