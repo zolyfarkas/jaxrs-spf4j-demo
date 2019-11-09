@@ -36,6 +36,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.spf4j.actuator.apiBrowser.OpenApiResource;
 import org.spf4j.actuator.cluster.health.DefaultClusterHealthChecksBinder;
 import org.spf4j.actuator.health.checks.DefaultHealthChecksBinder;
+import org.spf4j.avro.NoSnapshotRefsResolver;
 import org.spf4j.avro.SchemaClient;
 import org.spf4j.base.avro.NetworkProtocol;
 import org.spf4j.base.avro.NetworkService;
@@ -83,8 +84,11 @@ public class DemoApplication extends ResourceConfig {
     } catch (URISyntaxException ex) {
       throw new RuntimeException(ex);
     }
-    SchemaResolvers.registerDefault(schemaClient);
-    AvroFeature avroFeature = new AvroFeature(new DefaultSchemaProtocol(schemaClient), schemaClient);
+    NoSnapshotRefsResolver noSnapshotRefsResolver = new NoSnapshotRefsResolver(schemaClient);
+    SchemaResolvers.registerDefault(noSnapshotRefsResolver);
+    AvroFeature avroFeature = new AvroFeature(
+            new DefaultSchemaProtocol(noSnapshotRefsResolver),
+            noSnapshotRefsResolver);
     restClient = Spf4JClient.create(ClientBuilder
             .newBuilder()
             .connectTimeout(2, TimeUnit.SECONDS)
