@@ -86,7 +86,7 @@ public class Main {
     servletRegistration.setInitParameter(ServerProperties.PROVIDER_PACKAGES,
             "org.spf4j.jaxrs.server.providers;org.spf4j.demo;org.spf4j.actuator;org.spf4j.actuator.cluster;"
                     + "org.spf4j.jaxrs.aql;org.spf4j.jaxrs.server.providers.param_converters"
-                    + ";org.spf4j.jaxrs.server.providers.filters");
+                    + ";org.spf4j.jaxrs.server.providers.filters;org.spf4j.jaxrs.common.providers.gp");
 //    servletRegistration.setInitParameter("jersey.config.server.tracing.type", "ALL");
     servletRegistration.setInitParameter("hostName", hostName);
     servletRegistration.setInitParameter("servlet.bindAddr", bindAddr);
