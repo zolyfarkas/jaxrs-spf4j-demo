@@ -121,11 +121,28 @@ public class AqlTest extends ServiceIntegrationBase {
                     .request(MediaType.valueOf("application/avro"))
                     .get(new GenericType<CloseableIterable<GenericRecord>>() {})) {
       int i = 0;
-      for (GenericRecord planet : character) {
-        LOG.debug("Received", planet);
+      for (GenericRecord c : character) {
+        LOG.debug("Received", c);
         i++;
       }
       Assert.assertEquals(5, i);
+    }
+  }
+
+  @Test
+  public void testGetQueryProjectFilter() {
+    try (CloseableIterable<GenericRecord> character =
+            getTarget().path("avql/query")
+                    .queryParam("query", "select name from characters where speciesName='vulcan'")
+                    .request(MediaType.valueOf("application/avro"))
+                    .get(new GenericType<CloseableIterable<GenericRecord>>() {})) {
+      int i = 0;
+      for (GenericRecord c : character) {
+        LOG.debug("Received", c);
+        Assert.assertEquals("Spock", c.get("name"));
+        i++;
+      }
+      Assert.assertEquals(1, i);
     }
   }
 
@@ -139,9 +156,12 @@ public class AqlTest extends ServiceIntegrationBase {
                             + " where c.speciesName = s.name and s.originPlanet = 'earth'")
                     .request(MediaType.valueOf("application/avro"))
                     .get(new GenericType<CloseableIterable<GenericRecord>>() {})) {
+      int i = 0;
       for (GenericRecord character : characters) {
         LOG.debug("Received", character);
+        i++;
       }
+      Assert.assertEquals(3, i);
     }
   }
 
