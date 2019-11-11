@@ -194,6 +194,28 @@ public class AqlTest extends ServiceIntegrationBase {
     Assert.assertThat(plan.toString(), Matchers.containsString("LogicalProject(characterId=[$0], name=[$1])"));
   }
 
+  @Test
+  @PrintLogs(category = "org.codehaus.janino", ideMinLevel = Level.INFO, greedy = true)
+  public void testSomeAggs() {
+    try (CloseableIterable<GenericRecord> characters =
+            getTarget().path("avql/query")
+                    .queryParam("query", "select "
+                            + "originPlanet, "
+                            + "count(originPlanet) as nrSpecies, "
+                            + "sum(averageLifeSpanYears)/count(originPlanet) as avgLifeSpanYears "
+                            + "from species group by originPlanet")
+                    .request(MediaType.valueOf("application/avro"))
+                    .get(new GenericType<CloseableIterable<GenericRecord>>() {})) {
+      int i = 0;
+      for (GenericRecord charracter : characters) {
+        LOG.debug("Received", charracter);
+        i++;
+      }
+      Assert.assertEquals(3, i);
+    }
+  }
+
+
 
   @Test
   @PrintLogs(category = "org.codehaus.janino", ideMinLevel = Level.INFO, greedy = true)
