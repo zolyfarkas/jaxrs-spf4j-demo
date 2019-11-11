@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.glassfish.grizzly.http.CompressionConfig;
 import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.http.server.ServerConfiguration;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.spf4j.actuator.apiBrowser.AvroModelConverter;
 import org.spf4j.avro.SchemaClient;
 import org.spf4j.base.ExecutionContexts;
+import org.spf4j.base.ThreadLocalContextAttacher;
 import org.spf4j.concurrent.LifoThreadPoolBuilder;
 import org.spf4j.log.SLF4JBridgeHandler;
 import org.spf4j.perf.ProcessVitals;
@@ -189,9 +191,14 @@ public class Main {
     return listener;
   }
 
+  @Nullable
   public static Sampler startProfiler() {
-    ProfilingTLAttacher contextFactory
-            = (ProfilingTLAttacher) ExecutionContexts.threadLocalAttacher();
+    ThreadLocalContextAttacher threadLocalAttacher = ExecutionContexts.threadLocalAttacher();
+    if (!(threadLocalAttacher instanceof ProfilingTLAttacher)) {
+      LOG.warn("ProfilingTLAttacher is not active, antternatte profiling config already set up: {}", threadLocalAttacher);
+      return null;
+    }
+    ProfilingTLAttacher contextFactory = (ProfilingTLAttacher) threadLocalAttacher;
     Sampler sampler = new Sampler(Integer.getInteger("app.profiler.sampleTimeMillis", 10),
             (t) -> new TracingExecutionContexSampler(contextFactory::getCurrentThreadContexts,
                     (ctx) -> {
@@ -234,8 +241,10 @@ public class Main {
     latch.await();
     server.shutdown(30, TimeUnit.SECONDS);
     server.shutdownNow();
-    LOG.debug("Stack samples dumped to {}", sampler.dumpToFile());
-    sampler.dispose();
+    if (sampler != null) {
+      LOG.debug("Stack samples dumped to {}", sampler.dumpToFile());
+      sampler.dispose();
+    }
   }
 
 }

@@ -2,6 +2,9 @@ package org.spf4j.demo.resources.aql;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +21,7 @@ import org.spf4j.demo.aql.Character;
 import org.spf4j.aql.AvroDataSetContract;
 import org.spf4j.avro.schema.Schemas;
 import org.spf4j.base.CloseableIterable;
+import org.spf4j.base.avro.HealthRecord;
 import org.spf4j.jaxrs.CsvParam;
 import org.spf4j.jaxrs.IterableArrayContent;
 import org.spf4j.security.SecurityContext;
@@ -41,6 +45,16 @@ public class CharactersResourceImpl implements AvroDataSetContract<Character> {
 
   @GET
   @Produces({"application/json", "application/avro+json", "application/avro"})
+  @Operation(
+         description = "Get Characters",
+         responses = {
+           @ApiResponse(
+                 description = "Charracters",
+                 responseCode = "200",
+                 content = @Content(array =  @io.swagger.v3.oas.annotations.media.ArraySchema(
+                         schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = Character.class))))
+         }
+  )
   public Iterable<? extends IndexedRecord> getData(@QueryParam("_where") @Nullable Predicate<Character> filter,
           @QueryParam("_project") @CsvParam @Nullable List<String> project) {
     Iterable<Character> filtered = Iterables.filter(Arrays.asList(new Character("sth1", "James Kirk", "earth", "human"),
