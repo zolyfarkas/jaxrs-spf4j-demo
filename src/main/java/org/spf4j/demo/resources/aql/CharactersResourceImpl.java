@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -19,6 +18,7 @@ import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
 import org.spf4j.demo.aql.Character;
 import org.spf4j.aql.AvroDataSetContract;
+import org.spf4j.avro.SqlPredicate;
 import org.spf4j.avro.schema.Schemas;
 import org.spf4j.base.CloseableIterable;
 import org.spf4j.jaxrs.CsvParam;
@@ -54,7 +54,7 @@ public class CharactersResourceImpl implements AvroDataSetContract<Character> {
                          schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = Character.class))))
          }
   )
-  public Iterable<? extends IndexedRecord> getData(@QueryParam("_where") @Nullable Predicate<Character> filter,
+  public Iterable<? extends IndexedRecord> getData(@QueryParam("_where") @Nullable SqlPredicate<Character> filter,
           @QueryParam("_project") @CsvParam @Nullable List<String> project) {
     Iterable<Character> filtered = Iterables.filter(Arrays.asList(new Character("sth1", "James Kirk", "earth", "human"),
             new Character("sth2", "Fips", "earth", "dog"),
@@ -74,7 +74,7 @@ public class CharactersResourceImpl implements AvroDataSetContract<Character> {
   }
 
   @Override
-  public CloseableIterable<? extends IndexedRecord> getData(final Predicate<Character> filter,
+  public CloseableIterable<? extends IndexedRecord> getData(final SqlPredicate<Character> filter,
           final List<String> selectProjections, final SecurityContext ctx,
           final long timeout, final TimeUnit timeUnit) {
     return CloseableIterable.from(getData(filter, selectProjections));
