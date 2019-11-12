@@ -21,7 +21,6 @@ import org.spf4j.demo.aql.Character;
 import org.spf4j.aql.AvroDataSetContract;
 import org.spf4j.avro.schema.Schemas;
 import org.spf4j.base.CloseableIterable;
-import org.spf4j.base.avro.HealthRecord;
 import org.spf4j.jaxrs.CsvParam;
 import org.spf4j.jaxrs.IterableArrayContent;
 import org.spf4j.security.SecurityContext;
