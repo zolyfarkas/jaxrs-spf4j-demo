@@ -39,7 +39,7 @@ public class SpeciesResourceImpl  implements AvroDataSetContract<Species> {
         new Species("dog", 13, "earth"),
         new Species("human", 70, "earth"),
         new Species("andorian", 70, "andoria"),
-        new Species("vulcan", 70, "vulcan")), filter == null ? (x) -> true : filter::test);
+        new Species("vulcan", 450, "vulcan")), filter == null ? (x) -> true : filter::test);
   }
 
   @Override
