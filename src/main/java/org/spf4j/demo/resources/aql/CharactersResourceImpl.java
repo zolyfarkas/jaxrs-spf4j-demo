@@ -3,6 +3,8 @@ package org.spf4j.demo.resources.aql;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.Arrays;
@@ -54,7 +56,11 @@ public class CharactersResourceImpl implements AvroDataSetContract<Character> {
                          schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = Character.class))))
          }
   )
-  public Iterable<? extends IndexedRecord> getData(@QueryParam("_where") @Nullable SqlPredicate<Character> filter,
+  public Iterable<? extends IndexedRecord> getData(@QueryParam("_where")
+          @Parameter(name = "_where", in = ParameterIn.QUERY,
+            schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = String.class),
+            description = "sql where expression", example = "name like 'a%'")
+          @Nullable SqlPredicate<Character> filter,
           @QueryParam("_project") @CsvParam @Nullable List<String> project) {
     Iterable<Character> filtered = Iterables.filter(Arrays.asList(new Character("sth1", "James Kirk", "earth", "human"),
             new Character("sth2", "Fips", "earth", "dog"),
