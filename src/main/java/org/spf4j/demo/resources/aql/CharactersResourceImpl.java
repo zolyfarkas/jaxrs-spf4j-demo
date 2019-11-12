@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
+import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -32,6 +33,7 @@ import org.spf4j.security.SecurityContext;
  * @author Zoltan Farkas
  */
 @Path("avql/characters")
+@Singleton
 public class CharactersResourceImpl implements AvroDataSetContract<Character> {
 
   @Override

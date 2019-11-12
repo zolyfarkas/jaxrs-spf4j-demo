@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spf4j.base.CloseableIterable;
 import org.spf4j.log.Level;
+import org.spf4j.test.log.annotations.ExpectLog;
 import org.spf4j.test.log.annotations.PrintLogs;
 
 /**
@@ -125,6 +126,23 @@ public class AqlTest extends ServiceIntegrationBase {
         i++;
       }
       Assert.assertEquals(5, i);
+    }
+  }
+
+  @Test
+  @ExpectLog(category = "org.spf4j.jaxrs.client.providers.ExecutionContextClientFilter", level = Level.WARN)
+  public void testGetDeprecatedWarning() {
+    try (CloseableIterable<GenericRecord> planets =
+            getTarget().path("avql/query")
+                    .queryParam("query", "select * from planets c")
+                    .request(MediaType.valueOf("application/avro"))
+                    .get(new GenericType<CloseableIterable<GenericRecord>>() {})) {
+      int i = 0;
+      for (GenericRecord c : planets) {
+        LOG.debug("Received", c);
+        i++;
+      }
+      Assert.assertEquals(3, i);
     }
   }
 

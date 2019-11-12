@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
+import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -18,7 +19,7 @@ import org.spf4j.avro.SqlPredicate;
 import org.spf4j.base.CloseableIterable;
 import org.spf4j.security.SecurityContext;
 
-
+@Singleton
 @Path("avql/species")
 public class SpeciesResourceImpl  implements AvroDataSetContract<Species> {
 

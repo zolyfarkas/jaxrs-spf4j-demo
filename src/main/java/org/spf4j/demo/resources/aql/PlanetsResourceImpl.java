@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -20,6 +21,7 @@ import org.spf4j.security.SecurityContext;
  *
  * @author Zoltan Farkas
  */
+@Singleton
 @Path("avql/planets")
 public class PlanetsResourceImpl implements AvroDataSetContract<Planet> {
 
@@ -42,7 +44,7 @@ public class PlanetsResourceImpl implements AvroDataSetContract<Planet> {
   public CloseableIterable<? extends IndexedRecord> getData(final SqlPredicate<Planet> filter,
           final List<String> select, final SecurityContext ctx,
           final long timeout, final TimeUnit timeUnit) {
-    return CloseableIterable.from(Iterables.filter(getData(), filter::test));
+    return CloseableIterable.from(Iterables.filter(getData(), filter == null ? (x) -> true : filter::test));
   }
 
 }
