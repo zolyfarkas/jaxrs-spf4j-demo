@@ -33,9 +33,9 @@ public class PlanetsResourceImpl implements AvroDataSetContract<Planet> {
   @ProjectionSupport
   @SqlFilterSupport
   public Iterable<Planet> getData() {
-    return Arrays.asList(new Planet("earth", "M", 512731872312L),
-            new Planet("vulcan", "M", 612731872312L),
-            new Planet("andoria", "M", 602731872312L));
+    return Arrays.asList(new Planet("earth", "M", 512731872312L, ""),
+            new Planet("vulcan", "M", 612731872312L, ""),
+            new Planet("andoria", "M", 602731872312L, ""));
   }
 
   @Override
