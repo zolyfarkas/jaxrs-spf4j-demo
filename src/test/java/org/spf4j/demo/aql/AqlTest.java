@@ -8,6 +8,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -16,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spf4j.base.CloseableIterable;
 import org.spf4j.log.Level;
+import org.spf4j.test.log.LogAssert;
+import org.spf4j.test.log.TestLoggers;
 import org.spf4j.test.log.annotations.ExpectLog;
 import org.spf4j.test.log.annotations.PrintLogs;
 
@@ -64,10 +67,31 @@ public class AqlTest extends ServiceIntegrationBase {
 
   @Test
   public void testGetPlanetsFiltered() {
+    LogAssert dontExpect = TestLoggers.sys().dontExpect("org.spf4j.jaxrs.client.providers.ExecutionContextClientFilter",
+            Level.WARN, (Matcher) Matchers.anything());
     try (CloseableIterable<GenericRecord> planets =
             getTarget().path("avql/planets")
                     .queryParam("_where", "name = 'earth'")
                     .queryParam("_project", "name,planetClass")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(new GenericType<CloseableIterable<GenericRecord>>() {})) {
+      int i = 0;
+      for (GenericRecord planet : planets) {
+        LOG.debug("Received", planet);
+        i++;
+      }
+      Assert.assertEquals(1, i);
+    }
+    dontExpect.assertObservation();
+  }
+
+  @Test
+  @ExpectLog(category = "org.spf4j.jaxrs.client.providers.ExecutionContextClientFilter", level = Level.WARN)
+  public void testGetPlanetsFilteredDepr() {
+    try (CloseableIterable<GenericRecord> planets =
+            getTarget().path("avql/planets")
+                    .queryParam("_where", "name = 'earth'")
+                    .queryParam("_project", "name,planetClass,description")
                     .request(MediaType.APPLICATION_JSON)
                     .get(new GenericType<CloseableIterable<GenericRecord>>() {})) {
       int i = 0;
