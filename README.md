@@ -1,5 +1,5 @@
 # jaxrs-spf4j-demo
-A demo project for  a JAX-RS REST service showcasing spf4j profiling, logging, etc... functionality in a SOA (aka microserives) environment.
+A demo project for  a JAX-RS REST service showcasing Avro REST SQL, spf4j profiling, logging, etc... functionality in a SOA (aka microserives) environment.
 
 This is right now work in progress, need to be brave to try it out :-)
 
