@@ -258,6 +258,23 @@ public class AqlTest extends ServiceIntegrationBase {
   }
 
 
+  @Test
+  @PrintLogs(category = "org.codehaus.janino", ideMinLevel = Level.INFO, greedy = true)
+  public void testGetQuerySchema() {
+    Schema schema =
+            getTarget().path("avql/query/schema")
+                    .queryParam("query", "select name,"
+                            + " ARRAY(select c2.name from friendships f, characters c2"
+                            + " where f.characterId1 = c.characterId and f.characterId2 = c2.characterId) as friends"
+                            + " from characters c")
+                    .request(MediaType.valueOf("application/json"))
+                    .get(Schema.class);
+    LOG.debug("Received schema", schema);
+    Schema.Field field = schema.getField("friends");
+    Assert.assertNotNull(field);
+    Assert.assertEquals(Schema.Type.ARRAY, field.schema().getType());
+  }
+
 
   @Test
   @PrintLogs(category = "org.codehaus.janino", ideMinLevel = Level.INFO, greedy = true)
