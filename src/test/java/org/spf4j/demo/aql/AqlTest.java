@@ -2,10 +2,12 @@
 package org.spf4j.demo.aql;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.ws.rs.client.Entity;
 import org.spf4j.demo.*;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.hamcrest.Matcher;
@@ -29,6 +31,25 @@ import org.spf4j.test.log.annotations.PrintLogs;
 public class AqlTest extends ServiceIntegrationBase {
 
   private static final Logger LOG = LoggerFactory.getLogger(AqlTest.class);
+
+  @Test
+  public void testPing() {
+    Response resp = getTarget().path("health/ping").request()
+            .withTimeout(5, TimeUnit.SECONDS)
+            .get();
+    if (resp.getStatus() != 200) {
+      throw new IllegalStateException("Application " + this + " failed to initialize, response  = " + resp);
+    }
+  }
+
+  public void testhealth() {
+    Response resp = getTarget().path("health/check/local").request()
+            .withTimeout(5, TimeUnit.SECONDS)
+            .get();
+    if (resp.getStatus() != 200) {
+      throw new IllegalStateException("Application " + this + " failed to initialize, response  = " + resp);
+    }
+  }
 
 
   @Test
