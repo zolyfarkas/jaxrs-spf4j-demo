@@ -57,20 +57,20 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-#        livenessProbe:
-#             httpGet:
-#               path: /health/check/local
-#               port: 8080
-#             initialDelaySeconds: 10
-#             periodSeconds: 5
-#             timeoutSeconds: 3
+        livenessProbe:
+             httpGet:
+               path: /health/check/local
+               port: 8080
+             initialDelaySeconds: 10
+             periodSeconds: 30
+             timeoutSeconds: 5
         readinessProbe:
              httpGet:
                path: /health/ping
                port: 8080
              initialDelaySeconds: 5
-             periodSeconds: 10
-             timeoutSeconds: 2
+             periodSeconds: 15
+             timeoutSeconds: 5
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
