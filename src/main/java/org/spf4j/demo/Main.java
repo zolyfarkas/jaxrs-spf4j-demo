@@ -85,7 +85,6 @@ public class Main {
     servletRegistration.addMapping("/*");
     servletRegistration.setInitParameter("javax.ws.rs.Application", "org.spf4j.demo.DemoApplication");
     servletRegistration.setInitParameter(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, "true");
-    servletRegistration.setInitParameter(ServerProperties.PROVIDER_SCANNING_RECURSIVE, "true");
     servletRegistration.setInitParameter(ServerProperties.PROVIDER_PACKAGES,
             "org.spf4j.jaxrs.server.providers;org.spf4j.demo;org.spf4j.actuator;org.spf4j.actuator.cluster;"
                     + "org.spf4j.jaxrs.aql;"

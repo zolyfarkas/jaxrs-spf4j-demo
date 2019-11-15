@@ -45,6 +45,7 @@ import org.spf4j.cluster.Service;
 import org.spf4j.cluster.SingleNodeCluster;
 import org.spf4j.hk2.Spf4jBinder;
 import org.spf4j.http.DefaultDeadlineProtocol;
+import org.spf4j.jaxrs.aql.AbacAuthorizer;
 import org.spf4j.jaxrs.client.providers.ClientCustomExecutorServiceProvider;
 import org.spf4j.jaxrs.client.providers.ClientCustomScheduledExecutionServiceProvider;
 import org.spf4j.jaxrs.client.providers.ExecutionContextClientFilter;
@@ -111,6 +112,7 @@ public class DemoApplication extends ResourceConfig {
     register(new ClusterBinder(Integer.parseInt(initParameter)));
     register(new DefaultHealthChecksBinder());
     register(new DefaultClusterHealthChecksBinder());
+    register(AbacAuthorizer.ALL_ACCESS);
     if (instance != null) {
       throw new IllegalStateException("Application already initialized " + instance);
     }
