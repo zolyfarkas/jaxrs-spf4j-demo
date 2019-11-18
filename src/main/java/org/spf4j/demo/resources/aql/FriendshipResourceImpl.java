@@ -43,6 +43,11 @@ public class FriendshipResourceImpl implements AvroDataSetContract<Friendship> {
             new Friendship("sth1", "sth3")), filter == null ? (x) -> true : filter::test);
   }
 
+  @Override
+  public long getRowCountStatistic() {
+    return 2;
+  }
+
   public CloseableIterable<? extends IndexedRecord> getData(@Nullable SqlPredicate<Friendship> filter,
           List<String> select, final SecurityContext ctx,
           final long timeout, final TimeUnit timeUnit) {
@@ -50,3 +55,4 @@ public class FriendshipResourceImpl implements AvroDataSetContract<Friendship> {
   }
 
 }
+

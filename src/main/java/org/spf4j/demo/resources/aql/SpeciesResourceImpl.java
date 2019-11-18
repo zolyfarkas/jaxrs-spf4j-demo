@@ -44,6 +44,11 @@ public class SpeciesResourceImpl  implements AvroDataSetContract<Species> {
   }
 
   @Override
+  public long getRowCountStatistic() {
+    return 5;
+  }
+
+  @Override
   public CloseableIterable<? extends IndexedRecord> getData(@Nullable SqlPredicate<Species> filter,
           List<String> select, final SecurityContext ctx,
           final long timeout, final TimeUnit timeUnit) {

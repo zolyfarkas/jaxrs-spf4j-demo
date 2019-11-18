@@ -41,6 +41,11 @@ public class PlanetsResourceImpl implements AvroDataSetContract<Planet> {
   }
 
   @Override
+  public long getRowCountStatistic() {
+    return 3;
+  }
+
+  @Override
   public CloseableIterable<? extends IndexedRecord> getData(final SqlPredicate<Planet> filter,
           final List<String> select, final SecurityContext ctx,
           final long timeout, final TimeUnit timeUnit) {

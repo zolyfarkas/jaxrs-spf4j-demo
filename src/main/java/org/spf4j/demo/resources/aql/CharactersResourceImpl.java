@@ -82,6 +82,11 @@ public class CharactersResourceImpl implements AvroDataSetContract<Character> {
   }
 
   @Override
+  public long getRowCountStatistic() {
+    return 5;
+  }
+
+  @Override
   public CloseableIterable<? extends IndexedRecord> getData(final SqlPredicate<Character> filter,
           final List<String> selectProjections, final SecurityContext ctx,
           final long timeout, final TimeUnit timeUnit) {
