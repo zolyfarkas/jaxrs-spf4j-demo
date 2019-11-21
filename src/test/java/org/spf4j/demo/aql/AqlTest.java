@@ -278,6 +278,27 @@ public class AqlTest extends ServiceIntegrationBase {
     }
   }
 
+  @Test
+  @PrintLogs(category = "org.codehaus.janino", ideMinLevel = Level.INFO, greedy = true)
+  public void testSomeAggs2() {
+    try (CloseableIterable<GenericRecord> characters =
+            getTarget().path("avql/query")
+                    .queryParam("query", "select "
+                            + "originPlanet, "
+                            + "count(originPlanet), "
+                            + "sum(averageLifeSpanYears)/count(originPlanet)"
+                            + "from species group by originPlanet")
+                    .request(MediaType.valueOf("application/avro"))
+                    .get(new GenericType<CloseableIterable<GenericRecord>>() {})) {
+      int i = 0;
+      for (GenericRecord charracter : characters) {
+        LOG.debug("Received", charracter);
+        i++;
+      }
+      Assert.assertEquals(3, i);
+    }
+  }
+
 
   @Test
   @PrintLogs(category = "org.codehaus.janino", ideMinLevel = Level.INFO, greedy = true)
