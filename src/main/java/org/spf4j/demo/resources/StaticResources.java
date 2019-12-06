@@ -19,7 +19,7 @@ public class StaticResources {
   }
 
   @Path("")
-  public ClassPathResource getUI() {
+  public ClassPathResource getRoot() {
     return resource;
   }
 
