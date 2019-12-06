@@ -47,7 +47,7 @@ This example shows how you can overcome some of the challenges you will face in 
   Hitting the network has a cost! (and your cloud bill will reflect that)
   your code needs to be aware of the network boundary.
 
-10) Deprecation support, clients will be notified when hitting deprecated endpoints via HTTP Warning headers.
+10) Deprecation support, clients will be notified when using deprecated endpoints or deprecated objects/attributes via HTTP Warning headers.
 
 11) Actuator endpoints  for logs, health, info, swagger docs, jmx.
 
@@ -59,8 +59,8 @@ See the [wiki](https://github.com/zolyfarkas/jaxrs-spf4j-demo/wiki) for more det
 This demo is built and published to docker-hub, you can run this service by:
 
 ```
-$ docker pull zolyfarkas/jaxrs-spf4j-demo:0.5
-$ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:0.5
+$ docker pull zolyfarkas/jaxrs-spf4j-demo:0.7
+$ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:0.7
 ```
 
 open in your browser: 
@@ -75,6 +75,8 @@ open in your browser:
 if adventurous you can try this in kubernetes:
 
   Install and run a kubernetes local cluster from: https://github.com/kubernetes-sigs/kubeadm-dind-cluster
+  The new way of running multi-node local kubernetes clusters, is using [kind](https://kind.sigs.k8s.io). see main/kube/kind for the
+configuration I use.
 
 ```
   kubectl create -f ./src/main/kube/kube-rbac.yaml
