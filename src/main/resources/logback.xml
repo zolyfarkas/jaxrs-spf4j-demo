@@ -14,7 +14,7 @@
 
 	<appender name="default" class="org.spf4j.log.AvroDataFileAppender">
           <fileNameBase>${logFileBase}</fileNameBase>
-          <destinationPath>/var/log</destinationPath>
+          <destinationPath>${logFolder}</destinationPath>
 	</appender>
 
         <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">

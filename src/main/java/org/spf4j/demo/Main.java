@@ -37,6 +37,8 @@ import org.spf4j.stackmonitor.TracingExecutionContexSampler;
  */
 public class Main {
 
+  private static final String LOG_FOLDER;
+
   static {
     String appName = System.getenv("KUBE_APP_NAME");
     String podName = System.getenv("KUBE_POD_NAME");
@@ -47,9 +49,15 @@ public class Main {
       System.setProperty("logFileBase", podName);
       System.setProperty("podName", podName);
       System.setProperty("hostName", podName);
-      System.setProperty("spf4j.perf.ms.defaultTsdbFolderPath", "/var/log");
-      System.setProperty("spf4j.perf.ms.defaultSsdumpFolder", "/var/log");
     }
+    String logFolder = System.getenv("LOG_FOLDER");
+    if (logFolder == null) {
+      logFolder = "/var/log";
+    }
+    System.setProperty("logFolder", logFolder);
+    LOG_FOLDER = logFolder;
+    System.setProperty("spf4j.perf.ms.defaultTsdbFolderPath", logFolder);
+    System.setProperty("spf4j.perf.ms.defaultSsdumpFolder", logFolder);
     SLF4JBridgeHandler.removeHandlersForRootLogger();
     SLF4JBridgeHandler.install();
     // Enable Continuous profiling.
@@ -99,7 +107,7 @@ public class Main {
     servletRegistration.setInitParameter("servlet.bindAddr", bindAddr);
     servletRegistration.setInitParameter("servlet.port", Integer.toString(port));
     servletRegistration.setInitParameter("servlet.protocol", "http");
-    servletRegistration.setInitParameter("application.logFilesPath", "/var/log");
+    servletRegistration.setInitParameter("application.logFilesPath", LOG_FOLDER);
     servletRegistration.setLoadOnStartup(0);
     HttpServer server = new HttpServer();
     ServerConfiguration config = server.getServerConfiguration();
@@ -199,7 +207,8 @@ public class Main {
   public static Sampler startProfiler() {
     ThreadLocalContextAttacher threadLocalAttacher = ExecutionContexts.threadLocalAttacher();
     if (!(threadLocalAttacher instanceof ProfilingTLAttacher)) {
-      LOG.warn("ProfilingTLAttacher is not active, antternatte profiling config already set up: {}", threadLocalAttacher);
+      LOG.warn("ProfilingTLAttacher is NOT active,"
+              + " alternate profiling config already set up: {}", threadLocalAttacher);
       return null;
     }
     ProfilingTLAttacher contextFactory = (ProfilingTLAttacher) threadLocalAttacher;
