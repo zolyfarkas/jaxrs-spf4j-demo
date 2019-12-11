@@ -72,11 +72,13 @@
   </dependencyManagement>
 
   <dependencies>
+    <!-- for testing log file writing.
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>1.2.3</version>
     </dependency>
+    -->
     <dependency>
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-slf4j-test</artifactId>
@@ -262,6 +264,9 @@
           <trimStackTrace>false</trimStackTrace>
           <forkCount>1</forkCount>
           <reuseForks>false</reuseForks>
+          <environmentVariables>
+            <LOG_FOLDER>./target</LOG_FOLDER>
+          </environmentVariables>
           <systemProperties>
             <spf4j.execContentFactoryWrapperClass>org.spf4j.stackmonitor.ProfiledExecutionContextFactory</spf4j.execContentFactoryWrapperClass>
             <fred.apiKey>${fred.apiKey}</fred.apiKey>
