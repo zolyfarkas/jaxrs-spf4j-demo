@@ -39,7 +39,7 @@ This example shows how you can overcome some of the challenges you will face in 
 
 6) JAX-RS Rest client with retry and hedged execution support.
 
-7) Continuous profiling, with context enrichment.
+7) Continuous profiling, with context enrichment [see](https://github.com/zolyfarkas/jaxrs-spf4j-demo/wiki/ContinuousProfiling) for more detail.
 
 8) On demand profiling and tracing.
 
@@ -49,7 +49,7 @@ This example shows how you can overcome some of the challenges you will face in 
 
 10) Deprecation support, clients will be notified when using deprecated endpoints or deprecated objects/attributes via HTTP Warning headers.
 
-11) Actuator endpoints  for logs, health, info, swagger docs, jmx.
+11) Actuator endpoints  for logs, health, info, swagger docs, jmx, profiles.
 
 12) Serialization compatible DTO schema evolution ([see](https://github.com/zolyfarkas/jaxrs-spf4j-demo-schema)).
 
