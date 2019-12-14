@@ -125,10 +125,26 @@ public class HelloResource {
   @Path("slowHello")
   public String slowHello(@QueryParam("time") @DefaultValue("2") final int timeSeconds)
           throws InterruptedException, TimeoutException {
-    Thread.sleep(TimeUnit.SECONDS.toMillis(timeSeconds));
+    long millisToSleep = TimeUnit.SECONDS.toMillis(timeSeconds);
+    someMethodA(millisToSleep / 2);
+    someMethodB(millisToSleep / 2);
     ExecutionContext ec = ExecutionContexts.current();
     return "Slow Hello world " + ec.getName() + ", timeleft " + ec.getMillisToDeadline() + " ms";
   }
+
+  private void someMethodA(final long sleepMillis) throws InterruptedException {
+    Thread.sleep(sleepMillis / 2);
+    someMethodC(sleepMillis / 2);
+  }
+
+  private void someMethodB(final long sleepMillis) throws InterruptedException {
+     Thread.sleep(sleepMillis);
+  }
+
+  private void someMethodC(final long sleepMillis) throws InterruptedException {
+     Thread.sleep(sleepMillis);
+  }
+
 
   @GET
   @Produces(MediaType.TEXT_PLAIN)
