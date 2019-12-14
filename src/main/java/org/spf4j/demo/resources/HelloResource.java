@@ -142,9 +142,13 @@ public class HelloResource {
   }
 
   private void someMethodC(final long sleepMillis) throws InterruptedException {
-     Thread.sleep(sleepMillis);
+     Thread.sleep(sleepMillis / 2);
+     someMethodD(sleepMillis / 2);
   }
 
+  private void someMethodD(final long sleepMillis) throws InterruptedException {
+     Thread.sleep(sleepMillis);
+  }
 
   @GET
   @Produces(MediaType.TEXT_PLAIN)
