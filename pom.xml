@@ -72,7 +72,7 @@
   </dependencyManagement>
 
   <dependencies>
-    <!-- for testing log file writing.
+    <!-- for testing log file writing. 
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
@@ -109,7 +109,7 @@
     <dependency>
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-logback</artifactId>
-      <version>1.2.7-SNAPSHOT</version>
+      <version>1.2.8-SNAPSHOT</version>
     </dependency>
     <dependency> <!-- jersey wants this, otherwise some ugly warn message in the logs -->
       <groupId>javax.activation</groupId>
