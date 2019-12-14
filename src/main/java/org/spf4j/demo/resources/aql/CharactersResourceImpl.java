@@ -58,7 +58,7 @@ public class CharactersResourceImpl implements AvroDataSetContract<Character> {
                          schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = Character.class))))
          }
   )
-  public Iterable<? extends IndexedRecord> getData(@QueryParam("_where")
+  public Iterable<IndexedRecord> getData(@QueryParam("_where")
           @Parameter(name = "_where", in = ParameterIn.QUERY,
             schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = String.class),
             description = "sql where expression", example = "name like 'a%'")
@@ -77,7 +77,7 @@ public class CharactersResourceImpl implements AvroDataSetContract<Character> {
                                              (x) -> Schemas.project(resultSchema, sourceSchema, x)),
                                        resultSchema);
     } else {
-      return IterableArrayContent.from(filtered, Character.getClassSchema());
+      return (Iterable) IterableArrayContent.from(filtered, Character.getClassSchema());
     }
   }
 
