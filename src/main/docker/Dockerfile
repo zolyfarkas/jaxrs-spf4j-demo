@@ -12,7 +12,7 @@ ARG JAR_FILE
 ENV JAR_FILE ${JAR_FILE}
 ADD target/${JAR_FILE} /usr/share/jaxrs-spf4j-demo/${JAR_FILE}
 
-ENTRYPOINT /opt/java/openjdk/bin/java -XX:+HeapDumpOnOutOfMemoryError -XX:-OmitStackTraceInFastThrow -XX:HeapDumpPath=/var/log -Xmx64m -jar /usr/share/jaxrs-spf4j-demo/${JAR_FILE}
+ENTRYPOINT /opt/java/openjdk/bin/java -XX:+HeapDumpOnOutOfMemoryError -XX:-OmitStackTraceInFastThrow -XX:HeapDumpPath=/var/log -Xmx68m -jar /usr/share/jaxrs-spf4j-demo/${JAR_FILE}
 
 # local application port
 EXPOSE 8080
