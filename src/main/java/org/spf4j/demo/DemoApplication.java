@@ -68,6 +68,7 @@ import org.spf4j.stackmonitor.ProfilingTLAttacher;
 import org.spf4j.stackmonitor.Sampler;
 import org.spf4j.stackmonitor.TracingExecutionContexSampler;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.spf4j.failsafe.HedgePolicy;
 
 /**
  * @author Zoltan Farkas
@@ -119,7 +120,7 @@ public class DemoApplication extends ResourceConfig {
             .register(EncodingFilter.class)
             .register(avroFeature)
             .property(ClientProperties.USE_ENCODING, "gzip")
-            .build());
+            .build()).withHedgePolicy(HedgePolicy.NONE);
     this.sampler = startProfiler();
       register(new AbstractBinder() {
         @Override
