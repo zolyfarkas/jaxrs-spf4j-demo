@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,16 +29,19 @@ import org.apache.avro.SchemaResolvers;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.filter.EncodingFilter;
 import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spf4j.actuator.apiBrowser.OpenApiResource;
 import org.spf4j.actuator.cluster.health.DefaultClusterHealthChecksBinder;
 import org.spf4j.actuator.health.checks.DefaultHealthChecksBinder;
 import org.spf4j.avro.NoSnapshotRefsResolver;
 import org.spf4j.avro.SchemaClient;
+import org.spf4j.base.ExecutionContexts;
+import org.spf4j.base.ThreadLocalContextAttacher;
 import org.spf4j.base.avro.NetworkProtocol;
 import org.spf4j.base.avro.NetworkService;
 import org.spf4j.cluster.Cluster;
@@ -55,15 +59,23 @@ import org.spf4j.jaxrs.common.providers.gp.CsvParameterConverterProvider;
 import org.spf4j.jaxrs.common.providers.GZipEncoderDecoder;
 import org.spf4j.jaxrs.common.providers.avro.AvroFeature;
 import org.spf4j.jaxrs.common.providers.avro.DefaultSchemaProtocol;
+import org.spf4j.jaxrs.common.providers.gp.SampleNodeMessageProviderD3Json;
+import org.spf4j.jaxrs.common.providers.gp.SampleNodeMessageProviderJson;
 import org.spf4j.kube.client.Client;
 import org.spf4j.kube.cluster.KubeCluster;
 import org.spf4j.servlet.ExecutionContextFilter;
+import org.spf4j.stackmonitor.ProfilingTLAttacher;
+import org.spf4j.stackmonitor.Sampler;
+import org.spf4j.stackmonitor.TracingExecutionContexSampler;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
 
 /**
  * @author Zoltan Farkas
  */
 @Singleton
 public class DemoApplication extends ResourceConfig {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DemoApplication.class);
 
   private static volatile DemoApplication instance;
 
@@ -72,6 +84,8 @@ public class DemoApplication extends ResourceConfig {
   private final Spf4JClient restClient;
 
   private final ServletContext srvContext;
+
+  private final Sampler sampler;
 
   @Inject
   public DemoApplication(@Context ServletContext srvContext, ServiceLocator locator) {
@@ -96,6 +110,8 @@ public class DemoApplication extends ResourceConfig {
             .register(new ExecutionContextClientFilter(dp, true))
             .register(ClientCustomExecutorServiceProvider.class)
             .register(ClientCustomScheduledExecutionServiceProvider.class)
+            .register(new SampleNodeMessageProviderJson())
+            .register(new SampleNodeMessageProviderD3Json())
             .register(new CsvParameterConverterProvider(Collections.EMPTY_LIST))
             .register(new CharSequenceMessageProvider())
             .register(GZipEncoderDecoder.class)
@@ -104,6 +120,13 @@ public class DemoApplication extends ResourceConfig {
             .register(avroFeature)
             .property(ClientProperties.USE_ENCODING, "gzip")
             .build());
+    this.sampler = startProfiler();
+      register(new AbstractBinder() {
+        @Override
+        protected void configure() {
+          bind(sampler).to(Sampler.class);
+        }
+      });
     register(new Spf4jBinder(schemaClient, restClient, (x) -> true));
     register(avroFeature);
     register(GZipEncoderDecoder.class);
@@ -120,8 +143,42 @@ public class DemoApplication extends ResourceConfig {
     this.srvContext = srvContext;
   }
 
+  @Nullable
+  public static Sampler startProfiler() {
+    ThreadLocalContextAttacher threadLocalAttacher = ExecutionContexts.threadLocalAttacher();
+    if (!(threadLocalAttacher instanceof ProfilingTLAttacher)) {
+      LOG.warn("ProfilingTLAttacher is NOT active,"
+              + " alternate profiling config already set up: {}", threadLocalAttacher);
+      return null;
+    }
+    ProfilingTLAttacher contextFactory = (ProfilingTLAttacher) threadLocalAttacher;
+    Sampler sampler = new Sampler(Integer.getInteger("app.profiler.sampleTimeMillis", 10),
+            (t) -> new TracingExecutionContexSampler(contextFactory::getCurrentThreadContexts,
+                    (ctx) -> {
+                      String name = ctx.getName();
+                      if (name.startsWith("GET")) {
+                        return "GET";
+                      } else if (ctx.getName().startsWith("POST")) {
+                        return "POST";
+                      } else {
+                        return "OTHER";
+                      }
+                    }));
+    sampler.registerJmx();
+    sampler.start();
+    return sampler;
+  }
+
+  public Sampler getSampler() {
+    return sampler;
+  }
+
   @PreDestroy
-  public void cleanup() {
+  public void cleanup() throws InterruptedException, IOException {
+    if (sampler != null) {
+      LOG.info("Stack samples dumped to {}", sampler.dumpToFile());
+      sampler.dispose();
+    }
     instance = null;
   }
 

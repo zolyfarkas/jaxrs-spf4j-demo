@@ -21,15 +21,14 @@ public class ServiceIntegrationBase {
   private static HttpServer server;
   private static Spf4jWebTarget target;
   private static Spf4JClient client;
-  private static Sampler profiler;
   private static String localService;
 
   @BeforeClass
   public static void setUp() throws Exception {
     // start the server
-    profiler = Main.startProfiler();
     server = Main.startHttpServer("127.0.0.1", "127.0.0.1", 8080);
-    client = DemoApplication.getInstance().getRestClient();
+    DemoApplication app = DemoApplication.getInstance();
+    client = app.getRestClient();
     localService = "http://127.0.0.1:" + server.getListener("http").getPort();
     target = client.target(localService);
   }
@@ -37,8 +36,6 @@ public class ServiceIntegrationBase {
   @AfterClass
   public static void tearDown() throws Exception {
     server.shutdownNow();
-    LOG.debug("Stack samples dumped to {}", profiler.dumpToFile());
-    profiler.dispose();
   }
 
   public static HttpServer getServer() {
@@ -53,9 +50,6 @@ public class ServiceIntegrationBase {
     return client;
   }
 
-  public static Sampler getProfiler() {
-    return profiler;
-  }
 
   public static String getLocalService() {
     return localService;

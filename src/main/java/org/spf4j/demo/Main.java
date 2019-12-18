@@ -201,31 +201,7 @@ public class Main {
     return listener;
   }
 
-  @Nullable
-  public static Sampler startProfiler() {
-    ThreadLocalContextAttacher threadLocalAttacher = ExecutionContexts.threadLocalAttacher();
-    if (!(threadLocalAttacher instanceof ProfilingTLAttacher)) {
-      LOG.warn("ProfilingTLAttacher is NOT active,"
-              + " alternate profiling config already set up: {}", threadLocalAttacher);
-      return null;
-    }
-    ProfilingTLAttacher contextFactory = (ProfilingTLAttacher) threadLocalAttacher;
-    Sampler sampler = new Sampler(Integer.getInteger("app.profiler.sampleTimeMillis", 10),
-            (t) -> new TracingExecutionContexSampler(contextFactory::getCurrentThreadContexts,
-                    (ctx) -> {
-                      String name = ctx.getName();
-                      if (name.startsWith("GET")) {
-                        return "GET";
-                      } else if (ctx.getName().startsWith("POST")) {
-                        return "POST";
-                      } else {
-                        return "OTHER";
-                      }
-                    }));
-    sampler.registerJmx();
-    sampler.start();
-    return sampler;
-  }
+
 
   /**
    * Main method.
@@ -245,16 +221,11 @@ public class Main {
       }
 
     });
-    Sampler sampler = startProfiler();
     final HttpServer server = startHttpServer();
     LOG.info("Server started and listening at {}", server.getListeners());
     latch.await();
     server.shutdown(30, TimeUnit.SECONDS);
     server.shutdownNow();
-    if (sampler != null) {
-      LOG.debug("Stack samples dumped to {}", sampler.dumpToFile());
-      sampler.dispose();
-    }
   }
 
 }
