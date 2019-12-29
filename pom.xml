@@ -18,6 +18,7 @@
     <bintray.package>${project.artifactId}</bintray.package>
     <spf4j.version>8.6.32</spf4j.version>
     <spf4j-jaxrs.version>2.1.20</spf4j-jaxrs.version>
+    <spf4j-logback.version>1.2.10-SNAPSHOT</spf4j-logback.version>
     <jersey.version>2.29.1</jersey.version>
     <junit.version>4.12</junit.version>
   </properties>
@@ -72,7 +73,12 @@
   </dependencyManagement>
 
   <dependencies>
-    <!-- for testing log file writing. 
+    <!-- for testing log file writing.
+    <dependency>
+      <groupId>org.spf4j</groupId>
+      <artifactId>spf4j-logback</artifactId>
+      <version>${spf4j-logback.version}</version>
+    </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
@@ -84,6 +90,11 @@
       <artifactId>spf4j-slf4j-test</artifactId>
       <scope>test</scope>
       <version>${spf4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.spf4j</groupId>
+      <artifactId>spf4j-logback</artifactId>
+      <version>${spf4j-logback.version}</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -105,11 +116,6 @@
       <groupId>org.apache.avro</groupId>
       <artifactId>avro</artifactId>
       <version>${avro.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.spf4j</groupId>
-      <artifactId>spf4j-logback</artifactId>
-      <version>1.2.8-SNAPSHOT</version>
     </dependency>
     <dependency> <!-- jersey wants this, otherwise some ugly warn message in the logs -->
       <groupId>javax.activation</groupId>
