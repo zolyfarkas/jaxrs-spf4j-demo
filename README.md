@@ -65,11 +65,11 @@ $ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:0.7
 
 open in your browser: 
 
-  * [Hello](https://demo.spf4j.org/demo/helloResource/hello)
-  * [Json avro response](https://demo.spf4j.org/demo/example/records?_Accept=application/json)
-  * [Binary avro response](https://demo.spf4j.org/demo/example/records)
-  * [Error response](https://demo.spf4j.org/demo/helloResource/aError)
-  * [Error Response + profile data](https://demo.spf4j.org/demo/helloResource/slowBrokenHello?time=31)
+  * [Hello](https://demo.spf4j.org/helloResource/hello)
+  * [Json avro response](https://demo.spf4j.org/example/records?_Accept=application/json)
+  * [Binary avro response](https://demo.spf4j.org/example/records)
+  * [Error response](https://demo.spf4j.org/helloResource/aError)
+  * [Error Response + profile data](https://demo.spf4j.org/helloResource/slowBrokenHello?time=10)
 
 
 if adventurous you can try this in kubernetes:
