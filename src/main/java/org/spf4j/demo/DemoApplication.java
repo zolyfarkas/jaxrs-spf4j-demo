@@ -136,7 +136,12 @@ public class DemoApplication extends ResourceConfig {
     register(new ClusterBinder(Integer.parseInt(initParameter)));
     register(new DefaultHealthChecksBinder());
     register(new DefaultClusterHealthChecksBinder());
-    register(AbacAuthorizer.ALL_ACCESS);
+    register(new AbstractBinder() {
+      @Override
+      protected void configure() {
+        bind(AbacAuthorizer.ALL_ACCESS).to(AbacAuthorizer.class);
+      }
+    });
     if (instance != null) {
       throw new IllegalStateException("Application already initialized " + instance);
     }
