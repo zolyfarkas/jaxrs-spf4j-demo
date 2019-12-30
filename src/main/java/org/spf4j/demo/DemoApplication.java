@@ -122,12 +122,14 @@ public class DemoApplication extends ResourceConfig {
             .property(ClientProperties.USE_ENCODING, "gzip")
             .build()).withHedgePolicy(HedgePolicy.NONE);
     this.sampler = startProfiler();
+    if (this.sampler != null) {
       register(new AbstractBinder() {
         @Override
         protected void configure() {
           bind(sampler).to(Sampler.class);
         }
       });
+    }
     register(new Spf4jBinder(schemaClient, restClient, (x) -> true));
     register(avroFeature);
     register(GZipEncoderDecoder.class);
