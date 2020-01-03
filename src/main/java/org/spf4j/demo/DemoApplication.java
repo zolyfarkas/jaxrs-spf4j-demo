@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.InetAddress;
-import java.net.URI;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -69,6 +69,7 @@ import org.spf4j.stackmonitor.Sampler;
 import org.spf4j.stackmonitor.TracingExecutionContexSampler;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.spf4j.failsafe.HedgePolicy;
+import org.spf4j.http.multi.MultiURLs;
 
 /**
  * @author Zoltan Farkas
@@ -89,13 +90,16 @@ public class DemoApplication extends ResourceConfig {
   private final Sampler sampler;
 
   @Inject
-  public DemoApplication(@Context ServletContext srvContext, ServiceLocator locator) {
+  public DemoApplication(@Context ServletContext srvContext, ServiceLocator locator)
+          throws MalformedURLException {
     ServiceLocatorUtilities.enableImmediateScope(locator);
     DefaultDeadlineProtocol dp = new DefaultDeadlineProtocol();
     FilterRegistration ecFilter = srvContext.addFilter("server", new ExecutionContextFilter(dp));
     ecFilter.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), false, "/*");
     try {
-      schemaClient = new SchemaClient(new URI("https://dl.bintray.com/zolyfarkas/core"));
+      schemaClient = new SchemaClient(MultiURLs.newURL(MultiURLs.Protocol.mhttps,
+              "https://repo1.maven.org/maven2",
+              "https://dl.bintray.com/zolyfarkas/core").toURI());
     } catch (URISyntaxException ex) {
       throw new RuntimeException(ex);
     }
