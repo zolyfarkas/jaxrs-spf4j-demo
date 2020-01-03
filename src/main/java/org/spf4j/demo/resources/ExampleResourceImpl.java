@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import org.apache.avro.Schema;
@@ -32,7 +33,8 @@ public class ExampleResourceImpl implements ExampleResource {
     return Arrays.asList(
             DemoRecordInfo.newBuilder()
                     .setDemoRecord(DemoRecord.newBuilder().setId("1")
-                            .setName("test").setDescription("testDescr").build())
+                            .setName("test").setDescription("testDescr")
+                            .setSomeField("some value").build())
                     .setMetaData(MetaData.newBuilder()
                             .setAsOf(Instant.now()).setLastAccessed(Instant.now())
                             .setLastModified(Instant.now())
@@ -46,6 +48,15 @@ public class ExampleResourceImpl implements ExampleResource {
                             .setLastModified(Instant.now())
                             .setLastAccessedBy("you").setLastModifiedBy("you").build()
                     ).build());
+  }
+
+  @Override
+  public DemoRecordInfo getRecord(final String id) {
+    try {
+      return getRecords().get(Integer.parseInt(id) - 1);
+    } catch (IndexOutOfBoundsException | NumberFormatException ex) {
+      throw new NotFoundException(ex);
+    }
   }
 
   public void saveRecords(List<DemoRecordInfo> records) {
@@ -69,5 +80,6 @@ public class ExampleResourceImpl implements ExampleResource {
             (List<GenericRecord>) Projections.project(Schema.createArray(elementProjection),
             Schema.createArray(DemoRecordInfo.getClassSchema()), getRecords()), elementProjection);
   }
+
 
 }
