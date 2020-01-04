@@ -5,9 +5,9 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nullable;
 import org.glassfish.grizzly.http.CompressionConfig;
 import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.http.server.ServerConfiguration;
@@ -19,21 +19,22 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spf4j.avro.SchemaClient;
-import org.spf4j.base.ExecutionContexts;
-import org.spf4j.base.ThreadLocalContextAttacher;
 import org.spf4j.concurrent.LifoThreadPoolBuilder;
+import org.spf4j.http.multi.Spf4jURLStreamHandlerFactory;
 import org.spf4j.log.SLF4JBridgeHandler;
 import org.spf4j.perf.ProcessVitals;
 import org.spf4j.stackmonitor.ProfiledExecutionContextFactory;
 import org.spf4j.stackmonitor.ProfilingTLAttacher;
-import org.spf4j.stackmonitor.Sampler;
-import org.spf4j.stackmonitor.TracingExecutionContexSampler;
 
 /**
  * Main class.
  *
  */
 public class Main {
+
+  static {
+    URL.setURLStreamHandlerFactory(new Spf4jURLStreamHandlerFactory());
+  }
 
   private static final String LOG_FOLDER;
 
