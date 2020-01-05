@@ -38,7 +38,8 @@ public class ExampleResourceImpl implements ExampleResource {
                     .setMetaData(MetaData.newBuilder()
                             .setAsOf(Instant.now()).setLastAccessed(Instant.now())
                             .setLastModified(Instant.now())
-                            .setLastAccessedBy("you").setLastModifiedBy("you").build()
+                            .setLastAccessedBy("you").setLastModifiedBy("you")
+                            .setAccessCount(5L).build()
                     ).build(),
             DemoRecordInfo.newBuilder()
                     .setDemoRecord(DemoRecord.newBuilder().setId("2")
