@@ -37,6 +37,8 @@ spec:
         volumeMounts:
           - name: logs-storage
             mountPath: /var/log
+        ports:
+        - containerPort: 8080
         resources:
           requests:
             cpu: "200m"
