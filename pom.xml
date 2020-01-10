@@ -117,11 +117,6 @@
       <artifactId>avro</artifactId>
       <version>${avro.version}</version>
     </dependency>
-    <dependency> <!-- jersey wants this, otherwise some ugly warn message in the logs -->
-      <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
-      <version>1.1.1</version>
-    </dependency>
     <dependency>
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-jaxrs-server</artifactId>
@@ -152,6 +147,12 @@
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-jaxrs-actuator</artifactId>
       <version>${spf4j-jaxrs.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.jaxrs</groupId>
+          <artifactId>jackson-jaxrs-json-provider</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.spf4j</groupId>
