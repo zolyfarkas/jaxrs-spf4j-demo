@@ -189,6 +189,10 @@
           <groupId>org.apache.httpcomponents</groupId>
           <artifactId>httpcore</artifactId>
         </exclusion>
+        <exclusion> <!-- approc alogs not demoed (yet) https://datasketches.github.io -->
+          <groupId>com.yahoo.datasketches</groupId>
+          <artifactId>sketches-core</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
