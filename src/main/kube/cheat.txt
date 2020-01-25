@@ -1,0 +1,6 @@
+#switch between kubectl versions.
+sudo port select --set kubectl kubectl1.14
+
+#create local kubernetes cluster
+cd ./kind
+kind create cluster --config cluster-3n.yml

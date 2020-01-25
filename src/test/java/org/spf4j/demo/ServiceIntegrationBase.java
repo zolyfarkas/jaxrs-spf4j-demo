@@ -4,19 +4,14 @@ package org.spf4j.demo;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
-import org.spf4j.stackmonitor.Sampler;
 
 /**
  *
  * @author Zoltan Farkas
  */
 public class ServiceIntegrationBase {
-
-  private static final Logger LOG = LoggerFactory.getLogger(ServiceIntegrationBase.class);
 
   private static HttpServer server;
   private static Spf4jWebTarget target;

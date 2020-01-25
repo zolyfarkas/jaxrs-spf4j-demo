@@ -53,8 +53,8 @@ public class Main {
     if (logFolder == null) {
       logFolder = "/var/log";
     }
-    System.setProperty("logFolder", logFolder);
     LOG_FOLDER = logFolder;
+    System.setProperty("logFolder", logFolder);
     System.setProperty("spf4j.perf.ms.defaultTsdbFolderPath", logFolder);
     System.setProperty("spf4j.perf.ms.defaultSsdumpFolder", logFolder);
     SLF4JBridgeHandler.removeHandlersForRootLogger();
