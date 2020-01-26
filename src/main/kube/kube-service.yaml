@@ -13,6 +13,10 @@ spec:
     port: 8080
     protocol: TCP
     targetPort: 8080
+  - name: actuator
+    port: 9090
+    protocol: TCP
+    targetPort: 9090
   selector:
     app: jaxrs-spf4j-demo
   sessionAffinity: None
