@@ -14,5 +14,5 @@ ADD target/${JAR_FILE} /usr/share/jaxrs-spf4j-demo/${JAR_FILE}
 
 ENTRYPOINT /opt/java/openjdk/bin/java -XX:ErrorFile=/var/log/hs_err_pid%p.log '-XX:OnOutOfMemoryError=kill -9 %p'  -XX:+HeapDumpOnOutOfMemoryError -XX:-OmitStackTraceInFastThrow -XX:HeapDumpPath=/var/log -Xms32m -Xmx32m -jar /usr/share/jaxrs-spf4j-demo/${JAR_FILE}
 
-# local application port
-EXPOSE 8080
+# local application port and actuator port.
+EXPOSE 8080 9090
