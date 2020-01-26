@@ -36,6 +36,7 @@ spec:
             mountPath: /var/log
         ports:
         - containerPort: 8080
+        - containerPort: 9090
         resources:
           requests:
             cpu: "200m"
