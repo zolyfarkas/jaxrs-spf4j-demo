@@ -1,30 +1,21 @@
 package org.spf4j.demo;
 
-import org.spf4j.grizzly.GrizzlyErrorPageGenerator;
-import org.glassfish.grizzly.http.server.HttpServer;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import org.glassfish.grizzly.http.CompressionConfig;
-import org.glassfish.grizzly.http.server.NetworkListener;
-import org.glassfish.grizzly.http.server.ServerConfiguration;
-import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
-import org.glassfish.grizzly.servlet.FixedWebappContext;
-import org.glassfish.grizzly.servlet.ServletRegistration;
-import org.glassfish.jersey.server.ServerProperties;
-import org.glassfish.jersey.servlet.ServletContainer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spf4j.avro.SchemaClient;
-import org.spf4j.concurrent.LifoThreadPoolBuilder;
-import org.spf4j.http.multi.Spf4jURLStreamHandlerFactory;
-import org.spf4j.log.SLF4JBridgeHandler;
-import org.spf4j.perf.ProcessVitals;
-import org.spf4j.stackmonitor.ProfiledExecutionContextFactory;
-import org.spf4j.stackmonitor.ProfilingTLAttacher;
+import java.security.Principal;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.spf4j.actuator.cluster.ClusterActuatorFeature;
+import org.spf4j.base.Env;
+import org.spf4j.grizzly.JerseyService;
+import org.spf4j.grizzly.JerseyServiceBuilder;
+import org.spf4j.grizzly.JvmServices;
+import org.spf4j.grizzly.JvmServicesBuilder;
+import org.spf4j.grizzly.SingleNodeClusterFeature;
+import org.spf4j.jaxrs.AvroSqlFeatures;
+import org.spf4j.security.AbacAuthorizer;
+import org.spf4j.kube.cluster.KubernetesClusterFeature;
 
 /**
  * Main class.
@@ -32,201 +23,40 @@ import org.spf4j.stackmonitor.ProfilingTLAttacher;
  */
 public class Main {
 
-  static {
-    URL.setURLStreamHandlerFactory(new Spf4jURLStreamHandlerFactory());
-  }
-
-  private static final String LOG_FOLDER;
-
-  static {
-    String appName = System.getenv("KUBE_APP_NAME");
-    String podName = System.getenv("KUBE_POD_NAME");
-    if (appName != null) {
-      System.setProperty("appName", appName);
-    }
-    if (podName != null) {
-      System.setProperty("logFileBase", podName);
-      System.setProperty("podName", podName);
-      System.setProperty("hostName", podName);
-    }
-    String logFolder = System.getenv("LOG_FOLDER");
-    if (logFolder == null) {
-      logFolder = "/var/log";
-    }
-    LOG_FOLDER = logFolder;
-    System.setProperty("logFolder", logFolder);
-    System.setProperty("spf4j.perf.ms.defaultTsdbFolderPath", logFolder);
-    System.setProperty("spf4j.perf.ms.defaultSsdumpFolder", logFolder);
-    SLF4JBridgeHandler.removeHandlersForRootLogger();
-    SLF4JBridgeHandler.install();
-    // Enable Continuous profiling.
-    System.setProperty("spf4j.execContext.tlAttacherClass", ProfilingTLAttacher.class.getName());
-    System.setProperty("spf4j.execContext.factoryClass", ProfiledExecutionContextFactory.class.getName());
-  }
-
-  private static final Logger LOG = LoggerFactory.getLogger(Main.class);
-
-  public static HttpServer startHttpServer() throws IOException, URISyntaxException {
-    String envPort = System.getenv("APP_SERVICE_PORT");
-    if (envPort == null) {
-      return startHttpServer(System.getProperty("hostName", "127.0.0.1"), "0.0.0.0", 8080);
-    } else {
-      return startHttpServer(System.getProperty("hostName", "127.0.0.1"), "0.0.0.0", Integer.parseInt(envPort));
-    }
-  }
-
-  public static HttpServer startHttpServer(final int port)
-          throws IOException, URISyntaxException {
-    return startHttpServer(System.getProperty("hostName", "127.0.0.1"), "0.0.0.0", port);
-  }
-
-  /**
-   * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
-   *
-   * @return Grizzly HTTP server.
-   */
-  public static HttpServer startHttpServer(final String hostName, final String bindAddr, final int port)
-          throws IOException, URISyntaxException {
-    FixedWebappContext webappContext = new FixedWebappContext("grizzly web context", "");
-    ServletRegistration servletRegistration = webappContext.addServlet("jersey", ServletContainer.class);
-    servletRegistration.addMapping("/*");
-    servletRegistration.setInitParameter("javax.ws.rs.Application", "org.spf4j.demo.DemoApplication");
-    servletRegistration.setInitParameter(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, "true");
-    servletRegistration.setInitParameter(ServerProperties.PROVIDER_SCANNING_RECURSIVE, "true");
-    servletRegistration.setInitParameter(ServerProperties.PROVIDER_PACKAGES,
-              "org.spf4j.jaxrs.common.providers.gp;"
-            + "org.spf4j.jaxrs.server.providers;"
-                    + "org.spf4j.demo;"
-                    + "org.spf4j.actuator;"
-                    + "org.spf4j.actuator.cluster;"
-                    + "org.spf4j.jaxrs.aql;"
-                    + "org.spf4j.jaxrs.aql.server.providers");
-//    servletRegistration.setInitParameter("jersey.config.server.tracing.type", "ALL");
-    servletRegistration.setInitParameter("hostName", hostName);
-    servletRegistration.setInitParameter("servlet.bindAddr", bindAddr);
-    servletRegistration.setInitParameter("servlet.port", Integer.toString(port));
-    servletRegistration.setInitParameter("servlet.protocol", "http");
-    servletRegistration.setInitParameter("application.logFilesPath", LOG_FOLDER);
-    servletRegistration.setLoadOnStartup(0);
-    HttpServer server = new HttpServer();
-    ServerConfiguration config = server.getServerConfiguration();
-    config.setDefaultErrorPageGenerator(new GrizzlyErrorPageGenerator(
-                    new SchemaClient(new URI("https://dl.bintray.com/zolyfarkas/core"))));
-//    config.addHttpHandler(new CLStaticHttpHandler(Thread.currentThread().getContextClassLoader(), "/static/"),
-//            "/*.ico", "/*.png");
-    NetworkListener listener
-            = createHttpListener(bindAddr, port);
-    server.addListener(listener);
-
-    webappContext.deploy(server);
-    server.start();
-    DemoApplication.getInstance().start();
-    return server;
-  }
-
-
-  public static NetworkListener createHttpsListener(final String bindAddr, final int port) {
-    //  final ServerConfiguration config = server.getServerConfiguration();
-    NetworkListener listener = createHttpListener("https", bindAddr, port);
-    listener.setSecure(true);
-    return listener;
-  }
-
-//  private SSLEngineConfigurator createSSLConfig(boolean isServer)
-//        throws Exception {
-//    final SSLContextConfigurator sslContextConfigurator = new SSLContextConfigurator();
-//    sslContextConfigurator.setKeyStoreFile(keyStoreFile);
-//    // override system properties
-//    final File cacerts = getStoreFile("server truststore",
-//            "truststore_server.jks");
-//    if (cacerts != null) {
-//        sslContextConfigurator.setTrustStoreFile(cacerts.getAbsolutePath());
-//        sslContextConfigurator.setTrustStorePass(TRUSTSTORE_PASSWORD);
-//    }
-//
-//    // override system properties
-//    final File keystore = getStoreFile("server keystore", "keystore_server.jks");
-//    if (keystore != null) {
-//        sslContextConfigurator.setKeyStoreFile(keystore.getAbsolutePath());
-//        sslContextConfigurator.setKeyStorePass(TRUSTSTORE_PASSWORD);
-//    }
-//
-//    //
-//    boolean clientMode = false;
-//    // force client Authentication ...
-//    boolean needClientAuth = settings.isNeedClientAuth();
-//    boolean wantClientAuth = settings.isWantClientAuth();
-//    SSLEngineConfigurator result = new SSLEngineConfigurator(
-//            sslContextConfigurator.createSSLContext(), clientMode, needClientAuth,
-//            wantClientAuth);
-//    return result;
-//}
-
-  public static NetworkListener createHttpListener(final String bindAddr,
-          final int port) {
-    return createHttpListener("http", bindAddr, port);
-  }
-
-  public static NetworkListener createHttpListener(final String name, final String bindAddr,
-          final int port) {
-    //  final ServerConfiguration config = server.getServerConfiguration();
-    final NetworkListener listener
-            = new NetworkListener("http", bindAddr, port);
-    CompressionConfig compressionConfig = listener.getCompressionConfig();
-    compressionConfig.setCompressionMode(CompressionConfig.CompressionMode.ON); // the mode
-    compressionConfig.setCompressionMinSize(4096); // the min amount of bytes to compress
-    compressionConfig.setCompressibleMimeTypes("text/plain",
-            "text/html", "text/csv", "application/json",
-            "application/octet-stream", "application/avro",
-            "application/avro+json", "application/avro-x+json"); // the mime types to compress
-    TCPNIOTransport transport = listener.getTransport();
-    transport.setKernelThreadPool(LifoThreadPoolBuilder.newBuilder()
-            .withCoreSize(Integer.getInteger("spf4j.grizzly.kernel.coreSize", 2))
-            .withMaxSize(Integer.getInteger("spf4j.grizzly.kernel.maxSize", 8))
-            .withDaemonThreads(true)
-            .withMaxIdleTimeMillis(Integer.getInteger("spf4j.grizzly.kernel.idleMillis", 120000))
-            .withPoolName("gz-core")
-            .withQueueSizeLimit(0)
-            .enableJmx()
-            .build());
-    transport.setSelectorRunnersCount(Integer.getInteger("spf4j.grizzly.selectorCount", 4));
-    transport.setWorkerThreadPool(LifoThreadPoolBuilder.newBuilder()
-            .withCoreSize(Integer.getInteger("spf4j.grizzly.worker.coreSize", 4))
-            .withMaxSize(Integer.getInteger("spf4j.grizzly.worker.maxSize", 1024))
-            .withDaemonThreads(false)
-            .withMaxIdleTimeMillis(Integer.getInteger("spf4j.grizzly.worker.idleMillis", 120000))
-            .withPoolName("gz-work")
-            .withQueueSizeLimit(0)
-            .enableJmx()
-            .build());
-    return listener;
-  }
-
-
-
   /**
    * Main method.
    *
    * @param args
    * @throws IOException
    */
-  public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
-    ProcessVitals vitals = new ProcessVitals();
-    vitals.start();
-    final CountDownLatch latch = new CountDownLatch(1);
-    Runtime.getRuntime().addShutdownHook(new Thread() {
-      @Override
-      public void run() {
-        vitals.close();
-        latch.countDown();
-      }
+  public static void main(String[] args) throws IOException {
+    org.spf4j.base.Runtime.getMainClass(); //cacge the main class.
+    int appPort = Env.getValue("APP_SERVICE_PORT", 8080);
+    JvmServices jvm = new JvmServicesBuilder()
+            .withHostName(Env.getValue("KUBE_POD_NAME", "127.0.0.1"))
+            .build().start().closeOnShutdown();
+    startServices(jvm, appPort);
+    Logger.getLogger(Main.class.getName()).log(Level.INFO, "Server started and listening at {0}", appPort);
+  }
 
-    });
-    final HttpServer server = startHttpServer();
-    LOG.info("Server started and listening at {}", server.getListeners());
-    latch.await();
-    server.shutdown(30, TimeUnit.SECONDS);
-    server.shutdownNow();
+  public static JerseyService startServices(final JvmServices jvm, final int appPort) throws IOException {
+    JerseyService svc = new JerseyServiceBuilder(jvm)
+            .withMavenRepoURL("https://dl.bintray.com/zolyfarkas/core")
+            .withFeature(ClusterActuatorFeature.class)
+            .withFeature(AvroSqlFeatures.class)
+            .withFeature(System.getenv("KUBE_NAME_SPACE") == null
+                    ? SingleNodeClusterFeature.class : KubernetesClusterFeature.class)
+            .withProviderPackage("org.spf4j.demo.resources")
+            .withBinder(new AbstractBinder() {
+              @Override
+              protected void configure() {
+                bind(AbacAuthorizer.ALL_ACCESS).to(AbacAuthorizer.class);
+              }
+            })
+            .withPort(appPort)
+            .build();
+    svc.start();
+    return svc;
   }
 
 }

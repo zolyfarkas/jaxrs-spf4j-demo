@@ -6,7 +6,6 @@ import javax.ws.rs.Path;
 import org.spf4j.jaxrs.server.resources.ClassPathResource;
 
 /**
- *
  * @author Zoltan Farkas
  */
 @Path("/")

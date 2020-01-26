@@ -1,9 +1,11 @@
 
 package org.spf4j.demo;
 
-import org.glassfish.grizzly.http.server.HttpServer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.spf4j.grizzly.JerseyService;
+import org.spf4j.grizzly.JvmServices;
+import org.spf4j.grizzly.JvmServicesBuilder;
 import org.spf4j.jaxrs.client.Spf4JClient;
 import org.spf4j.jaxrs.client.Spf4jWebTarget;
 
@@ -13,28 +15,29 @@ import org.spf4j.jaxrs.client.Spf4jWebTarget;
  */
 public class ServiceIntegrationBase {
 
-  private static HttpServer server;
+  private static final JvmServices JVM = new JvmServicesBuilder()
+            .withApplicationName("actuatorTest")
+            .withLogFolder("./target")
+            .build().start().closeOnShutdown();
+
+
   private static Spf4jWebTarget target;
   private static Spf4JClient client;
   private static String localService;
+  private static JerseyService svc;
 
   @BeforeClass
   public static void setUp() throws Exception {
     // start the server
-    server = Main.startHttpServer("127.0.0.1", "127.0.0.1", 8080);
-    DemoApplication app = DemoApplication.getInstance();
-    client = app.getRestClient();
-    localService = "http://127.0.0.1:" + server.getListener("http").getPort();
+    svc = Main.startServices(JVM, 9090);
+    client = svc.getApplication().getRestClient();
+    localService = "http://127.0.0.1:9090";
     target = client.target(localService);
   }
 
   @AfterClass
   public static void tearDown() throws Exception {
-    server.shutdownNow();
-  }
-
-  public static HttpServer getServer() {
-    return server;
+    svc.close();
   }
 
   public static Spf4jWebTarget getTarget() {
