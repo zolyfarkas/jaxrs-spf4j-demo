@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   labels:
     app: jaxrs-spf4j-demo
-    version: 0.7-SNAPSHOT
   name: jaxrs-spf4j-demo
   namespace: default
 spec:
@@ -11,7 +10,6 @@ spec:
   selector:
     matchLabels:
       app: jaxrs-spf4j-demo
-      version: 0.7-SNAPSHOT
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -21,7 +19,6 @@ spec:
     metadata:
       labels:
         app: jaxrs-spf4j-demo
-        version: 0.7-SNAPSHOT
       name: jaxrs-spf4j-demo
     spec:
       volumes:
@@ -30,7 +27,7 @@ spec:
             path: /var/log/apps/jaxrs-spf4j-demo
             type: DirectoryOrCreate
       containers:
-      - image: zolyfarkas/jaxrs-spf4j-demo:0.7-SNAPSHOT
+      - image: zolyfarkas/jaxrs-spf4j-demo:0.8-SNAPSHOT
         # IfNotPresent | Always ...
         imagePullPolicy: Always
         name: jaxrs-spf4j-demo

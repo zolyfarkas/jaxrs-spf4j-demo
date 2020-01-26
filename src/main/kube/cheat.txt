@@ -4,3 +4,12 @@ sudo port select --set kubectl kubectl1.14
 #create local kubernetes cluster
 cd ./kind
 kind create cluster --config cluster-3n.yml
+
+
+# push to remote repo.
+docker push zolyfarkas/jaxrs-spf4j-demo:0.8-SNAPSHOT
+
+# port fwd my local kube deployment
+kubectl port-forward svc/jaxrs-spf4j-demo 8080:8080
+
+
