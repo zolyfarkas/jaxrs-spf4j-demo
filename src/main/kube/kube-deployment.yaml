@@ -40,7 +40,7 @@ spec:
         resources:
           requests:
             cpu: "200m"
-            memory: 220Mi
+            memory: 200Mi
         securityContext:
           privileged: false
           procMount: Default
