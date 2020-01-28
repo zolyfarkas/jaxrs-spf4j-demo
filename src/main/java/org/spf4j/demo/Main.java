@@ -20,6 +20,7 @@ import org.spf4j.grizzly.SingleNodeClusterFeature;
 import org.spf4j.jaxrs.AvroSqlFeatures;
 import org.spf4j.security.AbacAuthorizer;
 import org.spf4j.kube.cluster.KubernetesClusterFeature;
+import org.spf4j.log.LogbackService;
 
 /**
  * Main class.
@@ -34,6 +35,7 @@ public class Main {
    * @throws IOException
    */
   public static void main(String[] args) throws IOException {
+    LogbackService.redirecJDKLogging2Slf4j();
     org.spf4j.base.Runtime.getMainClass(); //cache the main class.
     Schema.MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     int appPort = Env.getValue("APP_SERVICE_PORT", 8080);
