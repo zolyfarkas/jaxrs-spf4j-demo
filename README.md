@@ -43,15 +43,13 @@ This example shows how you can overcome some of the challenges you will face in 
 
 8) On demand profiling and tracing.
 
-9) Binary (for efficiency)/ Json (for humans) support everywhere.
-  Hitting the network has a cost! (and your cloud bill will reflect that)
-  your code needs to be aware of the network boundary.
+9) Binary (for efficiency), Json (for humans) support everywhere, CSV for excel wizards.
 
 10) Deprecation support, clients will be notified when using deprecated endpoints or deprecated objects/attributes via HTTP Warning headers.
 
-11) Actuator endpoints  for logs, health, info, swagger docs, jmx, profiles.
+11) Actuator endpoints  for logs, health, info, swagger docs, jmx, profiles, metrics. ([see](https://github.com/zolyfarkas/jaxrs-spf4j-demo/wiki/JaxRsActuator))
 
-12) Serialization compatible DTO schema evolution ([see](https://github.com/zolyfarkas/jaxrs-spf4j-demo-schema)).
+12) Serialization compatible DTO schema evolution ([see](https://github.com/zolyfarkas/jaxrs-spf4j-demo-schema), and [see](https://github.com/zolyfarkas/jaxrs-spf4j-demo/wiki/AvroReferences)).
 
 
 See the [wiki](https://github.com/zolyfarkas/jaxrs-spf4j-demo/wiki) for more detailed descriptions of the concepts implemented here
@@ -59,8 +57,8 @@ See the [wiki](https://github.com/zolyfarkas/jaxrs-spf4j-demo/wiki) for more det
 This demo is built and published to docker-hub, you can run this service by:
 
 ```
-$ docker pull zolyfarkas/jaxrs-spf4j-demo:0.7
-$ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:0.7
+$ docker pull zolyfarkas/jaxrs-spf4j-demo:0.8-SNAPSHOT
+$ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:0.8-SNAPSHOT
 ```
 
 open in your browser: 
