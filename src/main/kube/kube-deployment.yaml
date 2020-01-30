@@ -70,7 +70,7 @@ spec:
                port: 8080
              initialDelaySeconds: 5
              periodSeconds: 15
-             timeoutSeconds: 5
+             timeoutSeconds: 5         
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
