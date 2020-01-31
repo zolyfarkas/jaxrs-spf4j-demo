@@ -1,7 +1,8 @@
 #GKE Stack drive specific metric scraping.
 #in theory this image can be added as a sidecar to the app container to scrape its metrics endpoint.
 #However it is unusable due to limitation: "Only one point can be written per TimeSeries per request"
-#Also resource wise this approach is quite expensive (20 Mb memoryr)
+#Also resource wise this approach is quite expensive (20 Mb memory)
+#Right now full prometheus needs to be run alonside https://github.com/Stackdriver/stackdriver-prometheus-sidecar
       - image: gcr.io/google-containers/prometheus-to-sd:v0.9.1
         name: jaxrs-spf4j-demo-metrics
         resources:
