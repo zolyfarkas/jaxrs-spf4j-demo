@@ -54,14 +54,14 @@ This example shows how you can overcome some of the challenges you will face in 
 
 See the [wiki](https://github.com/zolyfarkas/jaxrs-spf4j-demo/wiki) for more detailed descriptions of the concepts implemented here
 
-This demo is built and published to docker-hub, you can run this service by:
+This demo is built and published to docker-hub, you can run this service by ([install docker](https://docs.docker.com/install/)):
 
 ```
 $ docker pull zolyfarkas/jaxrs-spf4j-demo:0.8-SNAPSHOT
 $ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:0.8-SNAPSHOT
 ```
 
-open in your browser: 
+open in your browser (use http and port 8080 if you run it locally):
 
   * [Hello](https://demo.spf4j.org/helloResource/hello)
   * [Json avro response](https://demo.spf4j.org/example/records?_Accept=application/json)
@@ -72,11 +72,20 @@ open in your browser:
 
 if adventurous you can try this in kubernetes:
 
-  Install and run a kubernetes local cluster from: https://github.com/kubernetes-sigs/kubeadm-dind-cluster
-  The new way of running multi-node local kubernetes clusters, is using [kind](https://kind.sigs.k8s.io). see main/kube/kind for the
-configuration I use.
+  Install kind [from](https://kind.sigs.k8s.io)
+
 
 ```
+  # install kubectl
+  sudo port install kubectl-1.15
+
+  #switch between kubectl versions.
+  sudo port select --set kubectl kubectl1.15
+
+  #create local kubernetes cluster
+  kind create cluster --config cluster-3n.yml
+
+  #deploy the app
   kubectl create -f ./src/main/kube/kube-rbac.yaml
   
   kubectl create -f ./src/main/kube/kube-deployment.yaml
@@ -86,9 +95,9 @@ configuration I use.
   kubectl port-forward  deployment/jaxrs-spf4j-demo 8080:8080
 
 ```
-  now you can access the cluster via localhost:8080.
+  now you can access the app via localhost:8080.
 
-  And try out additionally some cluster endpoints in your browser:
+  And try out additionally some cluster endpoints in your browser (use http and  localhost8080 for the local app):
 
   * [app cluster info](https://demo.spf4j.org/info/cluster?_Accept=application/json)
   * [debug a request](https://demo.spf4j.org/info/cluster?_Accept=application/json&_log-level=DEBUG)

@@ -1,5 +1,7 @@
+# install kubectl
+sudo port install kubectl-1.15
 #switch between kubectl versions.
-sudo port select --set kubectl kubectl1.14
+sudo port select --set kubectl kubectl1.15
 
 #create local kubernetes cluster
 cd ./kind
