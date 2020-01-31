@@ -85,6 +85,9 @@ if adventurous you can try this in kubernetes:
   #create local kubernetes cluster
   kind create cluster --config cluster-3n.yml
 
+  #install octant(https://github.com/vmware-tanzu/octant) to look at your cluster. (awesome tool for beginners)
+  brew install octant
+
   #deploy the app
   kubectl create -f ./src/main/kube/kube-rbac.yaml
   
