@@ -56,10 +56,6 @@
         <version>${avro.version}</version>
         <exclusions>
           <exclusion>
-            <groupId>org.xerial.snappy</groupId>
-            <artifactId>snappy-java</artifactId>
-          </exclusion>
-          <exclusion>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
           </exclusion>
