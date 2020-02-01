@@ -69,18 +69,6 @@
   </dependencyManagement>
 
   <dependencies>
-    <!-- for testing log file writing.
-    <dependency>
-      <groupId>org.spf4j</groupId>
-      <artifactId>spf4j-logback</artifactId>
-      <version>${spf4j-logback.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>1.2.3</version>
-    </dependency>
-    -->
     <dependency>
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-slf4j-test</artifactId>
