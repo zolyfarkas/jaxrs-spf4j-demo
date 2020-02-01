@@ -1,10 +1,7 @@
 package org.spf4j.demo;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.IOException;
-import java.security.Principal;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.avro.Schema;
