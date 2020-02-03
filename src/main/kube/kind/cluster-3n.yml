@@ -4,4 +4,10 @@ apiVersion: kind.sigs.k8s.io/v1alpha3
 nodes:
 - role: control-plane
 - role: worker
+  extraMounts:
+  - hostPath: /data/kind/w1
+    containerPath: /mnt/data
 - role: worker
+  extraMounts:
+  - hostPath: /data/kind/w2
+    containerPath: /mnt/data
