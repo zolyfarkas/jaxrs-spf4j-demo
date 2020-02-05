@@ -16,9 +16,9 @@
     <bintray.subject>zolyfarkas</bintray.subject>
     <bintray.repo>core</bintray.repo>
     <bintray.package>${project.artifactId}</bintray.package>
-    <spf4j.version>8.7.3</spf4j.version>
-    <spf4j-jaxrs.version>2.1.26</spf4j-jaxrs.version>
-    <spf4j-logback.version>1.2.13</spf4j-logback.version>
+    <spf4j.version>8.7.4</spf4j.version>
+    <spf4j-jaxrs.version>2.1.28-SNAPSHOT</spf4j-jaxrs.version>
+    <spf4j-logback.version>1.2.15-SNAPSHOT</spf4j-logback.version>
     <jersey.version>2.30</jersey.version>
     <junit.version>4.12</junit.version>
   </properties>
