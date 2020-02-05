@@ -16,9 +16,9 @@
     <bintray.subject>zolyfarkas</bintray.subject>
     <bintray.repo>core</bintray.repo>
     <bintray.package>${project.artifactId}</bintray.package>
-    <spf4j.version>8.7.3-SNAPSHOT</spf4j.version>
-    <spf4j-jaxrs.version>2.1.25-SNAPSHOT</spf4j-jaxrs.version>
-    <spf4j-logback.version>1.2.13-SNAPSHOT</spf4j-logback.version>
+    <spf4j.version>8.7.3</spf4j.version>
+    <spf4j-jaxrs.version>2.1.26</spf4j-jaxrs.version>
+    <spf4j-logback.version>1.2.13</spf4j-logback.version>
     <jersey.version>2.30</jersey.version>
     <junit.version>4.12</junit.version>
   </properties>
@@ -386,7 +386,7 @@
       <plugin>
         <groupId>com.spotify</groupId>
         <artifactId>dockerfile-maven-plugin</artifactId>
-        <version>1.4.12</version>
+        <version>1.4.13</version>
         <executions>
           <execution>
             <id>default</id>
