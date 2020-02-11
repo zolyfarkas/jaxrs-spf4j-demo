@@ -35,9 +35,13 @@
   </repositories>
 
   <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
     <repository>
-      <id>bintray-zolyfarkas-core</id>
-      <url>https://api.bintray.com/maven/${bintray.subject}/${bintray.repo}/${bintray.package}/;publish=1</url>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
 
@@ -403,8 +407,8 @@
           <buildArgs>
             <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
           </buildArgs>
-          <username>${docker.user}</username>
-          <password>${docker.password}</password>
+          <googleContainerRegistryEnabled>false</googleContainerRegistryEnabled>
+          <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
         </configuration>
       </plugin>
     </plugins>
