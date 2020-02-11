@@ -61,6 +61,8 @@ $ docker pull zolyfarkas/jaxrs-spf4j-demo:0.8-SNAPSHOT
 $ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:0.8-SNAPSHOT
 ```
 
+[![Run on Google Cloud](https://deploy.cloud.run/button.svg)](https://deploy.cloud.run)
+
 open in your browser (use http and port 8080 if you run it locally):
 
   * [Hello](https://demo.spf4j.org/helloResource/hello)
