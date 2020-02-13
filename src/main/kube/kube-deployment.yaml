@@ -70,7 +70,36 @@ spec:
                port: 8080
              initialDelaySeconds: 5
              periodSeconds: 15
-             timeoutSeconds: 5         
+             timeoutSeconds: 5
+#-- section to be used only in conjunction with GCP
+      - image: gcr.io/google-containers/prometheus-to-sd:v0.9.0
+        name: jaxrs-spf4j-demo-metrics
+        resources:
+                  limits:
+                    cpu: 3m
+                    memory: 20Mi
+                  requests:
+                    cpu: 1m
+                    memory: 20Mi
+        ports:
+          - name: profiler
+            containerPort: 6060
+        command:
+          - /monitor
+          - --stackdriver-prefix=custom.googleapis.com
+          - --source=jaxrs-spf4j-demo:http://localhost:9090
+          - --pod-id=$(POD_NAME)
+          - --namespace-id=$(POD_NAMESPACE)
+        env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+#-- end section to be used only in conjunction with GCP
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
