@@ -37,8 +37,13 @@ public class Main {
     Schema.MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     int appPort = Env.getValue("APP_SERVICE_PORT", 8080);
     int actuatorPort = Env.getValue("APP_ACTUATOR_PORT", 9090);
+    String hostName = Env.getValue("KUBE_POD_NAME", "127.0.0.1");
+    String logFolder = Env.getValue("LOG_FOLDER", "/var/log");
     JvmServices jvm = new JvmServicesBuilder()
-            .withHostName(Env.getValue("KUBE_POD_NAME", "127.0.0.1"))
+            .withHostName(hostName)
+            .withLogFolder(logFolder)
+            .withMetricsStore("WRAPPER@org.spf4j.demo.MetricsQueryRegister$Store(TSDB_AVRO@"
+                    + logFolder + '/' + hostName + ")")
             .build().start().closeOnShutdown();
     startServices(jvm, appPort);
     startActuator(jvm, actuatorPort);
@@ -54,10 +59,12 @@ public class Main {
             .withFeature(System.getenv("KUBE_NAME_SPACE") == null
                     ? SingleNodeClusterFeature.class : KubernetesClusterFeature.class)
             .withProviderPackage("org.spf4j.demo.resources")
+            .withServiceProvider(ContainerLifecycleListenerImpl.class)
             .withBinder(new AbstractBinder() {
               @Override
               protected void configure() {
                 bind(AbacAuthorizer.ALL_ACCESS).to(AbacAuthorizer.class);
+                bindAsContract(MetricsQueryRegister.class);
               }
             })
             .withPort(appPort)
