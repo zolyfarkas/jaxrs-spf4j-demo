@@ -18,6 +18,7 @@ public class ServiceIntegrationBase {
   private static final JvmServices JVM = new JvmServicesBuilder()
             .withApplicationName("actuatorTest")
             .withLogFolder("./target")
+            .withMetricsStore("WRAPPER@org.spf4j.demo.MetricsQueryRegister$Store(TSDB_AVRO@./target/test)")
             .build().start().closeOnShutdown();
 
 
