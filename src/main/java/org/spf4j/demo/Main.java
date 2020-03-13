@@ -32,6 +32,7 @@ public class Main {
    * @throws IOException
    */
   public static void main(String[] args) throws IOException {
+    System.setProperty("spf4j.failsafe.retryLogLevel", "DEBUG");
     LogbackService.redirecJDKLogging2Slf4j();
     org.spf4j.base.Runtime.getMainClass(); //cache the main class.
     Schema.MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
