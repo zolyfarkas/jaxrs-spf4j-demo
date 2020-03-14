@@ -12,7 +12,7 @@ ARG JAR_FILE
 ENV JAR_FILE ${JAR_FILE}
 ADD target/${JAR_FILE} /usr/share/jaxrs-spf4j-demo/${JAR_FILE}
 
-ENTRYPOINT /opt/java/openjdk/bin/java -XX:ErrorFile=/var/log/hs_err_pid${KUBE_POD_NAME}%p.log '-XX:OnOutOfMemoryError=kill -9 %p'  -XX:+HeapDumpOnOutOfMemoryError -XX:-OmitStackTraceInFastThrow -XX:HeapDumpPath=/var/log/${KUBE_POD_NAME}.hprof -Xms32m -Xmx32m -jar /usr/share/jaxrs-spf4j-demo/${JAR_FILE}
+ENTRYPOINT /opt/java/openjdk/bin/java -XX:ErrorFile=/var/log/hs_err_pid${KUBE_POD_NAME}%p.log '-XX:OnOutOfMemoryError=kill -9 %p'  -XX:+HeapDumpOnOutOfMemoryError -XX:-OmitStackTraceInFastThrow -XX:HeapDumpPath=/var/log/${KUBE_POD_NAME}.hprof -XX:+UseStringDeduplication -Xms32m -Xmx32m -jar /usr/share/jaxrs-spf4j-demo/${JAR_FILE}
 
 # local application port and actuator port.
 EXPOSE 8080 9090
