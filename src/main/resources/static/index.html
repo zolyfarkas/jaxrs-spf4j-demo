@@ -8,5 +8,51 @@
   <body>
     <div>This is a JAX-RS REST API example implementation running on kubernetes,
       source code <a href="https://github.com/zolyfarkas/jaxrs-spf4j-demo">at</a></div>
+    <div>
+      <p>This example shows how you can overcome some of the challenges you will face in a distributed architecture:</p>
+      <ol>
+        <li>
+          <p>Distributed stack traces between REST services. Know what is the root cause right away.</p>
+        </li>
+        <li>
+          <p>DEBUG on ERROR. Debug logs attached to the  service error response, of all the services involved!</p>
+        </li>
+        <li>
+          <p>PROFILE detail on slow requests. (continuous profiling)</p>
+        </li>
+        <li>
+          <p>Timeout Propagation.</p>
+        </li>
+        <li>
+          <p>Execution context available everywhere in the JAX_RS context. (Timeout, other baggage...)</p>
+        </li>
+        <li>
+          <p>JAX-RS Rest client with retry and hedged execution support.</p>
+        </li>
+        <li>
+          <p>Continuous profiling, with context enrichment <a href="https://github.com/zolyfarkas/jaxrs-spf4j-demo/wiki/ContinuousProfiling">see</a> for more detail.</p>
+        </li>
+        <li>
+          <p>On demand profiling and tracing.</p>
+        </li>
+        <li>
+          <p>Binary (for efficiency), Json (for humans), CSV for excel wizards support everywhere <a href="https://github.com/zolyfarkas/jaxrs-spf4j-demo/wiki/LeveragingAvro">see</a> for more detail.</p>
+        </li>
+        <li>
+          <p>Deprecation support, clients will be notified when using deprecated endpoints or deprecated objects/attributes via HTTP Warning headers.</p>
+        </li>
+        <li>
+          <p>Actuator endpoints  for logs, health, info, swagger docs, jmx, profiles, metrics. (<a href="https://github.com/zolyfarkas/jaxrs-spf4j-demo/wiki/JaxRsActuator">see</a>)</p>
+        </li>
+        <li>
+          <p>Serialization compatible DTO schema evolution (<a href="https://github.com/zolyfarkas/jaxrs-spf4j-demo-schema">see</a>, and <a href="https://github.com/zolyfarkas/jaxrs-spf4j-demo/wiki/AvroReferences">see</a>).</p>
+        </li>
+      </ol>
+      <p>See the <a href="https://github.com/zolyfarkas/jaxrs-spf4j-demo/wiki">wiki</a> for more detailed descriptions of the concepts implemented here</p>
+      <p>This demo is built and published to docker-hub, you can run this service by (<a href="https://docs.docker.com/install/" rel="nofollow">install docker</a>):</p>
+      <pre><code>$ docker pull zolyfarkas/jaxrs-spf4j-demo:0.9-SNAPSHOT
+$ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:0.9-SNAPSHOT
+</code></pre>
+    </div>
   </body>
 </html>
