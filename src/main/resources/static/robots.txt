@@ -1,0 +1,3 @@
+# Crawler settings, allow all.
+User-agent: *
+Allow: /
