@@ -12,7 +12,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <avro.version>1.9.0.18p</avro.version>
+    <avro.version>1.9.0.19p-SNAPSHOT</avro.version>
     <spf4j.version>8.8.0</spf4j.version>
     <spf4j-jaxrs.version>2.1.33-SNAPSHOT</spf4j-jaxrs.version>
     <spf4j-logback.version>1.2.16</spf4j-logback.version>
@@ -80,6 +80,11 @@
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-logback</artifactId>
       <version>${spf4j-logback.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.iheartradio.m3u8</groupId>
+      <artifactId>open-m3u8</artifactId>
+      <version>0.2.4</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -269,7 +274,8 @@
           </environmentVariables>
           <systemProperties>
             <spf4j.execContentFactoryWrapperClass>org.spf4j.stackmonitor.ProfiledExecutionContextFactory</spf4j.execContentFactoryWrapperClass>
-            <fred.apiKey>${fred.apiKey}</fred.apiKey>
+            <java.io.tmpdir>./target</java.io.tmpdir>
+            <user.dir>./target</user.dir>
           </systemProperties>
           <properties>
             <property>
