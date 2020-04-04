@@ -41,7 +41,7 @@ public class VideoPubSubResource {
 
   @GET
   @Produces("application/json")
-  @Timeout(value = 5, unit = TimeUnit.SECONDS)
+  @Timeout(value = 15, unit = TimeUnit.SECONDS)
   public CloseableIterable<String> getGroups() throws IOException {
     return fileStore.list("");
   }
@@ -49,7 +49,7 @@ public class VideoPubSubResource {
   @Path("{group}")
   @GET
   @Produces("application/json")
-  @Timeout(value = 5, unit = TimeUnit.SECONDS)
+  @Timeout(value = 15, unit = TimeUnit.SECONDS)
   public CloseableIterable<String> getStreams(@PathParam("group") final String group) throws IOException {
     CloseableIterable<String> list = fileStore.list(group);
     return CloseableIterable.from(Iterables.filter(list, (f) -> f.endsWith(".m3u8")), list);
@@ -61,7 +61,7 @@ public class VideoPubSubResource {
   @Path("{group}/{stream}")
   @PUT
   @Consumes("*/*")
-  @Timeout(value = 5, unit = TimeUnit.SECONDS)
+  @Timeout(value = 15, unit = TimeUnit.SECONDS)
   public void put(
           @PathParam("group") final String group,
           @PathParam("stream") final String stream,
@@ -74,7 +74,7 @@ public class VideoPubSubResource {
   @Path("{group}/{stream}")
   @POST
   @Consumes("*/*")
-  @Timeout(value = 5, unit = TimeUnit.SECONDS)
+  @Timeout(value = 15, unit = TimeUnit.SECONDS)
   public void post(
           @PathParam("group") final String group,
           @PathParam("stream") final String stream,
@@ -86,7 +86,7 @@ public class VideoPubSubResource {
 
   @Path("{group}/{stream}")
   @GET
-  @Timeout(value = 5, unit = TimeUnit.SECONDS)
+  @Timeout(value = 15, unit = TimeUnit.SECONDS)
   public Response get(
           @PathParam("group") final String group,
           @PathParam("stream") final String stream) {
