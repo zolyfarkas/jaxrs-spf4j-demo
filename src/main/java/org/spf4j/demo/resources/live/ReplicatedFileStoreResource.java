@@ -95,9 +95,9 @@ public class ReplicatedFileStoreResource implements FileStore {
       final HttpURLConnection conn = (HttpURLConnection) uri.toURL().openConnection();
       conn.setConnectTimeout(5000);
       conn.setReadTimeout(ExecutionContexts.getTimeToDeadlineInt(TimeUnit.MILLISECONDS));
-      conn.connect();
       conn.setRequestMethod("POST");
       conn.setDoOutput(true);
+      conn.connect();
       OutputStream os = conn.getOutputStream();
       bos.addStream(os);
       bos.addCloseable(() -> {
