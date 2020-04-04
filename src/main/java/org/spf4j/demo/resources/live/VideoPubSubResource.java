@@ -1,8 +1,6 @@
 package org.spf4j.demo.resources.live;
 
 import com.google.common.collect.Iterables;
-import com.iheartradio.m3u8.ParseException;
-import com.iheartradio.m3u8.PlaylistException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -65,7 +63,7 @@ public class VideoPubSubResource {
   public void put(
           @PathParam("group") final String group,
           @PathParam("stream") final String stream,
-          InputStream is) throws IOException, ParseException, PlaylistException, TimeoutException {
+          InputStream is) throws IOException, TimeoutException {
     try (OutputStream os = fileStore.storeFile(group + '/' + stream)) {
       Streams.copy(is, os);
     }
@@ -78,7 +76,7 @@ public class VideoPubSubResource {
   public void post(
           @PathParam("group") final String group,
           @PathParam("stream") final String stream,
-          InputStream is) throws IOException, ParseException, PlaylistException, TimeoutException {
+          InputStream is) throws IOException, TimeoutException {
     try (OutputStream os = fileStore.storeFile(group + '/' + stream)) {
       Streams.copy(is, os);
     }
@@ -95,6 +93,8 @@ public class VideoPubSubResource {
       bldr.type("application/vnd.apple.mpegurl");
     } else if (!stream.endsWith(".ts")) {
       throw new NotFoundException();
+    } else {
+       bldr.type("video/MP2T");
     }
     return bldr.entity(new FileStream(group, stream, fileStore)).build();
   }
