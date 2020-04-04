@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>HTML5 - Video Playlist</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script
+    type="text/javascript"
+    src="//code.jquery.com/jquery-1.8.3.js"
+  ></script>
+
+  <!--
+  <link rel="stylesheet" type="text/css" href="/css/normalize.css">
+
+  <link rel="stylesheet" type="text/css" href="/css/result-light.css">
+ -->
+
+
+  <style id="compiled-css" type="text/css">
+      #playlist {
+    display:table;
+}
+#playlist li{
+    cursor:pointer;
+    padding:8px;
+}
+
+#playlist li:hover{
+    color:blue;
+}
+#videoarea {
+    float:left;
+    width:640px;
+    height:480px;
+    margin:10px;
+    border:1px solid silver;
+}
+  </style>
+
+</head>
+<body>
+
+
+<ul id="playlist">
+  <!--  <li movieurl="/video/cam/z.m3u8" >Test Stream</li> -->
+</ul>
+
+<video id="videoarea" controls="controls" poster="" src=""></video>
+
+<script type="text/javascript">//<![CDATA[
+
+
+$(function() {
+
+    $(document).ready(function() {
+        $.ajax({
+            url: "/video"
+        }).then(function(data) {
+          for (var group in data) {
+             var groupName = data[group];
+             $.ajax({
+                  url: "/video/" + groupName
+              }).then(function(data) {
+                for (var video in data) {
+                   var videoName = data[video];
+                   $("#playlist").append('<li movieurl="/video/' +  groupName +'/' + videoName +'" >' + videoName + '</li>');
+                }
+                $("#playlist li").on("click", function() {
+                    $("#videoarea").attr({
+                        "src": $(this).attr("movieurl"),
+                        "poster": "",
+                        "autoplay": "autoplay"
+                    })
+                })
+                $("#videoarea").attr({
+                    "src": $("#playlist li").eq(0).attr("movieurl"),
+                    "poster": $("#playlist li").eq(0).attr("moviesposter")
+                })
+              });
+          }
+        });
+    });
+})
+
+
+  //]]></script>
+
+  <script>
+    // tell the embed parent frame the height of the content
+    if (window.parent && window.parent.parent){
+      window.parent.parent.postMessage(["resultsFrame", {
+        height: document.body.getBoundingClientRect().height,
+        slug: ""
+      }], "*")
+    }
+
+    // always overwrite window.name, in case users try to set it manually
+    window.name = "result"
+  </script>
+</body>
+</html>
+
+

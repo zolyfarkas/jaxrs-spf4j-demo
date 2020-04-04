@@ -6,17 +6,19 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
-import javax.annotation.WillNotClose;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.spf4j.base.CloseableIterable;
-import org.spf4j.io.DeletingVisitor;
-import org.spf4j.io.Streams;
+import org.spf4j.concurrent.DefaultScheduler;
 
 /**
  * @author Zoltan Farkas
@@ -24,57 +26,62 @@ import org.spf4j.io.Streams;
  */
 public class FSFileStore implements Closeable, FileStore {
 
+  private static final Logger LOG = LoggerFactory.getLogger(FSFileStore.class);
+
   private final Path store;
 
-  public FSFileStore() throws IOException {
-    this(Files.createTempDirectory("hlsStore"));
-  }
+  private final ScheduledFuture<?> scheduleWithFixedDelay;
 
-  public FSFileStore(Path store) {
+  public FSFileStore(Path store, long retentionTime, TimeUnit tu) {
     this.store = store;
+    scheduleWithFixedDelay = DefaultScheduler.instance().scheduleWithFixedDelay(()-> {
+      try {
+        AgedDeletingVisitor agedDeletingVisitor = new AgedDeletingVisitor(retentionTime, tu);
+        Files.walkFileTree(store, agedDeletingVisitor);
+        LOG.info("Cleaned up {} file in {}", agedDeletingVisitor.getNrDeleted(), store);
+      } catch (IOException ex) {
+        throw new UncheckedIOException(ex);
+      }
+    }, 1, 1, TimeUnit.MINUTES);
   }
 
   public CloseableIterable<String> list(final String path) throws IOException {
-    Stream<Path> walk = Files.list(store);
+    Stream<Path> walk;
+    try {
+      walk = Files.list(store.resolve(path));
+    } catch (NoSuchFileException ex) {
+      return null;
+    }
     return CloseableIterable.from(Iterables.transform(() -> walk.iterator(), (p) -> p.getFileName().toString()), walk);
   }
 
   @Override
-  public void storeFile(String path, String fileName,
-          @WillNotClose InputStream is) throws IOException {
-    Path streamFolder = store.resolve(path);
-    Files.createDirectories(streamFolder);
-    try (OutputStream bos = Files.newOutputStream(streamFolder.resolve(fileName))) {
-      Streams.copy(is, bos);
+  public OutputStream storeFile(String filePath) throws IOException {
+    Path file = Path.of(filePath);
+    if (file.isAbsolute()) {
+      throw new IllegalArgumentException();
     }
+    Path parent = file.getParent();
+    Path streamFolder = store.resolve(parent).normalize();
+    Files.createDirectories(streamFolder);
+    return Files.newOutputStream(streamFolder.resolve(file.getFileName()));
   }
 
-  @Override
-  public void appendFile(String path, String fileName,
-          @WillNotClose InputStream is) throws IOException {
-    Path streamFolder = store.resolve(path);
-    Files.createDirectories(streamFolder);
-    try (OutputStream bos = Files.newOutputStream(streamFolder.resolve(fileName),
-            StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
-      Streams.copy(is, bos);
-    }
-  }
 
   @Override
   @Nullable
-  public InputStream readFile(String path, String fileName) throws IOException {
+  public InputStream readFile(String filePath) throws IOException {
     try {
-      return Files.newInputStream(store.resolve(path).resolve(fileName));
+      return Files.newInputStream(store.resolve(Path.of(filePath).normalize()));
     } catch (NoSuchFileException ex) {
       return null;
     }
   }
 
-
   @Override
   @PreDestroy
   public void close() throws IOException {
-    Files.walkFileTree(store, new DeletingVisitor());
+    scheduleWithFixedDelay.cancel(true);
   }
 
 

@@ -7,7 +7,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -26,12 +29,13 @@ import org.spf4j.jaxrs.Timeout;
  * @author Zoltan Farkas
  */
 @Path("video")
-public class VideoPubSub {
+@Singleton
+public class VideoPubSubResource {
 
   private final FileStore fileStore;
 
   @Inject
-  public VideoPubSub(final FileStore fileStore) {
+  public VideoPubSubResource(@Named("replicated") final FileStore fileStore) {
     this.fileStore = fileStore;
   }
 
@@ -61,8 +65,10 @@ public class VideoPubSub {
   public void put(
           @PathParam("group") final String group,
           @PathParam("stream") final String stream,
-          InputStream input) throws IOException, ParseException, PlaylistException {
-      fileStore.storeFile(group, stream, input);
+          InputStream is) throws IOException, ParseException, PlaylistException, TimeoutException {
+    try (OutputStream os = fileStore.storeFile(group + '/' + stream)) {
+      Streams.copy(is, os);
+    }
   }
 
   @Path("{group}/{stream}")
@@ -72,8 +78,10 @@ public class VideoPubSub {
   public void post(
           @PathParam("group") final String group,
           @PathParam("stream") final String stream,
-          InputStream input) throws IOException, ParseException, PlaylistException {
-      fileStore.storeFile(group, stream, input);
+          InputStream is) throws IOException, ParseException, PlaylistException, TimeoutException {
+    try (OutputStream os = fileStore.storeFile(group + '/' + stream)) {
+      Streams.copy(is, os);
+    }
   }
 
   @Path("{group}/{stream}")
@@ -85,6 +93,8 @@ public class VideoPubSub {
     Response.ResponseBuilder bldr = Response.ok();
     if (stream.endsWith(".m3u8")) {
       bldr.type("application/vnd.apple.mpegurl");
+    } else if (!stream.endsWith(".ts")) {
+      throw new NotFoundException();
     }
     return bldr.entity(new FileStream(group, stream, fileStore)).build();
   }
@@ -103,7 +113,7 @@ public class VideoPubSub {
 
     @Override
     public void write(OutputStream os) throws IOException {
-      InputStream readFile = fileStore.readFile(group, stream);
+      InputStream readFile = fileStore.readFile(group + '/' + stream);
       if (readFile == null) {
         throw new NotFoundException("No stream " + group + '/' + stream);
       }

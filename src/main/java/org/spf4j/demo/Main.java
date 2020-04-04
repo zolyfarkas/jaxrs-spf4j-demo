@@ -3,6 +3,7 @@ package org.spf4j.demo;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.avro.Schema;
@@ -12,6 +13,7 @@ import org.spf4j.apiBrowser.ApiBrowserFeature;
 import org.spf4j.base.Env;
 import org.spf4j.demo.resources.live.FileStore;
 import org.spf4j.demo.resources.live.FSFileStore;
+import org.spf4j.demo.resources.live.ReplicatedFileStoreResource;
 import org.spf4j.grizzly.JerseyService;
 import org.spf4j.grizzly.JerseyServiceBuilder;
 import org.spf4j.grizzly.JvmServices;
@@ -71,7 +73,14 @@ public class Main {
               protected void configure() {
                 bind(AbacAuthorizer.ALL_ACCESS).to(AbacAuthorizer.class);
                 bindAsContract(MetricsQueryRegister.class);
-                bind(new FSFileStore(Path.of(logFolder))).to(FileStore.class);
+                Path logPath = Path.of(logFolder);
+                Path videoPath = logPath.resolve("videoRepo");
+                bind(new FSFileStore(videoPath, 30, TimeUnit.MINUTES))
+                         .named("local")
+                        .to(FileStore.class);
+                bind(ReplicatedFileStoreResource.class)
+                        .named("replicated")
+                        .to(FileStore.class);
               }
             })
             .withPort(appPort)
