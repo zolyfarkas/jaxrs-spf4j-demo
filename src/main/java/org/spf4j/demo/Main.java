@@ -2,6 +2,8 @@ package org.spf4j.demo;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -75,6 +77,11 @@ public class Main {
                 bindAsContract(MetricsQueryRegister.class);
                 Path logPath = Path.of(logFolder);
                 Path videoPath = logPath.resolve("videoRepo");
+                try {
+                  Files.createDirectories(videoPath);
+                } catch (IOException ex) {
+                  throw new UncheckedIOException(ex);
+                }
                 bind(new FSFileStore(videoPath, 30, TimeUnit.MINUTES))
                          .named("local")
                         .to(FileStore.class);
