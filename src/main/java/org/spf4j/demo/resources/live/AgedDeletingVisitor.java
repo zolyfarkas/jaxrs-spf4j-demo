@@ -61,6 +61,9 @@ public class AgedDeletingVisitor implements FileVisitor<Path> {
 
   @Override
   public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
+    if (rootFolder == dir) {
+       return FileVisitResult.CONTINUE;
+    }
     try (Stream<Path> list = Files.list(dir)) {
       if (list.findAny().isEmpty()) {
         try {
