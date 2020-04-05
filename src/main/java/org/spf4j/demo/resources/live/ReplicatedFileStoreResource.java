@@ -10,6 +10,8 @@ import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -82,40 +84,53 @@ public class ReplicatedFileStoreResource implements FileStore {
 
   @Override
   public OutputStream storeFile(String filePath) throws IOException, TimeoutException {
-    BroadcastOutputStream bos = new BroadcastOutputStream(localStore.storeFile(filePath));
-    ClusterInfo clusterInfo = cluster.getClusterInfo();
-    Set<InetAddress> peerAddresses = clusterInfo.getPeerAddresses();
-    for (InetAddress addr : peerAddresses) {
-      URI uri;
-      try {
-        uri = new URI(protocol, null, addr.getHostAddress(), port, "/files/" + filePath, null, null);
-      } catch (URISyntaxException ex) {
-        throw new RuntimeException(ex);
-      }
-      final HttpURLConnection conn = (HttpURLConnection) uri.toURL().openConnection();
-      conn.setConnectTimeout(5000);
-      conn.setReadTimeout(ExecutionContexts.getTimeToDeadlineInt(TimeUnit.MILLISECONDS));
-      conn.setRequestMethod("POST");
-      conn.setDoOutput(true);
-      conn.connect();
-      OutputStream os = conn.getOutputStream();
-      bos.addStream(os);
-      bos.addCloseable(() -> {
-        int responseCode = conn.getResponseCode();
-        if (responseCode >= 300 || responseCode < 200) {
-          //todo handle response payload for extra debug
-          conn.disconnect();
-          throw new WebApplicationException(responseCode);
+    OutputStream storeFile = localStore.storeFile(filePath);
+    BroadcastOutputStream bos = new BroadcastOutputStream(storeFile);
+    try {
+      ClusterInfo clusterInfo = cluster.getClusterInfo();
+      Set<InetAddress> peerAddresses = clusterInfo.getPeerAddresses();
+      for (InetAddress addr : peerAddresses) {
+        URI uri;
+        try {
+          uri = new URI(protocol, null, addr.getHostAddress(), port, "/files/" + filePath, null, null);
+        } catch (URISyntaxException ex) {
+          throw new RuntimeException(ex);
         }
-      });
+        final HttpURLConnection conn = (HttpURLConnection) uri.toURL().openConnection();
+        conn.setConnectTimeout(5000);
+        conn.setReadTimeout(ExecutionContexts.getTimeToDeadlineInt(TimeUnit.MILLISECONDS));
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.connect();
+        OutputStream os = conn.getOutputStream();
+        bos.addStream(os);
+        bos.addCloseable(() -> {
+          int responseCode = conn.getResponseCode();
+          if (responseCode >= 300 || responseCode < 200) {
+            //todo handle response payload for extra debug
+            conn.disconnect();
+            throw new WebApplicationException(responseCode);
+          }
+        });
 
+      }
+    } catch (IOException ex) {
+      try {
+        bos.close();
+      } catch (IOException ex1) {
+        ex.addSuppressed(ex1);
+      }
+      throw ex;
+    } catch (RuntimeException ex) {
+      try {
+        bos.close();
+      } catch (IOException ex1) {
+        ex.addSuppressed(ex1);
+      }
+      throw ex;
     }
+
     return bos;
   }
-
-
-
-
-
 
 }

@@ -9,6 +9,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 import org.spf4j.io.PathsIOException;
 
 /**
@@ -60,14 +61,16 @@ public class AgedDeletingVisitor implements FileVisitor<Path> {
 
   @Override
   public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
-    if (Files.list(dir).findAny().isEmpty()) {
-      try {
-        Files.delete(dir);
-      } catch (IOException ex) {
-        suppress(ex, dir);
-      }
-      if (exception != null && dir.equals(rootFolder)) {
-        throw exception;
+    try (Stream<Path> list = Files.list(dir)) {
+      if (list.findAny().isEmpty()) {
+        try {
+          Files.delete(dir);
+        } catch (IOException ex) {
+          suppress(ex, dir);
+        }
+        if (exception != null && dir.equals(rootFolder)) {
+          throw exception;
+        }
       }
     }
     return FileVisitResult.CONTINUE;
@@ -95,6 +98,6 @@ public class AgedDeletingVisitor implements FileVisitor<Path> {
     return nrDeleted;
   }
 
-  
+
 
 }
