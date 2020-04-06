@@ -101,6 +101,7 @@ public class ReplicatedFileStoreResource implements FileStore {
         conn.setReadTimeout(ExecutionContexts.getTimeToDeadlineInt(TimeUnit.MILLISECONDS));
         conn.setRequestMethod("POST");
         conn.setDoOutput(true);
+        conn.setChunkedStreamingMode(8192);
         conn.connect();
         OutputStream os = conn.getOutputStream();
         bos.addStream(os);
