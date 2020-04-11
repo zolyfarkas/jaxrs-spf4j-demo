@@ -6,7 +6,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -59,11 +58,19 @@ public class FSFileStore implements Closeable, FileStore {
   public OutputStream storeFile(String filePath) throws IOException {
     Path file = Path.of(filePath);
     if (file.isAbsolute()) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Invalid Path: " + filePath);
     }
     Path parent = file.getParent();
-    Path streamFolder = store.resolve(parent).normalize();
-    Files.createDirectories(streamFolder);
+    Path streamFolder;
+    if (parent == null) {
+      streamFolder = store;
+    } else {
+      streamFolder = store.resolve(parent).normalize();
+      if (!streamFolder.startsWith(store)) {
+        throw new IllegalArgumentException("Invalid Path: " + filePath);
+      }
+      Files.createDirectories(streamFolder);
+    }
     return Files.newOutputStream(streamFolder.resolve(file.getFileName()));
   }
 
@@ -72,7 +79,11 @@ public class FSFileStore implements Closeable, FileStore {
   @Nullable
   public InputStream readFile(String filePath) throws IOException {
     try {
-      return Files.newInputStream(store.resolve(Path.of(filePath).normalize()));
+      Path resolved = store.resolve(Path.of(filePath).normalize());
+      if (!resolved.startsWith(store)) {
+        throw new IllegalArgumentException("Invalid Path: " + filePath);
+      }
+      return Files.newInputStream(resolved);
     } catch (NoSuchFileException ex) {
       return null;
     }
