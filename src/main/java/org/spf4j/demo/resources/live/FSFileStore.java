@@ -37,7 +37,10 @@ public class FSFileStore implements Closeable, FileStore {
       try {
         AgedDeletingVisitor agedDeletingVisitor = new AgedDeletingVisitor(retentionTime, tu);
         Files.walkFileTree(store, agedDeletingVisitor);
-        LOG.info("Cleaned up {} file in {}", agedDeletingVisitor.getNrDeleted(), store);
+        int nrDeleted = agedDeletingVisitor.getNrDeleted();
+        if (nrDeleted > 0) {
+          LOG.info("Cleaned up {} file in {}", nrDeleted, store);
+        }
       } catch (IOException | RuntimeException ex) {
         LOG.error("Failured to cleanup files", ex);
       }
