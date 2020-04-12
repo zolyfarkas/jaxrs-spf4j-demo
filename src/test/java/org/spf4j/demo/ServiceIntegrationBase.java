@@ -30,7 +30,7 @@ public class ServiceIntegrationBase {
   @BeforeClass
   public static void setUp() throws Exception {
     // start the server
-    svc = Main.startServices(JVM, 9090);
+    svc = Main.startServices(JVM, 9090, org.spf4j.base.Runtime.TMP_FOLDER);
     client = svc.getApplication().getRestClient();
     localService = "http://127.0.0.1:9090";
     target = client.target(localService);

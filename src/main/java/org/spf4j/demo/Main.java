@@ -2,6 +2,10 @@ package org.spf4j.demo;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.avro.Schema;
@@ -9,6 +13,9 @@ import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.spf4j.actuator.cluster.ClusterActuatorFeature;
 import org.spf4j.apiBrowser.ApiBrowserFeature;
 import org.spf4j.base.Env;
+import org.spf4j.demo.resources.live.FileStore;
+import org.spf4j.demo.resources.live.FSFileStore;
+import org.spf4j.demo.resources.live.ReplicatedFileStoreResource;
 import org.spf4j.grizzly.JerseyService;
 import org.spf4j.grizzly.JerseyServiceBuilder;
 import org.spf4j.grizzly.JvmServices;
@@ -47,12 +54,13 @@ public class Main {
             .withMetricsStore("WRAPPER@org.spf4j.demo.MetricsQueryRegister$Store(TSDB_AVRO@"
                     + logFolder + '/' + hostName + ")")
             .build().start().closeOnShutdown();
-    startServices(jvm, appPort);
+    startServices(jvm, appPort, logFolder);
     startActuator(jvm, actuatorPort);
     Logger.getLogger(Main.class.getName()).log(Level.INFO, "Server started and listening at {0}", appPort);
   }
 
-  public static JerseyService startServices(final JvmServices jvm, final int appPort) throws IOException {
+  public static JerseyService startServices(final JvmServices jvm,
+          final int appPort, String logFolder) throws IOException {
     JerseyService svc = new JerseyServiceBuilder(jvm)
             .withMavenRepoURL("https://dl.bintray.com/zolyfarkas/core")
             .withFeature(ClusterActuatorFeature.class)
@@ -67,6 +75,19 @@ public class Main {
               protected void configure() {
                 bind(AbacAuthorizer.ALL_ACCESS).to(AbacAuthorizer.class);
                 bindAsContract(MetricsQueryRegister.class);
+                Path logPath = Path.of(logFolder);
+                Path videoPath = logPath.resolve("videoRepo");
+                try {
+                  Files.createDirectories(videoPath);
+                } catch (IOException ex) {
+                  throw new UncheckedIOException(ex);
+                }
+                bind(new FSFileStore(videoPath, 30, TimeUnit.MINUTES))
+                         .named("local")
+                        .to(FileStore.class);
+                bind(ReplicatedFileStoreResource.class)
+                        .named("replicated")
+                        .to(FileStore.class);
               }
             })
             .withPort(appPort)
