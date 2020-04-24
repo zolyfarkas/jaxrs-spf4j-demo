@@ -49,20 +49,22 @@ public class Main {
     int actuatorPort = Env.getValue("APP_ACTUATOR_PORT", 9090);
     String hostName = Env.getValue("KUBE_POD_NAME", "127.0.0.1");
     String logFolder = Env.getValue("LOG_FOLDER", "/var/log");
+    Logger logger = Logger.getLogger(Main.class.getName());
     JvmServices jvm = new JvmServicesBuilder()
             .withHostName(hostName)
             .withLogFolder(logFolder)
             .withMetricsStore("WRAPPER@org.spf4j.demo.MetricsQueryRegister$Store(TSDB_AVRO@"
                     + logFolder + '/' + hostName + ")")
             .build().start().closeOnShutdown();
+    long jvmStartTimeMillis = ManagementFactory.getRuntimeMXBean().getStartTime();
+    logger.log(Level.INFO,
+            "Jvm services initialized in {0} ms", (System.currentTimeMillis() -  jvmStartTimeMillis));
     startServices(jvm, appPort, logFolder);
     startActuator(jvm, actuatorPort);
-    Logger.getLogger(Main.class.getName()).log(Level.INFO,
+    logger.log(Level.INFO,
             "Server started and listening at {0,number,######} and actuator at {1,number,######}"
                     + " in {2} ms", new Object[] {
-              appPort, actuatorPort,
-                      (System.currentTimeMillis() -  ManagementFactory.getRuntimeMXBean().getStartTime())
-            });
+              appPort, actuatorPort, (System.currentTimeMillis() -  jvmStartTimeMillis)});
   }
 
   public static JerseyService startServices(final JvmServices jvm,
