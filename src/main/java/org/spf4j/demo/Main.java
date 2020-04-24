@@ -3,6 +3,7 @@ package org.spf4j.demo;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
@@ -56,7 +57,12 @@ public class Main {
             .build().start().closeOnShutdown();
     startServices(jvm, appPort, logFolder);
     startActuator(jvm, actuatorPort);
-    Logger.getLogger(Main.class.getName()).log(Level.INFO, "Server started and listening at {0}", appPort);
+    Logger.getLogger(Main.class.getName()).log(Level.INFO,
+            "Server started and listening at {0,number,######} and actuator at {1,number,######}"
+                    + " in {2} ms", new Object[] {
+              appPort, actuatorPort,
+                      (System.currentTimeMillis() -  ManagementFactory.getRuntimeMXBean().getStartTime())
+            });
   }
 
   public static JerseyService startServices(final JvmServices jvm,
