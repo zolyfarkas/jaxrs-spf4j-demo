@@ -14,6 +14,9 @@ import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.spf4j.actuator.cluster.ClusterActuatorFeature;
 import org.spf4j.apiBrowser.ApiBrowserFeature;
 import org.spf4j.base.Env;
+import org.spf4j.base.ExecutionContext;
+import org.spf4j.base.ExecutionContexts;
+import org.spf4j.base.TimeSource;
 import org.spf4j.demo.resources.live.FileStore;
 import org.spf4j.demo.resources.live.FSFileStore;
 import org.spf4j.demo.resources.live.ReplicatedFileStoreResource;
@@ -58,13 +61,16 @@ public class Main {
             .build().start().closeOnShutdown();
     long jvmStartTimeMillis = ManagementFactory.getRuntimeMXBean().getStartTime();
     logger.log(Level.INFO,
-            "Jvm services initialized in {0} ms", (System.currentTimeMillis() -  jvmStartTimeMillis));
+            "Jvm services(logging, prrofiling) initialized in {0} ms",
+            (System.currentTimeMillis() -  jvmStartTimeMillis));
+    try (ExecutionContext ec = ExecutionContexts.start("INIT")) {
     startServices(jvm, appPort, logFolder);
     startActuator(jvm, actuatorPort);
-    logger.log(Level.INFO,
+      logger.log(Level.INFO,
             "Server started and listening at {0,number,######} and actuator at {1,number,######}"
                     + " in {2} ms", new Object[] {
-              appPort, actuatorPort, (System.currentTimeMillis() -  jvmStartTimeMillis)});
+              appPort, actuatorPort, TimeUnit.NANOSECONDS.toMillis(TimeSource.nanoTime() -  ec.getStartTimeNanos())});
+    }
   }
 
   public static JerseyService startServices(final JvmServices jvm,
