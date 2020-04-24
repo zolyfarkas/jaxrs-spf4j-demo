@@ -27,7 +27,7 @@ spec:
             path: /var/log/apps/jaxrs-spf4j-demo
             type: DirectoryOrCreate
       containers:
-      - image: zolyfarkas/jaxrs-spf4j-demo:0.9-SNAPSHOT
+      - image: zolyfarkas/jaxrs-spf4j-demo:0.10-SNAPSHOT
         # IfNotPresent | Always ...
         imagePullPolicy: Always
         name: jaxrs-spf4j-demo
