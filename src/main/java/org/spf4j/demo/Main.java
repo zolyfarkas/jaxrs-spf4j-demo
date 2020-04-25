@@ -6,7 +6,10 @@ import java.io.UncheckedIOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.avro.Schema;
@@ -17,6 +20,7 @@ import org.spf4j.base.Env;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
 import org.spf4j.base.TimeSource;
+import org.spf4j.concurrent.DefaultContextAwareExecutor;
 import org.spf4j.demo.resources.live.FileStore;
 import org.spf4j.demo.resources.live.FSFileStore;
 import org.spf4j.demo.resources.live.ReplicatedFileStoreResource;
@@ -42,7 +46,7 @@ public class Main {
    * @param args
    * @throws IOException
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException, InterruptedException, ExecutionException, TimeoutException {
     System.setProperty("spf4j.failsafe.retryLogLevel", "DEBUG");
     System.setProperty("spf4j.throwables.defaultMaxSuppressChain", "10");
     LogbackService.redirecJDKLogging2Slf4j();
@@ -61,11 +65,13 @@ public class Main {
             .build().start().closeOnShutdown();
     long jvmStartTimeMillis = ManagementFactory.getRuntimeMXBean().getStartTime();
     logger.log(Level.INFO,
-            "Jvm services(logging, prrofiling) initialized in {0} ms",
+            "Jvm services(logging, profiling) initialized in {0} ms",
             (System.currentTimeMillis() -  jvmStartTimeMillis));
     try (ExecutionContext ec = ExecutionContexts.start("INIT")) {
-    startServices(jvm, appPort, logFolder);
-    startActuator(jvm, actuatorPort);
+      Future<JerseyService> fService = DefaultContextAwareExecutor.instance()
+              .submit(() -> startServices(jvm, appPort, logFolder));
+      startActuator(jvm, actuatorPort);
+      fService.get(20, TimeUnit.SECONDS);
       logger.log(Level.INFO,
             "Server started and listening at {0,number,######} and actuator at {1,number,######}"
                     + " in {2} ms", new Object[] {
