@@ -80,6 +80,7 @@ public class Main {
             .withFeature(ClusterActuatorFeature.class)
             .withFeature(ApiBrowserFeature.class)
             .withFeature(AvroSqlFeatures.class)
+            .withFeature(TestFeature.class)
             .withFeature(System.getenv("KUBE_NAME_SPACE") == null
                     ? SingleNodeClusterFeature.class : KubernetesClusterFeature.class)
             .withProviderPackage("org.spf4j.demo.resources")
