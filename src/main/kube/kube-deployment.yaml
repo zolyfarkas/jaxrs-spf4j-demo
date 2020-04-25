@@ -60,7 +60,7 @@ spec:
         livenessProbe:
              httpGet:
                path: /health/check/local
-               port: 8080
+               port: 9090
              initialDelaySeconds: 10
              periodSeconds: 30
              timeoutSeconds: 5
