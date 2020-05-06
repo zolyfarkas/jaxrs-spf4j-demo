@@ -15,6 +15,10 @@ import org.spf4j.jaxrs.client.Spf4jWebTarget;
  */
 public class ServiceIntegrationBase {
 
+  static {
+    System.setProperty("spf4j.failsafe.retryLogLevel", "DEBUG");
+  }
+
   private static final JvmServices JVM = new JvmServicesBuilder()
             .withApplicationName("actuatorTest")
             .withLogFolder("./target")
