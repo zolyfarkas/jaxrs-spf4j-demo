@@ -95,6 +95,16 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.graalvm.compiler</groupId>
+      <artifactId>compiler</artifactId>
+      <version>20.1.0</version>      
+    </dependency>
+    <dependency>
+      <groupId>org.graalvm.compiler</groupId>
+      <artifactId>compiler-management</artifactId>
+      <version>20.1.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-core</artifactId>
       <version>${spf4j.version}</version>
