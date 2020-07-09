@@ -15,7 +15,7 @@
     <avro.version>1.9.0.20p</avro.version>
     <spf4j.version>8.8.5-SNAPSHOT</spf4j.version>
     <spf4j-jaxrs.version>2.1.37-SNAPSHOT</spf4j-jaxrs.version>
-    <spf4j-logback.version>1.2.21</spf4j-logback.version>
+    <spf4j-logback.version>1.2.22-SNAPSHOT</spf4j-logback.version>
     <jersey.version>2.31</jersey.version>
     <junit.version>4.12</junit.version>
   </properties>
