@@ -10,8 +10,7 @@ import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -34,6 +33,7 @@ import org.spf4j.io.Streams;
 @Path("/files")
 @Immediate
 @Singleton
+@PermitAll
 public class ReplicatedFileStoreResource implements FileStore {
   private final Cluster cluster;
 

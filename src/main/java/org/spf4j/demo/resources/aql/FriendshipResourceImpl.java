@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
+import javax.annotation.security.PermitAll;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -17,13 +18,14 @@ import org.spf4j.demo.aql.Friendship;
 import org.spf4j.aql.AvroDataSetContract;
 import org.spf4j.avro.SqlPredicate;
 import org.spf4j.base.CloseableIterable;
-import org.spf4j.security.SecurityContext;
+import org.spf4j.security.AbacSecurityContext;
 
 /**
  * @author Zoltan Farkas
  */
 @Singleton
 @Path("avql/friendships")
+@PermitAll
 public class FriendshipResourceImpl implements AvroDataSetContract<Friendship> {
 
   @Override
@@ -49,7 +51,7 @@ public class FriendshipResourceImpl implements AvroDataSetContract<Friendship> {
   }
 
   public CloseableIterable<? extends IndexedRecord> getData(@Nullable SqlPredicate<Friendship> filter,
-          List<String> select, final SecurityContext ctx,
+          List<String> select, final AbacSecurityContext ctx,
           final long timeout, final TimeUnit timeUnit) {
     return CloseableIterable.from(getData(filter));
   }

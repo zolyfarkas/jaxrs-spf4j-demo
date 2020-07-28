@@ -5,7 +5,7 @@
   <groupId>org.spf4j.demo</groupId>
   <artifactId>jaxrs-spf4j-demo</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   <name>${project.artifactId}-${project.version}</name>
   <url>https://github.com/zolyfarkas/jaxrs-spf4j-demo</url>
   <description>A Jax-Rs REST service demo app</description>

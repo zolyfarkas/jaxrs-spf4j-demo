@@ -117,7 +117,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
   }
 
   @Test
-  public void testCustomError() {
+  public void testCustomError() throws InterruptedException {
     LogAssert expect = TestLoggers.sys().expect("", Level.ERROR,
             true, LogMatchers.hasMessageWithPattern(".*"),
             Matchers.any((Class) Iterable.class));

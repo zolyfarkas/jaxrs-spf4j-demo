@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.security.PermitAll;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
@@ -25,6 +26,7 @@ import org.spf4j.log.ExecContextLogger;
  * @author Zoltan Farkas
  */
 @Path("example/records")
+@PermitAll
 public class ExampleResourceImpl implements ExampleResource {
 
   private static final Logger LOG = new ExecContextLogger(LoggerFactory.getLogger(ExampleResourceImpl.class));

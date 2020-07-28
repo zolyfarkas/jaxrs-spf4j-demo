@@ -6,10 +6,13 @@ import java.io.UncheckedIOException;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.Principal;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.avro.Schema;
@@ -30,6 +33,8 @@ import org.spf4j.grizzly.JvmServices;
 import org.spf4j.grizzly.JvmServicesBuilder;
 import org.spf4j.grizzly.SingleNodeClusterFeature;
 import org.spf4j.jaxrs.AvroSqlFeatures;
+import org.spf4j.jaxrs.JaxRsSecurityContext;
+import org.spf4j.jaxrs.server.SecurityAuthenticator;
 import org.spf4j.security.AbacAuthorizer;
 import org.spf4j.kube.cluster.KubernetesClusterFeature;
 import org.spf4j.log.LogbackService;
@@ -39,6 +44,39 @@ import org.spf4j.log.LogbackService;
  *
  */
 public class Main {
+
+  private static final SecurityAuthenticator AUTH = new SecurityAuthenticator() {
+    @Override
+    public JaxRsSecurityContext authenticate(final Function<String, String> headers) {
+      return new JaxRsSecurityContext() {
+        @Override
+        public Principal getUserPrincipal() {
+          return () -> "DEMO";
+        }
+
+        @Override
+        public boolean isUserInRole(final String role) {
+          return JaxRsSecurityContext.OPERATOR_ROLE.equals(role);
+        }
+
+        @Override
+        public boolean isSecure() {
+          return false;
+        }
+
+        @Override
+        public String getAuthenticationScheme() {
+          return "DEMO";
+        }
+
+        public boolean canAccess(final Properties resource, final Properties action, final Properties env) {
+          return true;
+        }
+
+      };
+
+    }
+  };
 
   /**
    * Main method.
@@ -66,16 +104,16 @@ public class Main {
     long jvmStartTimeMillis = ManagementFactory.getRuntimeMXBean().getStartTime();
     logger.log(Level.INFO,
             "Jvm services(logging, profiling) initialized in {0} ms",
-            (System.currentTimeMillis() -  jvmStartTimeMillis));
-    try (ExecutionContext ec = ExecutionContexts.start("INIT")) {
+            (System.currentTimeMillis() - jvmStartTimeMillis));
+    try ( ExecutionContext ec = ExecutionContexts.start("INIT")) {
       Future<JerseyService> fService = DefaultContextAwareExecutor.instance()
               .submit(() -> startServices(jvm, appPort, logFolder));
       startActuator(jvm, actuatorPort);
       fService.get(20, TimeUnit.SECONDS);
       logger.log(Level.INFO,
-            "Server started and listening at {0,number,######} and actuator at {1,number,######}"
-                    + " in {2} ms", new Object[] {
-              appPort, actuatorPort, TimeUnit.NANOSECONDS.toMillis(TimeSource.nanoTime() -  ec.getStartTimeNanos())});
+              "Server started and listening at {0,number,######} and actuator at {1,number,######}"
+              + " in {2} ms", new Object[]{
+                appPort, actuatorPort, TimeUnit.NANOSECONDS.toMillis(TimeSource.nanoTime() - ec.getStartTimeNanos())});
     }
   }
 
@@ -104,7 +142,7 @@ public class Main {
                   throw new UncheckedIOException(ex);
                 }
                 bind(new FSFileStore(videoPath, 30, TimeUnit.MINUTES))
-                         .named("local")
+                        .named("local")
                         .to(FileStore.class);
                 bind(ReplicatedFileStoreResource.class)
                         .named("replicated")
@@ -112,6 +150,7 @@ public class Main {
               }
             })
             .withPort(appPort)
+            .withSecurityAuthenticator(AUTH)
             .build();
     svc.start();
     return svc;
@@ -128,6 +167,7 @@ public class Main {
             .withKernelThreadsMaxSize(2)
             .withWorkerThreadsCoreSize(1)
             .withWorkerThreadsMaxSize(4)
+            .withSecurityAuthenticator(AUTH)
             .build();
     svc.start();
     return svc;

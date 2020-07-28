@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -28,6 +29,7 @@ import org.spf4j.jaxrs.Timeout;
  */
 @Path("video")
 @Singleton
+@PermitAll
 public class VideoPubSubResource {
 
   private final FileStore fileStore;

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
+import javax.annotation.security.PermitAll;
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -26,7 +27,7 @@ import org.spf4j.avro.schema.Schemas;
 import org.spf4j.base.CloseableIterable;
 import org.spf4j.jaxrs.CsvParam;
 import org.spf4j.jaxrs.IterableArrayContent;
-import org.spf4j.security.SecurityContext;
+import org.spf4j.security.AbacSecurityContext;
 
 /**
  *
@@ -34,6 +35,7 @@ import org.spf4j.security.SecurityContext;
  */
 @Path("avql/characters")
 @Singleton
+@PermitAll
 public class CharactersResourceImpl implements AvroDataSetContract<Character> {
 
   @Override
@@ -88,7 +90,7 @@ public class CharactersResourceImpl implements AvroDataSetContract<Character> {
 
   @Override
   public CloseableIterable<? extends IndexedRecord> getData(final SqlPredicate<Character> filter,
-          final List<String> selectProjections, final SecurityContext ctx,
+          final List<String> selectProjections, final AbacSecurityContext ctx,
           final long timeout, final TimeUnit timeUnit) {
     return CloseableIterable.from(getData(filter, selectProjections));
   }

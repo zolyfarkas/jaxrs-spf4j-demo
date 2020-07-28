@@ -29,8 +29,8 @@ import org.spf4j.jaxrs.aql.AvroQueryResource;
 import org.spf4j.perf.MeasurementStore;
 import org.spf4j.perf.MeasurementStoreQuery;
 import org.spf4j.perf.MeasurementsInfo;
-import org.spf4j.security.SecurityContext;
 import org.spf4j.tsdb2.TableDefs;
+import org.spf4j.security.AbacSecurityContext;
 
 /**
  * @author Zoltan Farkas
@@ -189,7 +189,7 @@ public class MetricsQueryRegister {
 
     @Override
     public CloseableIterable<? extends IndexedRecord> getData(SqlPredicate<IndexedRecord> filter,
-            List<String> selectProjections, SecurityContext secCtx, long timeout, TimeUnit timeUnit) {
+            List<String> selectProjections, AbacSecurityContext secCtx, long timeout, TimeUnit timeUnit) {
       try {
         return clusterResource.getClusterMetricsData(schema.getName(),
                null, null, Duration.ZERO);
