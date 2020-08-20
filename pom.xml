@@ -18,6 +18,7 @@
     <spf4j-logback.version>1.2.22-SNAPSHOT</spf4j-logback.version>
     <jersey.version>2.31</jersey.version>
     <junit.version>4.12</junit.version>
+    <graal.version>20.2.0</graal.version>
   </properties>
 
   <repositories>
@@ -97,12 +98,12 @@
     <dependency>
       <groupId>org.graalvm.compiler</groupId>
       <artifactId>compiler</artifactId>
-      <version>20.1.0</version>      
+      <version>${graal.version}</version>
     </dependency>
     <dependency>
       <groupId>org.graalvm.compiler</groupId>
       <artifactId>compiler-management</artifactId>
-      <version>20.1.0</version>
+      <version>${graal.version}</version>
     </dependency>
     <dependency>
       <groupId>org.spf4j</groupId>
@@ -425,6 +426,7 @@
           <tag>${project.version}</tag>
           <buildArgs>
             <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+            <GRAAL_VERSION>${graal.version}</GRAAL_VERSION>
           </buildArgs>
           <googleContainerRegistryEnabled>false</googleContainerRegistryEnabled>
           <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
