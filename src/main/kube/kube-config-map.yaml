@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo-service-config
+  namespace: default
+data:
+  # Simple flag.
+  hello.feature: "false"
+  # Complex Config.
+  demo.config: '#Content-Type:application/json;avsc="\{\"$ref\":\"org.spf4j.demo:jaxrs-spf4j-demo-schema:0.9:c\"\}"
+  
+    {
+      "strVal" : "Banzaaaai"
+    }'

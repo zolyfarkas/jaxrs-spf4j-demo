@@ -105,7 +105,7 @@ public class Main {
     logger.log(Level.INFO,
             "Jvm services(logging, profiling) initialized in {0} ms",
             (System.currentTimeMillis() - jvmStartTimeMillis));
-    try ( ExecutionContext ec = ExecutionContexts.start("INIT")) {
+    try (ExecutionContext ec = ExecutionContexts.start("INIT")) {
       Future<JerseyService> fService = DefaultContextAwareExecutor.instance()
               .submit(() -> startServices(jvm, appPort, logFolder));
       startActuator(jvm, actuatorPort);

@@ -26,6 +26,9 @@ spec:
           hostPath:
             path: /var/log/apps/jaxrs-spf4j-demo
             type: DirectoryOrCreate
+        - name: config-volume
+          configMap:
+            name: demo-service-config
       containers:
       - image: zolyfarkas/jaxrs-spf4j-demo:1.0.2-SNAPSHOT
         # IfNotPresent | Always ...
@@ -34,6 +37,8 @@ spec:
         volumeMounts:
           - name: logs-storage
             mountPath: /var/log
+          - name: config-volume
+            mountPath: /etc/config
         ports:
         - containerPort: 8080
         - containerPort: 9090

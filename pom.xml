@@ -205,7 +205,7 @@
     <dependency>
       <groupId>org.spf4j.demo</groupId>
       <artifactId>jaxrs-spf4j-demo-schema</artifactId>
-      <version>0.8</version>
+      <version>0.9</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.ext</groupId>
@@ -289,6 +289,7 @@
           <reuseForks>false</reuseForks>
           <environmentVariables>
             <LOG_FOLDER>./target</LOG_FOLDER>
+            <APP_CONFIG_MAP_DIR>./src/test/resources/config</APP_CONFIG_MAP_DIR>
           </environmentVariables>
           <systemProperties>
             <spf4j.execContentFactoryWrapperClass>org.spf4j.stackmonitor.ProfiledExecutionContextFactory</spf4j.execContentFactoryWrapperClass>
