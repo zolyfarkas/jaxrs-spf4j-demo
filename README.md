@@ -67,10 +67,10 @@ open in your browser (use http and port 8080 if you run it locally):
   * [Json avro response](https://demo.spf4j.org/example/records?_Accept=application/json)
   * [Binary avro response](https://demo.spf4j.org/example/records)
   * [Error response](https://demo.spf4j.org/helloResource/aError)
-  * [Error Response + profile data](https://demo.spf4j.org/helloResource/slowBrokenHello?time=10)
+  * [Simulate slow request](https://demo.spf4j.org/helloResource/slowHello?time=7&_request-id=slowExampleId&_request-timeout=10%20S)
+  * [See simulated slow request profile](https://demo.spf4j.org/profiles/cluster/visualize/traces/slowExampleId)
 
-
-if adventurous you can try this in kubernetes:
+if more adventurous you can try this in kubernetes:
 
   Install kind [from](https://kind.sigs.k8s.io)
 
@@ -90,6 +90,8 @@ if adventurous you can try this in kubernetes:
 
   #deploy the app
   kubectl create -f ./src/main/kube/kube-rbac.yaml
+
+  kubectl create -f ./src/main/kube/kube-config-map.yaml
   
   kubectl create -f ./src/main/kube/kube-deployment.yaml
 
