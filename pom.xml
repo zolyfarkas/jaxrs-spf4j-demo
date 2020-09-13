@@ -402,7 +402,22 @@
             </goals>
             <configuration>
               <includeScope>runtime</includeScope>
+              <excludeGroupIds>org.graalvm.compiler,org.graalvm.truffle,org.graalvm.sdk</excludeGroupIds>
               <outputDirectory>${project.build.directory}/lib</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-graal-dependencies</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <includeScope>runtime</includeScope>
+              <includeGroupIds>org.graalvm.compiler,org.graalvm.truffle,org.graalvm.sdk</includeGroupIds>
+              <outputDirectory>${project.build.directory}/graal</outputDirectory>
               <overWriteReleases>false</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>
             </configuration>
