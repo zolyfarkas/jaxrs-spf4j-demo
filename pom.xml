@@ -12,7 +12,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <avro.version>1.9.0.20p</avro.version>
+    <avro.version>1.10.0.0p-SNAPSHOT</avro.version>
     <spf4j.version>8.8.6-SNAPSHOT</spf4j.version>
     <spf4j-jaxrs.version>2.1.37-SNAPSHOT</spf4j-jaxrs.version>
     <spf4j-logback.version>1.2.22-SNAPSHOT</spf4j-logback.version>
@@ -81,6 +81,18 @@
       <groupId>org.spf4j</groupId>
       <artifactId>spf4j-logback</artifactId>
       <version>${spf4j-logback.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.github.luben</groupId>
+          <artifactId>zstd-jni</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+        <groupId>com.github.luben</groupId>
+        <artifactId>zstd-jni</artifactId>
+        <version>1.4.5-6</version>
+        <classifier>linux_amd64</classifier>
     </dependency>
     <!--
     <dependency>
@@ -207,7 +219,7 @@
     <dependency>
       <groupId>org.spf4j.demo</groupId>
       <artifactId>jaxrs-spf4j-demo-schema</artifactId>
-      <version>0.9</version>
+      <version>0.10-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jersey.ext</groupId>
@@ -236,11 +248,6 @@
       <version>${jersey.version}</version>
     </dependency>
         -->
-    <dependency>
-      <groupId>org.xerial.snappy</groupId>
-      <artifactId>snappy-java</artifactId>
-      <version>1.1.7.6</version>
-    </dependency>
   </dependencies>
 
   <build>
