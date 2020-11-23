@@ -17,7 +17,7 @@ ADD target/${JAR_FILE} /usr/share/jaxrs-spf4j-demo/${JAR_FILE}
 
 # Create a group and user to runn app as
 RUN addgroup -S demogrp && adduser -S demo -G demogrp
-RUN chown :demogrp /var/log && chmod g+rw /var/log
+RUN chown demo:demogrp /var/log && chmod ug+rw /var/log
 
 USER demo
 
