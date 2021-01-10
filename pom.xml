@@ -12,7 +12,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <avro.version>1.10.0.0p-SNAPSHOT</avro.version>
+    <avro.version>1.10.0.0p</avro.version>
     <spf4j.version>8.8.6-SNAPSHOT</spf4j.version>
     <spf4j-jaxrs.version>2.1.37-SNAPSHOT</spf4j-jaxrs.version>
     <spf4j-logback.version>1.2.22-SNAPSHOT</spf4j-logback.version>
