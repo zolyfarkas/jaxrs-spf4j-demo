@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spf4j.base.UncheckedTimeoutException;
 import org.spf4j.base.avro.RemoteException;
-import org.spf4j.base.avro.ServiceError;
+import org.spf4j.service.avro.ServiceError;
 import org.spf4j.concurrent.DefaultExecutor;
 import org.spf4j.failsafe.HedgePolicy;
 import org.spf4j.failsafe.RetryPolicy;

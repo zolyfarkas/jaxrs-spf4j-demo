@@ -12,23 +12,22 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <avro.version>1.10.0.0p</avro.version>
+    <avro.version>1.10.0.1p</avro.version>
     <spf4j.version>8.8.6-SNAPSHOT</spf4j.version>
     <spf4j-jaxrs.version>2.1.37-SNAPSHOT</spf4j-jaxrs.version>
     <spf4j-logback.version>1.2.22-SNAPSHOT</spf4j-logback.version>
-    <jersey.version>2.31</jersey.version>
+    <jersey.version>2.33</jersey.version>
     <junit.version>4.13.1</junit.version>
     <graal.version>20.3.0</graal.version>
   </properties>
 
   <repositories>
     <repository>
+      <id>github</id>
+      <url>https://maven.pkg.github.com/zolyfarkas/*</url>
       <snapshots>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
       </snapshots>
-      <id>bintray-zolyfarkas-core</id>
-      <name>bintray</name>
-      <url>https://dl.bintray.com/zolyfarkas/core</url>
     </repository>
   </repositories>
 
@@ -91,7 +90,7 @@
     <dependency>
         <groupId>com.github.luben</groupId>
         <artifactId>zstd-jni</artifactId>
-        <version>1.4.5-6</version>
+        <version>1.4.8-1</version>
         <classifier>linux_amd64</classifier>
     </dependency>
     <!--
@@ -151,17 +150,6 @@
         <exclusion>
           <groupId>org.apache.avro</groupId>
           <artifactId>avro-compiler</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jersey.containers</groupId>
-      <artifactId>jersey-container-grizzly2-servlet</artifactId>
-      <version>${jersey.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.glassfish.jersey.media</groupId>
-          <artifactId>jersey-media-jaxb</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

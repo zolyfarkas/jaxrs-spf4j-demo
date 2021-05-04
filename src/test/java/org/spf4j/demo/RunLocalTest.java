@@ -15,6 +15,7 @@ public class RunLocalTest {
   public void run() throws IOException, InterruptedException, URISyntaxException, ExecutionException, TimeoutException {
     Assume.assumeTrue(TestUtils.isExecutedFromIDE());
     Main.main(new String[]{});
+    Thread.sleep(1000000);
   }
 
 }

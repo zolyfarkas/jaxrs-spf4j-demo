@@ -8,12 +8,8 @@ import org.hamcrest.Matchers;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HelloConfigResourceTest extends ServiceIntegrationBase {
-
-  private static final Logger LOG = LoggerFactory.getLogger(HelloConfigResourceTest.class);
 
   /**
    * Test to see that the message "Got it!" is sent in the response.

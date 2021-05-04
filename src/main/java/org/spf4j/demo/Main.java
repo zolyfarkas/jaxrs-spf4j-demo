@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 import org.apache.avro.Schema;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.spf4j.actuator.cluster.ClusterActuatorFeature;
-import org.spf4j.apiBrowser.ApiBrowserFeature;
+import org.spf4j.api_browser.ApiBrowserFeature;
 import org.spf4j.base.Env;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
