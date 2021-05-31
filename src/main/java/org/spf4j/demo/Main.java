@@ -120,7 +120,6 @@ public class Main {
   public static JerseyService startServices(final JvmServices jvm,
           final int appPort, String logFolder) throws IOException {
     JerseyService svc = new JerseyServiceBuilder(jvm)
-            .withMavenRepoURL("https://dl.bintray.com/zolyfarkas/core")
             .withFeature(ClusterActuatorFeature.class)
             .withFeature(ApiBrowserFeature.class)
             .withFeature(AvroSqlFeatures.class)
