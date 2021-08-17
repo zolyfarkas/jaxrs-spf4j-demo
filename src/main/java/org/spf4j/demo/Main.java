@@ -15,6 +15,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.inject.Singleton;
 import org.apache.avro.Schema;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.spf4j.actuator.cluster.ClusterActuatorFeature;
@@ -131,8 +132,8 @@ public class Main {
             .withBinder(new AbstractBinder() {
               @Override
               protected void configure() {
-                bind(AbacAuthorizer.ALL_ACCESS).to(AbacAuthorizer.class);
-                bindAsContract(MetricsQueryRegister.class);
+                bind(AbacAuthorizer.ALL_ACCESS).to(AbacAuthorizer.class).in(Singleton.class);
+                bindAsContract(MetricsQueryRegister.class).in(Singleton.class);
                 Path logPath = Path.of(logFolder);
                 Path videoPath = logPath.resolve("videoRepo");
                 try {
@@ -142,10 +143,10 @@ public class Main {
                 }
                 bind(new FSFileStore(videoPath, 30, TimeUnit.MINUTES))
                         .named("local")
-                        .to(FileStore.class);
+                        .to(FileStore.class).in(Singleton.class);
                 bind(ReplicatedFileStoreResource.class)
                         .named("replicated")
-                        .to(FileStore.class);
+                        .to(FileStore.class).in(Singleton.class);
               }
             })
             .withPort(appPort)

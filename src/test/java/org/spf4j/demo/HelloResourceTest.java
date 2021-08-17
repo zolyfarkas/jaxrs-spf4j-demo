@@ -1,5 +1,6 @@
 package org.spf4j.demo;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -28,6 +29,7 @@ import org.spf4j.concurrent.DefaultExecutor;
 import org.spf4j.failsafe.HedgePolicy;
 import org.spf4j.failsafe.RetryPolicy;
 import org.spf4j.failsafe.TimeoutRelativeHedge;
+import org.spf4j.failsafe.avro.TimeoutRelativeHedgePolicy;
 import org.spf4j.jaxrs.client.Spf4jInvocationBuilder;
 import org.spf4j.log.Level;
 import org.spf4j.test.log.LogAssert;
@@ -139,9 +141,8 @@ public class HelloResourceTest extends ServiceIntegrationBase {
             false, LogMatchers.hasMessageWithPattern(".*"),
             Matchers.any((Class) Iterable.class));
     Spf4jInvocationBuilder request = getClient()
-            .withHedgePolicy(new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
-            TimeUnit.MILLISECONDS.toNanos(200), 2))
             .target(getLocalService()).path("helloResource/flakyHelloWorld").request();
+    request.withHedgePolicy(new TimeoutRelativeHedgePolicy(Duration.ofNanos(100), Duration.ofNanos(1000), 0.6, 2));
     Future<String> responseMsg = request.withTimeout(3000, TimeUnit.SECONDS)
             .buildGet().submit(String.class);
     Assert.assertThat(responseMsg.get(3000, TimeUnit.SECONDS), Matchers.startsWith("Hello World"));
@@ -152,9 +153,9 @@ public class HelloResourceTest extends ServiceIntegrationBase {
 
   @Test
   public void testBuggyHelloWorld() throws InterruptedException, ExecutionException, TimeoutException {
-    Spf4jInvocationBuilder request = getClient().withHedgePolicy(HedgePolicy.NONE)
-            .withRetryPolicy(RetryPolicy.noRetryPolicy())
-        .target(getLocalService()).path("helloResource/buggyHelloWorld").request();
+    Spf4jInvocationBuilder request = getClient()
+        .target(getLocalService()).path("helloResource/buggyHelloWorld").request()
+            .noDefaultRetryPolicy();
     try {
         request
             .withTimeout(30000, TimeUnit.SECONDS)
@@ -210,11 +211,10 @@ public class HelloResourceTest extends ServiceIntegrationBase {
     LogAssert expect = TestLoggers.sys().expect("org.spf4j.servlet", Level.ERROR,
             false, LogMatchers.hasMessageWithPattern("Done GET/helloResource.*"),
             Matchers.any((Class) Iterable.class));
-    Spf4jInvocationBuilder request = getClient().withHedgePolicy(
-            new TimeoutRelativeHedge(6, TimeUnit.MILLISECONDS.toNanos(100),
-        TimeUnit.MILLISECONDS.toNanos(200), 2))
+    Spf4jInvocationBuilder request = getClient()
         .target(getLocalService()).path("helloResource/flakyHelloWorldSync").request()
-            .withTimeout(5, TimeUnit.SECONDS);
+            .withTimeout(5, TimeUnit.SECONDS)
+            .withHedgePolicy(new TimeoutRelativeHedgePolicy(Duration.ofNanos(100), Duration.ofNanos(1000), 0.6, 2));
     String responseMsg = request.get(String.class);
     Assert.assertThat(responseMsg, Matchers.startsWith("Hello World"));
     LOG.info("Finished Flaky test");
