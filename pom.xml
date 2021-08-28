@@ -18,7 +18,7 @@
     <spf4j-logback.version>1.2.23-SNAPSHOT</spf4j-logback.version>
     <jersey.version>2.33</jersey.version>
     <junit.version>4.13.1</junit.version>
-    <graal.version>20.3.0</graal.version>
+    <graal.version>21.2.0</graal.version>
   </properties>
 
   <repositories>
@@ -374,6 +374,7 @@
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib/</classpathPrefix>
               <mainClass>org.spf4j.demo.Main</mainClass>
+              <useUniqueVersions>false</useUniqueVersions>
             </manifest>
             <manifestEntries>
               <Implementation-Vendor>${project.groupId}</Implementation-Vendor>
