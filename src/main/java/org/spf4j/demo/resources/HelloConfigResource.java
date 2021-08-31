@@ -1,16 +1,19 @@
 package org.spf4j.demo.resources;
 
 
+import java.io.Closeable;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Supplier;
+import javax.annotation.PreDestroy;
 import javax.annotation.security.PermitAll;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.spf4j.demo.config.DemoConfig;
+import org.spf4j.jaxrs.config.ObservableSupplier;
 
 
 /**
@@ -18,16 +21,17 @@ import org.spf4j.demo.config.DemoConfig;
  */
 @Path("hello")
 @PermitAll
-public class HelloConfigResource {
+@Singleton
+public class HelloConfigResource implements Closeable {
 
 
-  private final Supplier<Boolean> helloFlag;
+  private final ObservableSupplier<Boolean> helloFlag;
 
-  private final Supplier<DemoConfig> demoConfig;
+  private final ObservableSupplier<DemoConfig> demoConfig;
 
   @Inject
-  public HelloConfigResource(@ConfigProperty(name = "hello.feature") final Supplier<Boolean> helloFlag,
-          @ConfigProperty(name = "demo.config") final Supplier<DemoConfig> demoConfig) {
+  public HelloConfigResource(@ConfigProperty(name = "hello.feature") final ObservableSupplier<Boolean> helloFlag,
+          @ConfigProperty(name = "demo.config") final ObservableSupplier<DemoConfig> demoConfig) {
     this.helloFlag = helloFlag;
     this.demoConfig = demoConfig;
   }
@@ -48,6 +52,12 @@ public class HelloConfigResource {
     }
   }
 
+  @Override
+  @PreDestroy
+  public void close() {
+    this.demoConfig.close();
+    this.helloFlag.close();
+  }
 
 
 }
