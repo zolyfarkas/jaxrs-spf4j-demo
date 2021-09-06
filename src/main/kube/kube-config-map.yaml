@@ -10,5 +10,5 @@ data:
   demo.config: '#Content-Type:application/json;avsc="\{\"$ref\":\"org.spf4j.demo:jaxrs-spf4j-demo-schema:0.9:c\"\}"
   
     {
-      "strVal" : "Banzaaaai"
+      "strVal" : "Batman sucks"
     }'
