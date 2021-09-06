@@ -36,7 +36,7 @@ public class HelloConfigResourceTest extends ServiceIntegrationBase {
     Files.writeString(config.resolve("hello.feature"), "true", StandardCharsets.UTF_8);
     Files.writeString(config.resolve("demo.config"),
             "#Content-Type:application/json;avsc="
-            + "\"\\{\\\"$ref\\\":\\\"org.spf4j.demo:jaxrs-spf4j-demo-schema:0.10-SNAPSHOT:c\\\"\\}\"\n"
+            + "\"\\{\\\"$ref\\\":\\\"org.spf4j.demo:jaxrs-spf4j-demo-schema:0.10:c\\\"\\}\"\n"
             + "{\n"
             + "  \"strVal\": \"Test Value 1\"\n"
             + "}\n"
@@ -56,7 +56,7 @@ public class HelloConfigResourceTest extends ServiceIntegrationBase {
     Files.writeString(config.resolve("hello.feature"), "false", StandardCharsets.UTF_8);
     Files.writeString(config.resolve("demo.config"),
             "#Content-Type:application/json;avsc="
-            + "\"\\{\\\"$ref\\\":\\\"org.spf4j.demo:jaxrs-spf4j-demo-schema:0.10-SNAPSHOT:c\\\"\\}\"\n"
+            + "\"\\{\\\"$ref\\\":\\\"org.spf4j.demo:jaxrs-spf4j-demo-schema:0.10:c\\\"\\}\"\n"
             + "{\n"
             + "  \"strVal\": \"cucu banana\"\n"
             + "}\n"
