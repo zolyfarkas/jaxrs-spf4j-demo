@@ -14,7 +14,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <avro.version>1.10.0.2p</avro.version>
     <spf4j.version>8.9.1</spf4j.version>
-    <spf4j-jaxrs.version>2.1.37</spf4j-jaxrs.version>
+    <spf4j-jaxrs.version>2.1.38-SNAPSHOT</spf4j-jaxrs.version>
     <spf4j-logback.version>1.2.23</spf4j-logback.version>
     <jersey.version>2.33</jersey.version>
     <junit.version>4.13.1</junit.version>
@@ -290,6 +290,7 @@
           <trimStackTrace>false</trimStackTrace>
           <forkCount>1</forkCount>
           <reuseForks>false</reuseForks>
+          <forkMode>always</forkMode>
           <environmentVariables>
             <LOG_FOLDER>./target</LOG_FOLDER>
             <APP_CONFIG_MAP_DIR>./src/test/resources/config</APP_CONFIG_MAP_DIR>
