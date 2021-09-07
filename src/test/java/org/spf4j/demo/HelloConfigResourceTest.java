@@ -33,6 +33,7 @@ public class HelloConfigResourceTest extends ServiceIntegrationBase {
   }
 
   public void reset() throws IOException {
+    LOG.info("Resetting configuration.");
     Files.writeString(config.resolve("hello.feature"), "true", StandardCharsets.UTF_8);
     Files.writeString(config.resolve("demo.config"),
             "#Content-Type:application/json;avsc="
