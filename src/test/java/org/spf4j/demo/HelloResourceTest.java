@@ -150,6 +150,10 @@ public class HelloResourceTest extends ServiceIntegrationBase {
 
   @Test
   public void testBuggyHelloWorld() throws InterruptedException, ExecutionException, TimeoutException {
+    // this test may or may not log an error.
+    LogAssert expect = TestLoggers.sys().expect("", Level.INFO,
+            false, LogMatchers.hasMessageWithPattern(".*"),
+            Matchers.any((Class) Iterable.class));
     Spf4jInvocationBuilder request = getClient()
         .target(getLocalService()).path("helloResource/buggyHelloWorld").request()
             .noDefaultRetryPolicy();
@@ -163,6 +167,7 @@ public class HelloResourceTest extends ServiceIntegrationBase {
       LOG.debug("Expected exception", ex);
     }
     LOG.info("Finished buggy test");
+    expect.assertObservation(10, TimeUnit.SECONDS);
   }
 
   @Test
