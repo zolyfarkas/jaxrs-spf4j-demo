@@ -153,7 +153,7 @@ public class Main {
             .withSecurityAuthenticator(AUTH)
             .build();
     svc.start();
-    return svc;
+    return svc.closeOnShutdown();
   }
 
   public static JerseyService startActuator(final JvmServices jvm, final int appPort) throws IOException {
