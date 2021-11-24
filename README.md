@@ -57,8 +57,8 @@ See the [wiki](https://github.com/zolyfarkas/jaxrs-spf4j-demo/wiki) for more det
 This demo is built and published to docker-hub, you can run this service by ([install docker](https://docs.docker.com/install/)):
 
 ```
-$ docker pull zolyfarkas/jaxrs-spf4j-demo:0.9-SNAPSHOT
-$ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:0.9-SNAPSHOT
+$ docker pull zolyfarkas/jaxrs-spf4j-demo:1.0.3
+$ docker run -p 8080:8080  zolyfarkas/jaxrs-spf4j-demo:1.0.3
 ```
 
 open in your browser (use http and port 8080 if you run it locally):
