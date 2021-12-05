@@ -46,6 +46,9 @@ spec:
           requests:
             cpu: "200m"
             memory: 256Mi
+            ephemeral-storage: "2Gi"
+          limits:
+            ephemeral-storage: "4Gi"
         securityContext:
           privileged: false
           procMount: Default

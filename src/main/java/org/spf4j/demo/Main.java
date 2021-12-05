@@ -23,8 +23,10 @@ import org.spf4j.api_browser.ApiBrowserFeature;
 import org.spf4j.base.Env;
 import org.spf4j.base.ExecutionContext;
 import org.spf4j.base.ExecutionContexts;
+import org.spf4j.base.SysExits;
 import org.spf4j.base.TimeSource;
 import org.spf4j.concurrent.DefaultContextAwareExecutor;
+import org.spf4j.concurrent.DefaultScheduler;
 import org.spf4j.demo.resources.live.FileStore;
 import org.spf4j.demo.resources.live.FSFileStore;
 import org.spf4j.demo.resources.live.ReplicatedFileStoreResource;
@@ -79,6 +81,14 @@ public class Main {
     }
   };
 
+
+  private static void scheduleSepuku() {
+    DefaultScheduler.get().schedule(() -> {
+      Logger.getLogger("SEPUKU").info("Scheduled Sepuku");
+      System.exit(SysExits.EX_TEMPFAIL.exitCode());
+    }, 5, TimeUnit.DAYS);
+  }
+
   /**
    * Main method.
    *
@@ -89,6 +99,7 @@ public class Main {
     System.setProperty("spf4j.failsafe.retryLogLevel", "DEBUG");
     System.setProperty("spf4j.throwables.defaultMaxSuppressChain", "10");
     LogbackService.redirecJDKLogging2Slf4j();
+    scheduleSepuku();
     org.spf4j.base.Runtime.getMainClass(); //cache the main class.
     Schema.MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     int appPort = Env.getValue("APP_SERVICE_PORT", 8080);
