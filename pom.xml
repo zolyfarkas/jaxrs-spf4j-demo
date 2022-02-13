@@ -13,11 +13,11 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <avro.version>1.10.0.8p</avro.version>
-    <spf4j.version>8.9.5-SNAPSHOT</spf4j.version>
-    <spf4j-jaxrs.version>2.1.40-SNAPSHOT</spf4j-jaxrs.version>
-    <spf4j-logback.version>1.2.26-SNAPSHOT</spf4j-logback.version>
+    <spf4j.version>8.9.5</spf4j.version>
+    <spf4j-jaxrs.version>2.1.40</spf4j-jaxrs.version>
+    <spf4j-logback.version>1.2.26</spf4j-logback.version>
     <jersey.version>2.35</jersey.version>
-    <junit.version>4.13.1</junit.version>
+    <junit.version>4.13.2</junit.version>
     <graal.version>21.3.0</graal.version>
   </properties>
 
