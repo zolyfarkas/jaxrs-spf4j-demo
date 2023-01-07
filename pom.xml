@@ -12,11 +12,11 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <avro.version>1.10.0.8p</avro.version>
-    <spf4j.version>8.9.5</spf4j.version>
-    <spf4j-jaxrs.version>2.1.40</spf4j-jaxrs.version>
-    <spf4j-logback.version>1.2.26</spf4j-logback.version>
-    <jersey.version>2.35</jersey.version>
+    <avro.version>1.10.0.12p</avro.version>
+    <spf4j.version>8.9.7</spf4j.version>
+    <spf4j-jaxrs.version>2.1.41-SNAPSHOT</spf4j-jaxrs.version>
+    <spf4j-logback.version>1.2.27</spf4j-logback.version>
+    <jersey.version>2.38</jersey.version>
     <junit.version>4.13.2</junit.version>
     <graal.version>21.3.0</graal.version>
   </properties>
@@ -90,13 +90,13 @@
     <dependency>
         <groupId>com.github.luben</groupId>
         <artifactId>zstd-jni</artifactId>
-        <version>1.5.0-4</version>
+        <version>1.5.2-2</version>
         <classifier>linux_amd64</classifier>
     </dependency>
     <dependency>
         <groupId>com.github.luben</groupId>
         <artifactId>zstd-jni</artifactId>
-        <version>1.5.0-4</version>
+        <version>1.5.2-2</version>
         <classifier>darwin_x86_64</classifier>
         <scope>test</scope>
     </dependency>
@@ -249,6 +249,11 @@
       <version>${jersey.version}</version>
     </dependency>
         -->
+    <dependency>
+      <groupId>org.spf4j</groupId>
+      <artifactId>avro-logical-types-fork</artifactId>
+      <version>1.2-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <build>
