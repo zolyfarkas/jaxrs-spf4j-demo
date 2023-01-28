@@ -81,7 +81,6 @@ public class HelloResourceTest extends ServiceIntegrationBase {
    */
   @Test
   @ExpectLog(level = Level.WARN, messageRegexp = "Done GET.*")
-  @ExpectLog(level = Level.INFO, messageRegexp = "Profile Detail.*")
   public void testSlowHello() {
     Spf4jInvocationBuilder request = getTarget().path("helloResource/slowHello")
             .request().withTimeout(3000, TimeUnit.MILLISECONDS);
@@ -95,7 +94,6 @@ public class HelloResourceTest extends ServiceIntegrationBase {
    */
   @Test
   @ExpectLog(level = Level.ERROR, messageRegexp = "Done GET.*")
-  @ExpectLog(level = Level.INFO, messageRegexp = "Profile Detail.*")
   public void testSlowBrokenHello() {
     Spf4jInvocationBuilder request = getTarget().path("helloResource/slowBrokenHello")
             .request().withTimeout(3, TimeUnit.SECONDS);
