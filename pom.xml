@@ -19,6 +19,7 @@
     <jersey.version>2.38</jersey.version>
     <junit.version>4.13.2</junit.version>
     <graal.version>21.3.0</graal.version>
+    <calcite.version>1.33.0</calcite.version>
   </properties>
 
   <repositories>
@@ -99,6 +100,11 @@
         <version>1.5.2-2</version>
         <classifier>darwin_x86_64</classifier>
         <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.calcite</groupId>
+      <artifactId>calcite-core</artifactId>
+      <version>${calcite.version}</version>
     </dependency>
     <!--
     <dependency>
