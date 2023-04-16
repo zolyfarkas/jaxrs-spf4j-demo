@@ -20,6 +20,7 @@
     <junit.version>4.13.2</junit.version>
     <graal.version>21.3.0</graal.version>
     <calcite.version>1.33.0</calcite.version>
+    <zstd.version>1.5.5-1</zstd.version>
   </properties>
 
   <repositories>
@@ -91,13 +92,13 @@
     <dependency>
         <groupId>com.github.luben</groupId>
         <artifactId>zstd-jni</artifactId>
-        <version>1.5.2-2</version>
+        <version>${zstd.version}</version>
         <classifier>linux_amd64</classifier>
     </dependency>
     <dependency>
         <groupId>com.github.luben</groupId>
         <artifactId>zstd-jni</artifactId>
-        <version>1.5.2-2</version>
+        <version>${zstd.version}</version>
         <classifier>darwin_x86_64</classifier>
         <scope>test</scope>
     </dependency>
