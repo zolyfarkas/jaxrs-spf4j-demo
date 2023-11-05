@@ -14,6 +14,9 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.avro.AvroNamesRefResolver;
+import org.apache.avro.Schema;
+import org.apache.avro.SchemaResolver;
 import org.junit.Assert;
 import org.apache.avro.reflect.AvroMeta;
 import org.apache.avro.reflect.AvroSchema;
@@ -25,6 +28,7 @@ import org.spf4j.demo.avro.DemoRecord;
 import org.spf4j.demo.avro.DemoRecordInfo;
 import org.spf4j.demo.avro.MetaData;
 import org.apache.avro.reflect.LogicalType;
+import org.apache.avro.reflect.ReflectData;
 import org.spf4j.io.Streams;
 
 /**
@@ -162,7 +166,9 @@ public class ExampleResourceTest extends ServiceIntegrationBase {
   public void testTypesProjection() {
     ExampleResourceExt service = WebResourceFactory.newResource(ExampleResourceExt.class,
             getTarget().path("example/records"));
-    Iterable<DemoProjection> myInterest = service.getRecordsProjection(DemoProjection.class);
+    Iterable<DemoProjection> myInterest = service.getRecordsProjection(
+            // JAXRS client sucks and strigifies everything(RequestParameters:83), nullyfying any attempt to use a ParameterConverter.
+            ReflectData.get().getSchema(DemoProjection.class), DemoProjection.class);
     LOG.debug("My  projection!", myInterest);
   }
 

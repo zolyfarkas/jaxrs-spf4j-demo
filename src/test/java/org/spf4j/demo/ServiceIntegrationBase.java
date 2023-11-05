@@ -42,7 +42,9 @@ public class ServiceIntegrationBase {
 
   @AfterClass
   public static void tearDown() throws Exception {
-    svc.close();
+    if (svc != null) {
+      svc.close();
+    }
   }
 
   public static Spf4jWebTarget getTarget() {
