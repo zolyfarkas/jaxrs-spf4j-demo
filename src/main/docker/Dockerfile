@@ -1,19 +1,17 @@
 
 # fetch basic image
 #For jdk use: FROM adoptopenjdk/openjdk11:x86_64-alpine-jdk-11.0.4_11-slim
-FROM adoptopenjdk/openjdk11:x86_64-alpine-jre-11.0.11_9
+FROM adoptopenjdk/openjdk11:x86_64-alpine-jre-11.0.21_9
 MAINTAINER Zoltan Farkas <zolyfarkas@yahoo.com>
 
 
 # Add Maven dependencies (not shaded into the artifact; Docker-cached)
-ADD target/graal           /usr/share/jaxrs-spf4j-demo/graal
-ADD target/lib           /usr/share/jaxrs-spf4j-demo/lib
-# Add the service itself
-ARG JAR_FILE
-ARG GRAAL_VERSION
-ENV JAR_FILE ${JAR_FILE}
-env GRAAL_VERSION ${GRAAL_VERSION}
-ADD target/${JAR_FILE} /usr/share/jaxrs-spf4j-demo/${JAR_FILE}
+ADD @project.build.directory@/graal           /usr/share/jaxrs-spf4j-demo/graal
+ADD @project.build.directory@/lib           /usr/share/jaxrs-spf4j-demo/lib
+ADD @project.build.directory@/@project.build.finalName@.jar /usr/share/jaxrs-spf4j-demo/@project.build.finalName@.jar
+
+ENV JAR_FILE @project.build.finalName@.jar
+env GRAAL_VERSION @project.build.finalName@
 
 # Create a group and user to runn app as
 # will ned to re-enable this once, I choose a kubernetes solution: https://github.com/kubernetes/kubernetes/issues/2630

@@ -445,33 +445,29 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
-
+      </plugin>  
       <plugin>
-        <groupId>com.spotify</groupId>
-        <artifactId>dockerfile-maven-plugin</artifactId>
-        <version>1.4.13</version>
-        <executions>
-          <execution>
-            <id>default</id>
-            <goals>
-              <goal>build</goal>
-              <goal>push</goal>
-            </goals>
-          </execution>
-        </executions>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <version>0.43.4</version>
         <configuration>
-          <dockerfile>src/main/docker/Dockerfile</dockerfile>
-          <repository>zolyfarkas/${project.artifactId}</repository>
-          <tag>${project.version}</tag>
-          <buildArgs>
-            <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
-            <GRAAL_VERSION>${graal.version}</GRAAL_VERSION>
-          </buildArgs>
-          <googleContainerRegistryEnabled>false</googleContainerRegistryEnabled>
-          <useMavenSettingsForAuth>true</useMavenSettingsForAuth>
+          <verbose>true</verbose> 
+          <images>
+            <image>
+              <name>zolyfarkas/jaxrs-spf4j-demo</name>
+              <build>
+                <contextDir>${project.basedir}</contextDir>
+                <dockerFile>src/main/docker/Dockerfile</dockerFile>
+                <filter>@</filter>    
+                <tags>
+                  <tag>${project.version}</tag>
+                </tags>  
+              </build>
+            </image>
+          </images>
         </configuration>
-      </plugin>
+      </plugin>        
+                  
 <!-- to experiment wiht cloud run button
       <plugin>
         <groupId>com.google.cloud.tools</groupId>
