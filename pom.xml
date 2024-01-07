@@ -347,7 +347,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>1.2.1</version>
+        <version>3.1.1</version>
         <executions>
           <execution>
             <goals>
@@ -450,6 +450,22 @@
         <groupId>io.fabric8</groupId>
         <artifactId>docker-maven-plugin</artifactId>
         <version>0.43.4</version>
+        <executions>
+          <execution>
+            <id>build-docker-image</id>
+            <phase>package</phase>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>push-docker-image</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>push</goal>
+            </goals>
+          </execution>
+        </executions>       
         <configuration>
           <verbose>true</verbose> 
           <images>
